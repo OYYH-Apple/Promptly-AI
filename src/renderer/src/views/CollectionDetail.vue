@@ -50,49 +50,19 @@
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="(prompt, idx) in collectionPrompts" :key="prompt.id"
-          class="group relative bg-surface-container-lowest p-5 pb-1 rounded-2xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-          @click="router.push(`/prompt/${prompt.id}`)">
-          <div v-if="prompt.reference_images?.length" class="absolute -top-1.5 right-3 z-20">
-            <span class="material-symbols-outlined text-slate-400 text-3xl  rotate-[40deg] scale-x-[-1]"
-              style="font-variation-settings: 'wght' 300;--tw-translate-x: -28px;--tw-translate-y: -10px;">attachment</span>
-          </div>
-
-          <div v-if="prompt.reference_images?.length"
-            class="absolute -top-1 right-3 z-10 rounded-lg overflow-hidden shadow-inner border border-slate-100 bg-slate-50 group-hover:rotate-0 transition-transform"
-            @click.stop="openImageViewer(prompt.reference_images, 0)" :style="{
-              height: '95px',
-              width: 'fit-content',
-              padding: '5px',
-              transform: `rotate(${thumbnailRotations[idx % thumbnailRotations.length]}deg)`,
-              cursor: 'zoom-in'
-            }">
-            <img :src="prompt.reference_images[0]" alt="Thumbnail" class="w-full h-full object-contain" />
-          </div>
-
-          <div class="mb-4">
-            <div class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-md inline-block"
-              :class="getCategoryStyle(prompt.category).badge">
-              {{ prompt.category }}
-            </div>
-          </div>
-
-          <h3 class="text-lg font-semibold text-on-surface mb-2 leading-snug">{{ prompt.title }}</h3>
-          <p class="text-sm text-on-surface-variant line-clamp-6 mb-6">{{ prompt.content_zh || prompt.content_en }}</p>
-
-          <div class="flex items-center justify-between pt-4 border-t border-slate-50">
-            <span class="text-[11px] font-medium text-outline">{{ formatDate(prompt.updated_at) }}</span>
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button @click.stop="copyPrompt(prompt)" class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
-                <span class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
-              </button>
-              <button @click.stop="removeFromCollection(prompt)"
-                class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
-                <span class="material-symbols-outlined text-slate-400 hover:text-red-500 text-lg">remove_circle</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <PromptCard v-for="(prompt, idx) in collectionPrompts" :key="prompt.id" :prompt="prompt" :rotation-index="idx"
+          @click="router.push(`/prompt/${prompt.id}`)" @copy="copyPrompt" @open-image="openImageViewer">
+          <template #actions="slotProps">
+            <button @click.stop="copyPrompt(slotProps.prompt)"
+              class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
+              <span class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
+            </button>
+            <button @click.stop="removeFromCollection(slotProps.prompt)"
+              class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
+              <span class="material-symbols-outlined text-slate-400 hover:text-red-500 text-lg">remove_circle</span>
+            </button>
+          </template>
+        </PromptCard>
 
         <div @click="showAddPromptModal = true"
           class="flex flex-col items-center justify-center p-8 rounded-2xl border-2 border-dashed border-slate-200 hover:border-primary/40 hover:bg-white transition-all cursor-pointer group min-h-[200px]">
@@ -163,6 +133,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePromptStore } from '@/stores/prompts'
 import ImageViewer from '@/components/ImageViewer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import PromptCard from '@/components/PromptCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -180,8 +151,6 @@ const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)
 
-const thumbnailRotations = [3, -2, 4, -3, 2, -4]
-
 const collectionPrompts = computed(() => {
   return store.prompts.filter(p => p.collection_id === collectionId.value)
 })
@@ -198,55 +167,6 @@ const availablePrompts = computed(() => {
   }
   return prompts
 })
-
-const categoryStyles: Record<string, { icon: string; badge: string; bg: string; textColor: string }> = {
-  'Image Generation': {
-    icon: 'image',
-    badge: 'bg-primary-container text-on-primary-container',
-    bg: 'bg-primary-container',
-    textColor: 'text-on-primary-container'
-  },
-  'Video Prompt': {
-    icon: 'movie',
-    badge: 'bg-tertiary-container text-on-tertiary-container',
-    bg: 'bg-tertiary-container',
-    textColor: 'text-on-tertiary-container'
-  },
-  'Coding': {
-    icon: 'code',
-    badge: 'bg-secondary-container text-on-secondary-container',
-    bg: 'bg-secondary-container',
-    textColor: 'text-on-secondary-container'
-  },
-  'General': {
-    icon: 'text_snippet',
-    badge: 'bg-surface-container-high text-on-surface-variant',
-    bg: 'bg-surface-container-high',
-    textColor: 'text-on-surface-variant'
-  },
-  'Concept Art': {
-    icon: 'brush',
-    badge: 'bg-amber-100 text-amber-700',
-    bg: 'bg-amber-100',
-    textColor: 'text-amber-700'
-  },
-  'Layout Design': {
-    icon: 'web',
-    badge: 'bg-emerald-100 text-emerald-700',
-    bg: 'bg-emerald-100',
-    textColor: 'text-emerald-700'
-  }
-}
-
-function getCategoryStyle(category: string) {
-  return categoryStyles[category] || categoryStyles['General']
-}
-
-function formatDate(date?: string) {
-  if (!date) return ''
-  const d = new Date(date)
-  return `ED-${d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).replace(' ', '-')}`
-}
 
 async function copyPrompt(prompt: any) {
   const content = prompt.content_zh || prompt.content_en

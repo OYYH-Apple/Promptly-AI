@@ -165,8 +165,8 @@
             v-for="prompt in availablePrompts"
             :key="prompt.id"
             class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl hover:bg-surface-container transition-colors cursor-pointer"
-            :class="{ 'ring-2 ring-primary bg-primary/5': selectedPromptIds.includes(prompt.id) }"
-            @click="togglePromptSelection(prompt.id)"
+            :class="{ 'ring-2 ring-primary bg-primary/5': selectedPromptIds.includes(prompt.id as number) }"
+            @click="togglePromptSelection(prompt.id as number)"
           >
             <div class="flex-1 min-w-0">
               <p class="font-medium text-slate-900 truncate">{{ prompt.title }}</p>
