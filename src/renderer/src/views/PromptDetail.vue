@@ -16,7 +16,7 @@
           </p>
         </div>
         <div class="flex gap-2">
-          <button @click="handleToggleFavorite" class="p-2.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
+          <button @click="handleToggleFavorite" class="p-2.5 text-primary hover:bg-primary/5 rounded-xl transition-all">
             <span
               class="material-symbols-outlined"
               :style="{

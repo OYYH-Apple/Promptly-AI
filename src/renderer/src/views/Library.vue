@@ -81,7 +81,7 @@
               <div class="flex items-center gap-1">
                 <button
                   @click.stop="store.toggleFavorite(prompt.id!)"
-                  class="text-slate-300 hover:text-primary transition-colors p-1"
+                  class="text-x1 text-primary transition-colors p-1"
                 >
                   <span
                     class="material-symbols-outlined text-xl"
@@ -157,7 +157,7 @@
                   <div class="flex items-center justify-center gap-1 transition-opacity">
                     <button
                       @click.stop="store.toggleFavorite(prompt.id!)"
-                      class="p-2 rounded-full hover:bg-surface-container transition-colors"
+                      class="p-2 rounded-full hover:bg-surface-container transition-colors text-primary"
                     >
                       <span
                         class="material-symbols-outlined text-on-surface-variant"
