@@ -72,7 +72,7 @@
               </span>
             </div>
             <h3 class="font-bold text-lg text-slate-800 leading-tight">{{ prompt.title }}</h3>
-            <p class="text-sm text-slate-500 line-clamp-2">{{ prompt.content_zh || prompt.content_en }}</p>
+            <p class="text-sm text-slate-500 line-clamp-6">{{ prompt.content_zh || prompt.content_en }}</p>
             <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
               <span class="text-[11px] font-medium text-slate-400">{{ formatDate(prompt.updated_at) }}</span>
               <div class="flex items-center gap-1">

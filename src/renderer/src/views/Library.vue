@@ -4,17 +4,14 @@
       <div class="flex items-end justify-between mb-12">
         <div>
           <h2 class="text-3xl font-bold tracking-tight text-on-surface mb-2">Prompt Library</h2>
-          <p class="text-on-surface-variant max-w-md">Organize and reuse your favorite AI generation commands with precision tags.</p>
+          <p class="text-on-surface-variant max-w-md">Organize and reuse your favorite AI generation commands with
+            precision tags.</p>
         </div>
         <div class="flex gap-2 p-1 bg-surface-container-low rounded-xl">
-          <button
-            @click="store.viewMode = 'grid'"
-            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', store.viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
-          >Grid</button>
-          <button
-            @click="store.viewMode = 'list'"
-            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', store.viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
-          >List</button>
+          <button @click="store.viewMode = 'grid'"
+            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', store.viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']">Grid</button>
+          <button @click="store.viewMode = 'list'"
+            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', store.viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']">List</button>
         </div>
       </div>
 
@@ -31,67 +28,56 @@
       </div>
 
       <template v-else>
-        <div v-if="store.viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          <div
-            v-for="(prompt, idx) in store.filteredPrompts"
-            :key="prompt.id"
+        <div v-if="store.viewMode === 'grid'"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+
+          <div v-for="(prompt, idx) in store.filteredPrompts" :key="prompt.id"
             class="group bg-surface-container-lowest border border-slate-100 p-6 rounded-2xl flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300 relative cursor-pointer"
-            @click="router.push(`/prompt/${prompt.id}`)"
-          >
-            <div
-              v-if="prompt.reference_images?.length"
-              class="absolute -top-2 -right-2 shadow-lg border-2 border-white rounded-sm overflow-visible z-10 transition-transform group-hover:rotate-0 bg-white"
-              :style="{
+            @click="router.push(`/prompt/${prompt.id}`)">
+            <div v-if="prompt.reference_images?.length" class="absolute -top-2 -right-2 z-10"
+              @click.stop="openImageViewer(prompt.reference_images, 0)" :style="{
+                transform: `rotate(${thumbnailRotations[idx % thumbnailRotations.length]}deg)`
+              }">
+              <div class="thumb-peel shadow-lg border-2 border-white rounded-sm overflow-visible bg-white" :style="{
                 height: '112px',
-                width: '90px',
+                width: 'fit-content',
                 padding: '3px',
-                transform: `rotate(${thumbnailRotations[idx % thumbnailRotations.length]}deg)`,
                 cursor: 'zoom-in'
-              }"
-              @click.stop="openImageViewer(prompt.reference_images, 0)"
-            >
-              <img
-                :src="prompt.reference_images[0]"
-                alt="Thumbnail"
-                class="w-full h-full object-contain"
-              />
-              <span
-                class="material-symbols-outlined absolute -top-3 text-slate-400 rotate-[40deg] scale-x-[-1] z-20 font-light"
-                style="font-variation-settings: 'wght' 300; font-size: 28px; --tw-translate-x: 22px;"
-              >attachment</span>
+              }">
+                <img :src="prompt.reference_images[0]" alt="Thumbnail" class="w-full h-full object-contain" />
+                <span
+                  class="material-symbols-outlined absolute -top-3 text-slate-400 rotate-[40deg] scale-x-[-1] z-20 font-light"
+                  style="font-variation-settings: 'wght' 300; font-size: 28px; --tw-translate-x: 22px;">
+                  attachment
+                </span>
+              </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <span
-                class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full"
-                :class="getCategoryStyle(prompt.category).badge"
-              >
+              <span class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full"
+                :class="getCategoryStyle(prompt.category).badge">
                 {{ prompt.category }}
               </span>
-              <span
-                class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-xl"
-              >
+              <span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-xl">
                 {{ getCategoryStyle(prompt.category).icon }}
               </span>
             </div>
+
             <h3 class="font-bold text-lg text-slate-800 leading-tight">{{ prompt.title }}</h3>
-            <p class="text-sm text-slate-500 line-clamp-2">{{ prompt.content_zh || prompt.content_en }}</p>
+            <p class="text-sm text-slate-500 line-clamp-6">{{ prompt.content_zh || prompt.content_en }}</p>
+
             <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
               <span class="text-[11px] font-medium text-slate-400">{{ formatDate(prompt.updated_at) }}</span>
               <div class="flex items-center gap-1">
-                <button
-                  @click.stop="store.toggleFavorite(prompt.id!)"
-                  class="text-x1 text-primary transition-colors p-1"
-                >
-                  <span
-                    class="material-symbols-outlined text-xl"
-                    :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }"
-                  >grade</span>
+                <button @click.stop="store.toggleFavorite(prompt.id!)"
+                  class="text-x1 text-primary transition-colors p-1">
+                  <span class="material-symbols-outlined text-xl"
+                    :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">
+                    grade
+                  </span>
                 </button>
-                <button
-                  @click.stop="copyPrompt(prompt)"
-                  class="text-slate-300 hover:text-slate-600 transition-colors p-1"
-                >
+                <button @click.stop="copyPrompt(prompt)"
+                  class="text-slate-300 hover:text-slate-600 transition-colors p-1">
                   <span class="material-symbols-outlined text-lg">content_copy</span>
                 </button>
               </div>
@@ -100,9 +86,9 @@
 
           <div
             class="group border-2 border-dashed border-slate-200 p-6 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer min-h-[180px]"
-            @click="router.push('/create')"
-          >
-            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+            @click="router.push('/create')">
+            <div
+              class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-on-primary transition-colors">
               <span class="material-symbols-outlined">add</span>
             </div>
             <span class="text-sm font-semibold text-slate-400 group-hover:text-primary">Create New Template</span>
@@ -113,40 +99,40 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-surface-container-low/50">
-                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Name</th>
-                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Category</th>
-                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Date Edited</th>
-                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Option</th>
+                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Name
+                </th>
+                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">
+                  Category
+                </th>
+                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Date
+                  Edited</th>
+                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Option
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              <tr
-                v-for="prompt in store.filteredPrompts"
-                :key="prompt.id"
+              <tr v-for="prompt in store.filteredPrompts" :key="prompt.id"
                 class="hover:bg-surface-container-low/30 transition-colors group cursor-pointer"
-                @click="router.push(`/prompt/${prompt.id}`)"
-              >
+                @click="router.push(`/prompt/${prompt.id}`)">
                 <td class="px-6 py-5">
                   <div class="flex items-center gap-3">
-                    <div
-                      class="w-10 h-10 rounded-lg flex items-center justify-center"
-                      :class="getCategoryStyle(prompt.category).bg"
-                      style="min-width:40px;"
-                    >
-                      <span class="material-symbols-outlined text-lg" :class="getCategoryStyle(prompt.category).textColor">{{ getCategoryStyle(prompt.category).icon }}</span>
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                      :class="getCategoryStyle(prompt.category).bg" style="min-width:40px;">
+                      <span class="material-symbols-outlined text-lg"
+                        :class="getCategoryStyle(prompt.category).textColor">{{ getCategoryStyle(prompt.category).icon
+                        }}</span>
                     </div>
                     <div>
                       <p class="font-medium text-on-surface">{{ prompt.title }}</p>
-                      <p class="text-xs text-on-surface-variant line-clamp-1">{{ prompt.content_zh?.slice(0, 50) || prompt.content_en?.slice(0, 50) }}...</p>
+                      <p class="text-xs text-on-surface-variant line-clamp-1">{{ prompt.content_zh?.slice(0, 50) ||
+                        prompt.content_en?.slice(0, 50) }}...</p>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-5">
                   <span
                     class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap text-center"
-                    :class="getCategoryStyle(prompt.category).badgeList"
-                    style="padding:10px;"
-                  >
+                    :class="getCategoryStyle(prompt.category).badgeList" style="padding:10px;">
                     {{ prompt.category }}
                   </span>
                 </td>
@@ -155,19 +141,13 @@
                 </td>
                 <td class="px-6 py-5 text-right">
                   <div class="flex items-center justify-center gap-1 transition-opacity">
-                    <button
-                      @click.stop="store.toggleFavorite(prompt.id!)"
-                      class="p-2 rounded-full hover:bg-surface-container transition-colors text-primary"
-                    >
-                      <span
-                        class="material-symbols-outlined text-on-surface-variant"
-                        :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }"
-                      >grade</span>
+                    <button @click.stop="store.toggleFavorite(prompt.id!)"
+                      class="p-2 rounded-full hover:bg-surface-container transition-colors text-primary">
+                      <span class="material-symbols-outlined text-on-surface-variant"
+                        :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">grade</span>
                     </button>
-                    <button
-                      @click.stop="copyPrompt(prompt)"
-                      class="p-2 rounded-full hover:bg-surface-container transition-colors"
-                    >
+                    <button @click.stop="copyPrompt(prompt)"
+                      class="p-2 rounded-full hover:bg-surface-container transition-colors">
                       <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
                     </button>
                     <button class="p-2 rounded-full hover:bg-surface-container transition-colors">
@@ -185,12 +165,8 @@
         </div>
       </template>
     </div>
-    <ImageViewer
-      v-model:visible="viewerVisible"
-      :images="viewerImages"
-      :initial-index="viewerIndex"
-      @close="viewerVisible = false"
-    />
+    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
+      @close="viewerVisible = false" />
   </section>
 </template>
 
@@ -208,6 +184,7 @@ const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)
 
 const thumbnailRotations = [3, -2, 4, -3, 2, -4]
+const hoveredThumb = ref<string | number | null>(null)
 
 const categoryStyles: Record<string, { icon: string; badge: string; bg: string; textColor: string; badgeList: string }> = {
   'Image Generation': {
@@ -294,3 +271,24 @@ onMounted(() => {
   store.fetchPrompts()
 })
 </script>
+
+<style scoped>
+.thumb-peel {
+  position: relative;
+  transform-origin: 50% 0%;
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    filter 0.35s ease;
+  transform: perspective(800px) rotateX(0deg) rotateY(0deg);
+  will-change: transform;
+}
+
+.thumb-peel:hover {
+  transform: perspective(800px) rotateX(14deg) rotateY(-16deg);
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.18);
+  filter: brightness(1.02);
+}
+
+
+</style>

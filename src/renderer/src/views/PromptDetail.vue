@@ -106,9 +106,9 @@
                 v-for="(img, idx) in visibleImages"
                 :key="idx"
                 class="group relative aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-pointer"
-                @click="openViewer(currentImagePage * 3 + idx)"
+                @click="openViewer(Number(currentImagePage) * 3 + Number(idx))"
               >
-                <img :src="img" :alt="`Reference ${currentImagePage * 3 + idx + 1}`" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img :src="img" :alt="`Reference ${Number(currentImagePage) * 3 + Number(idx) + 1}`" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end pointer-events-none">
                   <span class="text-white text-[10px] font-bold uppercase tracking-wider">click to view</span>
                 </div>
