@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-container": "#d8e2ff",
+              "secondary-dim": "#525357",
+              "on-primary-fixed": "#003d85",
+              "tertiary-fixed": "#d8d3f4",
+              "on-secondary-fixed-variant": "#5b5b60",
+              "secondary-fixed": "#e3e2e7",
+              "primary-dim": "#004faa",
+              "surface-bright": "#f9f9fe",
+              "secondary-fixed-dim": "#d5d4d9",
+              "background": "#f9f9fe",
+              "surface-tint": "#005bc1",
+              "outline-variant": "#acb2bf",
+              "on-tertiary": "#fcf7ff",
+              "on-surface": "#2c333d",
+              "on-background": "#2c333d",
+              "on-secondary-fixed": "#3e3f43",
+              "error-dim": "#4e0309",
+              "outline": "#747b86",
+              "surface-container-high": "#e4e8f3",
+              "error-container": "#fe8983",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-container": "#d8d3f4",
+              "primary-fixed": "#d8e2ff",
+              "on-tertiary-container": "#4a4863",
+              "on-primary-container": "#004ea8",
+              "surface-variant": "#dce3f0",
+              "on-error": "#fff7f6",
+              "on-secondary-container": "#515156",
+              "on-primary": "#f7f7ff",
+              "on-error-container": "#752121",
+              "secondary": "#5e5f63",
+              "surface-container": "#ebeef7",
+              "error": "#9f403d",
+              "primary": "#005bc1",
+              "inverse-on-surface": "#9c9da1",
+              "on-surface-variant": "#595f6a",
+              "tertiary-dim": "#53506b",
+              "inverse-surface": "#0c0e12",
+              "surface-container-highest": "#dce3f0",
+              "surface-container-low": "#f2f3fa",
+              "tertiary-fixed-dim": "#cac6e6",
+              "on-secondary": "#f9f8fe",
+              "surface-dim": "#d3dae9",
+              "surface": "#f9f9fe",
+              "primary-fixed-dim": "#c2d4ff",
+              "on-tertiary-fixed-variant": "#54516d",
+              "tertiary": "#5f5c78",
+              "on-tertiary-fixed": "#37354f",
+              "secondary-container": "#e3e2e7",
+              "on-primary-fixed-variant": "#0058bb",
+              "inverse-primary": "#4b8eff"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f9f9fe;
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface antialiased overflow-hidden">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-6 h-screen w-72 border-r border-slate-200/15 bg-[#f9f9fe] font-['Inter'] antialiased text-sm">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-lg" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-slate-900">Promptly AI</h1>
+<p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Personal Workspace</p>
+</div>
+</div>
+<button class="mb-8 w-full flex items-center justify-center gap-2 py-3 bg-primary text-on-primary font-semibold rounded-xl active:scale-[0.98] transition-transform shadow-md shadow-primary/10">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+            New Prompt
+        </button>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2.5 bg-[#007AFF]/8 text-[#007AFF] font-semibold rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="folder_special">folder_special</span>
+                Prompt Library
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-200/50 hover:text-slate-900 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="grade">grade</span>
+                Favorites
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-200/50 hover:text-slate-900 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="folder_copy">folder_copy</span>
+                Collections
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:bg-slate-200/50 hover:text-slate-900 rounded-xl transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                Recent
+            </a>
+</nav>
+<div class="mt-auto space-y-4 pt-6 border-t border-slate-200/50">
+<div class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-900 cursor-pointer">
+<span class="material-symbols-outlined text-sm" data-icon="sync">sync</span>
+<span class="text-xs">Cloud Syncing</span>
+</div>
+<div class="flex flex-col px-4 gap-2">
+<div class="flex items-center gap-3 text-slate-500">
+<span class="material-symbols-outlined text-sm" data-icon="database">database</span>
+<span class="text-xs">Storage 1.2GB</span>
+</div>
+<div class="w-full bg-slate-200 h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[45%]"></div>
+</div>
+</div>
+<div class="flex items-center gap-3 px-2 pt-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
+<img alt="User profile" class="w-8 h-8 rounded-full" data-alt="User profile avatar circle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA74_X27wyJ-uk_0MMR49BhsUhP2LGnDhhWvLykkhUK6_QQFGpK6-M09s9wJIEMgRoiUmCcQ6AiC6MH_AuKQk-xeoIppMX55VS0Z33o0M-6JfZsL3kc0b99umZsaR6Zd6AE7Z_KXllMupFPq-JoZNxGD-YX4FmUZzQ4nRWrc8WqmgeOxWSs7kBbLdWrtAc-S2M6YQeRh9-nfCvo41h7iwOzlx5WxZYgC1EE-oYwtOCiBpnBE8WNVZIfTKDAu4FSRMwyG_ym4i7gouw"/>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold text-slate-900 leading-none">Alex Rivera</p>
+<p class="text-[10px] text-slate-400">Pro Member</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-sm" data-icon="settings">settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-72 flex flex-col h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="w-full h-16 sticky top-0 z-40 bg-white/70 backdrop-blur-xl flex items-center justify-between px-8 border-b border-slate-200/15 shadow-sm">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-primary transition-colors" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-1 ring-[#007AFF]/20 transition-all placeholder:text-slate-400" placeholder="Search prompts..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-slate-900 transition-colors">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+<button class="text-slate-400 hover:text-slate-900 transition-colors">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+</button>
+<button class="text-slate-400 hover:text-slate-900 transition-colors">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+<div class="h-8 w-px bg-slate-200"></div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-slate-100">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="Small profile user photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgP8JF9revQ4UQzkeYVth14Au-5bK1wN-yBWZhF6_YPXLIAV3Z9A5-UBlCkn8CMxZfPdEWTDvYzd1xPuuk2ztARzZPVYSpqG6DiwIB5VB0MHp-NIM3jgPGqMpSWt2MvVNWfLzJGGwpSw3R-Z34lcf15XYkM2JrwjcIPv827-G_ffIX0UtLW4gczIZk38dwsgujc9SgmL9fgxpoPP8fh9Vfmifi1ubNmigFOtUjVCQLCczThRkYvVS7MJAmZ01ouTKBfxLu0dzH_SU"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<section class="flex-1 overflow-y-auto p-10 bg-surface">
+<div class="max-w-7xl mx-auto">
+<div class="flex items-end justify-between mb-12">
+<div>
+<h2 class="text-3xl font-bold tracking-tight text-on-surface mb-2">Prompt Library</h2>
+<p class="text-on-surface-variant max-w-md">Organize and reuse your favorite AI generation commands with precision tags.</p>
+</div>
+<div class="flex gap-2 p-1 bg-surface-container-low rounded-xl">
+<button class="px-4 py-1.5 bg-surface-container-lowest text-primary font-medium rounded-lg shadow-sm text-sm">Grid</button>
+<button class="px-4 py-1.5 text-on-surface-variant font-medium rounded-lg text-sm hover:bg-surface-container-high transition-colors">List</button>
+</div>
+</div>
+<!-- Bento-ish Grid of White Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+<!-- Card 1 -->
+<div class="group bg-surface-container-lowest border border-slate-100 p-6 rounded-2xl flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300 relative"><div class="absolute -top-2 -right-2 w-16 h-16 rotate-[3deg] shadow-lg border-2 border-white rounded-sm overflow-visible z-10 transition-transform group-hover:rotate-0">
+<img alt="Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCA2S24wSGf4azI9bi9lSyeDvVe1_HRwO0-KmkA6govfy_avuty3k1bw3u_O0ifttMWOvSIJnya3sZLGUjm3ZHaCnoj6UxMdTgtGTRFG7wisPJ9keFDvvB6-75dj6TQwG1pvfFk7HqBG5LS4oQSIR1pLUWrpr6mXXMgjGzfkQ4xL8QHlbtpneyS6DHhFW-nDXnbG5YPN7cqoY5yBUnzaXOEFcretYh3cEtDOtRgTQDPbAzDhOVWrS69diVVrzDHl90YD0K6Y3QyCsg"/>
+<span class="material-symbols-outlined absolute -top-3 left-1/2 -translate-x-1/2 text-slate-400 rotate-[45deg] scale-x-[-1] text-xl z-20 font-light" style="font-variation-settings: 'wght' 200;">attachment</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-3 py-1 bg-primary-container/30 text-primary-dim text-[10px] font-bold uppercase tracking-wider rounded-full">Image Generation</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-xl" data-icon="image">image</span>
+</div>
+<h3 class="font-bold text-lg text-slate-800 leading-tight">Hyper-realistic Cinematic Portrait</h3>
+<p class="text-sm text-slate-500 line-clamp-2">Detailed texture, 8k resolution, volumetric lighting, shallow depth of field, sharp focus on eyes...</p>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
+<span class="text-[11px] font-medium text-slate-400">2 days ago</span>
+<button class="text-slate-300 hover:text-slate-600">
+<span class="material-symbols-outlined text-lg" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-lowest border border-slate-100 p-6 rounded-2xl flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300 relative"><div class="absolute -top-2 -right-2 w-16 h-16 -rotate-[2deg] shadow-lg border-2 border-white rounded-sm overflow-visible z-10 transition-transform group-hover:rotate-0">
+<img alt="Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDi0cB7xdreFZgojnWG61tO6CN3T_Wlo6_PIutaFa217Gh5PCgl2WuVaccvEF9JJJz3AszS-e4QHVaal4mw_V2G24k3vf6lt7gNHZrpqWWj9_yYdTVnZ_G6WDuT6HHSWICYff7bmuKMdjARkT-3w0BDMuGVdkvnK7pGhaoo73euKjBezX7-hyDby8jxN4bVfnK2F4PbUUlnp1KvK1uGzYbE3m1lVJnC-VxFDshsoyNDrOsnOmPjHs-aRob3wtoAP4UIh0_sS7dunpI"/>
+<span class="material-symbols-outlined absolute -top-3 left-1/2 -translate-x-1/2 text-slate-400 rotate-[45deg] scale-x-[-1] text-xl z-20 font-light" style="font-variation-settings: 'wght' 200;">attachment</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-3 py-1 bg-tertiary-container/30 text-tertiary-dim text-[10px] font-bold uppercase tracking-wider rounded-full">Video Prompt</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-xl" data-icon="movie">movie</span>
+</div>
+<h3 class="font-bold text-lg text-slate-800 leading-tight">Dynamic Drone Sweep</h3>
+<p class="text-sm text-slate-500 line-clamp-2">Low angle drone shot flying through a futuristic cityscape at sunset, neon trails, motion blur.</p>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
+<span class="text-[11px] font-medium text-slate-400">5 days ago</span>
+<button class="text-slate-300 hover:text-slate-600">
+<span class="material-symbols-outlined text-lg" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-container-lowest border border-slate-100 p-6 rounded-2xl flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300 relative"><div class="absolute -top-2 -right-2 w-16 h-16 rotate-[4deg] shadow-lg border-2 border-white rounded-sm overflow-visible z-10 transition-transform group-hover:rotate-0">
+<img alt="Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeBtHFUiyNKAiyHLn2Tn7Pt9Qvgk6AYw69LlsbUl7UJVn-1RrIjRa5jLPE-hgkxZSh0DsarZ-rPK6LofL9WRpHPHeDupKas38LZPnuB6icGMHPUACgnWyTTGbM7T0hdW5uQbfDOjJxSBHt1mVdEPczp_lv2NS9pZptfblh4CacAkZDXgvyGizw8xVYSC2HnpWxpr25WcagXklWi16dNcdx7Q6ZVoLwirjB6lQ0zBuIaDuCfgyyi3FF6_ONC9V8mTy0WHBklFhv_s4"/>
+<span class="material-symbols-outlined absolute -top-3 left-1/2 -translate-x-1/2 text-slate-400 rotate-[45deg] scale-x-[-1] text-xl z-20 font-light" style="font-variation-settings: 'wght' 200;">attachment</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold uppercase tracking-wider rounded-full">Concept Art</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-xl" data-icon="brush">brush</span>
+</div>
+<h3 class="font-bold text-lg text-slate-800 leading-tight">Isometric Bio-Dome</h3>
+<p class="text-sm text-slate-500 line-clamp-2">Cross-section of a space station greenhouse, stylized 3d render, soft colors, minimal design.</p>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
+<span class="text-[11px] font-medium text-slate-400">1 week ago</span>
+<button class="text-slate-300 hover:text-slate-600">
+<span class="material-symbols-outlined text-lg" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface-container-lowest border border-slate-100 p-6 rounded-2xl flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300 relative"><div class="absolute -top-2 -right-2 w-16 h-16 -rotate-[3deg] shadow-lg border-2 border-white rounded-sm overflow-visible z-10 transition-transform group-hover:rotate-0">
+<img alt="Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAetfGaYWhxZLYyrFIRuTpjB1MzYbX33j739pl-MOU2-SuJEew_Gk1QjIlvc3AbKNxiHqKJt55uAOfxzynClmBtSScIbJsfY644ha66uYyT_emC3n1XATTxx6is2avGBRSZaHpRI6kwA9vSLiBUTbwRovo0jJL8S0GMr3IqU_8gDfZWOyWIdFjdZCyuOqTI0KvVRatS9Uenqd7fy2-wFb8R-gNAiA-VhihuZxJgmXLg5s6pfkWxtvXDJjVdOsNliEFCvdGRnShQ8A4"/>
+<span class="material-symbols-outlined absolute -top-3 left-1/2 -translate-x-1/2 text-slate-400 rotate-[45deg] scale-x-[-1] text-xl z-20 font-light" style="font-variation-settings: 'wght' 200;">attachment</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-3 py-1 bg-primary-container/30 text-primary-dim text-[10px] font-bold uppercase tracking-wider rounded-full">Image Generation</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-xl" data-icon="image">image</span>
+</div>
+<h3 class="font-bold text-lg text-slate-800 leading-tight">Oil Painting Landscape</h3>
+<p class="text-sm text-slate-500 line-clamp-2">Thick impasto brushstrokes, vibrant sunset over alpine mountains, Van Gogh style influences.</p>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
+<span class="text-[11px] font-medium text-slate-400">2 weeks ago</span>
+<button class="text-slate-300 hover:text-slate-600">
+<span class="material-symbols-outlined text-lg" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="group bg-surface-container-lowest border border-slate-100 p-6 rounded-2xl flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300 relative"><div class="absolute -top-2 -right-2 w-16 h-16 rotate-[2deg] shadow-lg border-2 border-white rounded-sm overflow-visible z-10 transition-transform group-hover:rotate-0">
+<img alt="Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCQThISW7j-MVy1uv0w8JdhRPM2Lr3HGTTboS7ILTU_QUo92p8pW_TawBfbKPzICo9dPS9TaoZ9YEMxriZh3YuTxcWfN8J1q7INcaMBH0p30bXkt2XIFthWtFKouoY28SGCfYDlR0Io2WGF7kVBjOWanRN5hFDaDuPadc_v0gjejP7HkfTvWurgI4376K4sMmLnaGl9BAzxseQ8Tf8wedrZn-oVST87fQc32Ar1Q5xDIbDX4mepBXB6AnfP3KuNO9ObYPhLctOx9w"/>
+<span class="material-symbols-outlined absolute -top-3 left-1/2 -translate-x-1/2 text-slate-400 rotate-[45deg] scale-x-[-1] text-xl z-20 font-light" style="font-variation-settings: 'wght' 200;">attachment</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-3 py-1 bg-tertiary-container/30 text-tertiary-dim text-[10px] font-bold uppercase tracking-wider rounded-full">Video Prompt</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-xl" data-icon="movie">movie</span>
+</div>
+<h3 class="font-bold text-lg text-slate-800 leading-tight">Slow Motion Rain</h3>
+<p class="text-sm text-slate-500 line-clamp-2">Macro shot of raindrops hitting a puddle at 120fps, rippling reflections of city lights at night.</p>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
+<span class="text-[11px] font-medium text-slate-400">Oct 12</span>
+<button class="text-slate-300 hover:text-slate-600">
+<span class="material-symbols-outlined text-lg" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="group bg-surface-container-lowest border border-slate-100 p-6 rounded-2xl flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300 relative"><div class="absolute -top-2 -right-2 w-16 h-16 -rotate-[4deg] shadow-lg border-2 border-white rounded-sm overflow-visible z-10 transition-transform group-hover:rotate-0">
+<img alt="Thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmscsS2SBUTwzPWILNrpbv0M6j0EdCOJawcJlYcFFINLKhmjuCN3ZPQQelhzkLvXyvQGPdvfU-coFI7I9o_kgQ2zmaYj73PzZs-WvK7hRfp3qRQRT-rp5oIdC8OG1lz5y93YuoneLRrRpSdmKz1JSbXDf7RppXbpdS_0TPswzzTdbrfxi9Fe9c93JX0BUW6xWg0yowRjZ0ocZjiCAZQOIyzIe99XkVc0sFANdEX_wfDSynZYYr1rK1FgpK8SBBguttMG9qoo4z9tk"/>
+<span class="material-symbols-outlined absolute -top-3 left-1/2 -translate-x-1/2 text-slate-400 rotate-[45deg] scale-x-[-1] text-xl z-20 font-light" style="font-variation-settings: 'wght' 200;">attachment</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold uppercase tracking-wider rounded-full">Layout Design</span>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-xl" data-icon="web">web</span>
+</div>
+<h3 class="font-bold text-lg text-slate-800 leading-tight">Minimal SaaS Dashboard</h3>
+<p class="text-sm text-slate-500 line-clamp-2">UI design, clean grid, San Francisco font, neutral colors, white space, light mode only.</p>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
+<span class="text-[11px] font-medium text-slate-400">Oct 08</span>
+<button class="text-slate-300 hover:text-slate-600">
+<span class="material-symbols-outlined text-lg" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Add New Card Placeholder -->
+<div class="group border-2 border-dashed border-slate-200 p-6 rounded-2xl flex flex-col items-center justify-center gap-2 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer min-h-[180px]">
+<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</div>
+<span class="text-sm font-semibold text-slate-400 group-hover:text-primary">Create New Template</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

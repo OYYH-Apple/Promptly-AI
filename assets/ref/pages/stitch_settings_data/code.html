@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prompt Library - PromptLab</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#d8e2ff",
+                        "surface-container": "#ebeef7",
+                        "secondary-container": "#e3e2e7",
+                        "surface-variant": "#dce3f0",
+                        "background": "#f9f9fe",
+                        "on-surface-variant": "#595f6a",
+                        "error-container": "#fe8983",
+                        "error-dim": "#4e0309",
+                        "on-error-container": "#752121",
+                        "inverse-primary": "#4b8eff",
+                        "surface-container-low": "#f2f3fa",
+                        "on-secondary": "#f9f8fe",
+                        "surface": "#f9f9fe",
+                        "on-secondary-fixed-variant": "#5b5b60",
+                        "primary-dim": "#004faa",
+                        "on-tertiary-fixed": "#37354f",
+                        "surface-container-high": "#e4e8f3",
+                        "surface-bright": "#f9f9fe",
+                        "secondary-fixed": "#e3e2e7",
+                        "on-primary": "#f7f7ff",
+                        "error": "#9f403d",
+                        "tertiary-dim": "#53506b",
+                        "surface-tint": "#005bc1",
+                        "secondary-dim": "#525357",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#004ea8",
+                        "primary-fixed-dim": "#c2d4ff",
+                        "on-tertiary-container": "#4a4863",
+                        "surface-container-highest": "#dce3f0",
+                        "on-secondary-container": "#515156",
+                        "tertiary": "#5f5c78",
+                        "on-surface": "#2c333d",
+                        "inverse-surface": "#0c0e12",
+                        "on-error": "#fff7f6",
+                        "primary-fixed": "#d8e2ff",
+                        "secondary-fixed-dim": "#d5d4d9",
+                        "secondary": "#5e5f63",
+                        "outline-variant": "#acb2bf",
+                        "outline": "#747b86",
+                        "tertiary-fixed": "#d8d3f4",
+                        "on-tertiary-fixed-variant": "#54516d",
+                        "on-primary-fixed": "#003d85",
+                        "surface-dim": "#d3dae9",
+                        "on-secondary-fixed": "#3e3f43",
+                        "inverse-on-surface": "#9c9da1",
+                        "primary": "#005bc1",
+                        "tertiary-fixed-dim": "#cac6e6",
+                        "tertiary-container": "#d8d3f4",
+                        "on-background": "#2c333d",
+                        "on-primary-fixed-variant": "#0058bb",
+                        "on-tertiary": "#fcf7ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9fe;
+            color: #2c333d;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body antialiased text-on-surface">
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar Shared Component -->
+<aside class="flex flex-col h-full p-4 h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl">
+<div class="flex items-center gap-3 mb-8 px-2">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<div>
+<h1 class="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50">PromptLab</h1>
+<p class="text-xs text-on-surface-variant/70">AI Engineer</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active Item: Prompt Library -->
+<a class="flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-800 rounded-lg text-blue-600 dark:text-blue-400 shadow-sm transition-all scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-sans antialiased tracking-tight">Prompt Library</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="star">star</span>
+<span class="font-sans antialiased tracking-tight">Favorites</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-sans antialiased tracking-tight">Collections</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-sans antialiased tracking-tight">Recent</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-slate-200/50">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-sans antialiased tracking-tight">Settings</span>
+</a>
+<div class="mt-4 flex items-center gap-3 px-2">
+<img alt="User Profile" class="w-8 h-8 rounded-full bg-slate-200" data-alt="User profile avatar circle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj3Y9_Al5XWZjAiJjbJ71xW7w-6tFsPQdiI9KTc1rW6Lk_7BLf52ojZKs2d6V1k1j2edZh08GrdHNgmeLupSP2K5ErC8ta-137xTQhzleBxpGamB3TcIDv0mpv_c-LUieoiB2lgSWyO08KGkq2e0xRBIGnbypHJcWY1lb-hSkhEG7RJ1vPf9gSMz_FceDjyAmnH-uDnzc4qmLMPnrK1ayQJxECzAXKToTn4tf-ZIwtkwil3_xP5fJ5TDY6q5tXKKshgsCmnUphHtc"/>
+<div class="text-sm">
+<p class="font-medium text-slate-900 dark:text-slate-100">Alex Rivers</p>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col min-w-0">
+<!-- TopNavBar Shared Component -->
+<header class="h-16 w-full sticky top-0 z-40 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border-b border-slate-100 dark:border-slate-900 flex justify-between items-center px-6 w-full ml-auto">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative max-w-md w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-1.5 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary/20 placeholder:text-slate-400" placeholder="Search prompts..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 transition-opacity duration-150">
+<span class="material-symbols-outlined text-slate-500" data-icon="grid_view">grid_view</span>
+</button>
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full p-2 transition-opacity duration-150 bg-slate-100 dark:bg-slate-800">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400 font-medium" data-icon="view_list">view_list</span>
+</button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add_circle">add_circle</span>
+                        New Prompt
+                    </button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto p-8 space-y-8">
+<!-- Page Header & View Toggle -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-3xl font-bold tracking-tight text-on-surface mb-2">Prompt Library</h2>
+<p class="text-on-surface-variant body-lg">Organize and manage your engineering prompts across modalities.</p>
+</div>
+<div class="flex bg-surface-container-high p-1 rounded-xl">
+<button class="px-4 py-1.5 text-sm font-medium rounded-lg text-on-surface-variant hover:text-on-surface transition-colors">Grid</button>
+<button class="px-4 py-1.5 text-sm font-medium rounded-lg bg-surface-container-lowest shadow-sm text-primary">List</button>
+</div>
+</div>
+<!-- Table Content Container -->
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Name</th>
+<th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Category</th>
+<th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Date Edited</th>
+<th class="px-6 py-4 text-right"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">image</span>
+</div>
+<div>
+<p class="font-medium text-on-surface">Cinematic Landscape Master</p>
+<p class="text-xs text-on-surface-variant">Midjourney v6 • Photorealistic</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">Image Generation</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">
+                                    Oct 24, 2023
+                                </td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 rounded-full hover:bg-surface-container opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">movie</span>
+</div>
+<div>
+<p class="font-medium text-on-surface">Dynamic Camera Movement</p>
+<p class="text-xs text-on-surface-variant">Runway Gen-2 • Motion Control</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700">Video Synthesis</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">
+                                    Oct 22, 2023
+                                </td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 rounded-full hover:bg-surface-container opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">code</span>
+</div>
+<div>
+<p class="font-medium text-on-surface">React Component Refactor</p>
+<p class="text-xs text-on-surface-variant">GPT-4 • Code Architecture</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">Engineering</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">
+                                    Oct 19, 2023
+                                </td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 rounded-full hover:bg-surface-container opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">palette</span>
+</div>
+<div>
+<p class="font-medium text-on-surface">Abstract Color Flow</p>
+<p class="text-xs text-on-surface-variant">DALL-E 3 • Minimalist</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">Image Generation</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">
+                                    Oct 15, 2023
+                                </td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 rounded-full hover:bg-surface-container opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group border-b-0">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">animation</span>
+</div>
+<div>
+<p class="font-medium text-on-surface">3D Model Texture Detail</p>
+<p class="text-xs text-on-surface-variant">Pika Labs • Texture Mapping</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700">Video Synthesis</span>
+</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">
+                                    Oct 12, 2023
+                                </td>
+<td class="px-6 py-5 text-right">
+<button class="p-2 rounded-full hover:bg-surface-container opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination/Status (Subtle) -->
+<div class="flex items-center justify-between text-on-surface-variant text-sm px-2">
+<p>Showing 5 of 128 prompts</p>
+<div class="flex items-center gap-4">
+<button class="p-1 hover:text-on-surface">Previous</button>
+<div class="flex items-center gap-2">
+<span class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center text-xs font-bold shadow-sm">1</span>
+<span class="w-8 h-8 rounded-lg hover:bg-surface-container flex items-center justify-center text-xs transition-colors">2</span>
+<span class="w-8 h-8 rounded-lg hover:bg-surface-container flex items-center justify-center text-xs transition-colors">3</span>
+</div>
+<button class="p-1 hover:text-on-surface">Next</button>
+</div>
+</div>
+<!-- Featured Empty Space / Inspiration Section -->
+<section class="mt-12">
+<div class="bg-gradient-to-br from-primary/5 to-transparent rounded-3xl p-8 border border-primary/10 flex items-center justify-between">
+<div class="max-w-md">
+<h3 class="title-md font-bold mb-2">Prompt Optimization Tip</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                                Use the "Step-by-Step" technique for complex engineering prompts to increase logic consistency by up to 40% in GPT-4 models.
+                            </p>
+</div>
+<div class="hidden md:block">
+<img alt="Tip icon" class="opacity-80" data-alt="Lightbulb icon with abstract geometric background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl5joZG8D19y04jB9h9DtW8Swa6ez3boIUs2ifIXEjjpBoP24Ymh_8Rk0u6z_h4rmAmRPLBLUWoojS38lVwN2GQpMZEo9EFZ0zKMeSmSncC1eDXMQ_tmH8T66DH2XRVg7vFQD4dmn5DnXHboC7BWOXjgmwi-5rwS6fPYJs5j5bhYLSzGzGsc9qcVYm6cpHDgCVuHa3iVKvfynENOJqNNFxgzqtJ6zumVun1gK1i49N_FNXS0ctZiVLfLIRtCp0aXWrav1H_h2eoLc"/>
+</div>
+</div>
+</section>
+</main>
+</div>
+</div>
+<!-- Mobile Navigation Suppressed as per Task Logic for Desktop focus -->
+</body></html>

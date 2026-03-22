@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create New Prompt | PromptArchitect</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-dim": "#53506b",
+              "surface": "#f9f9fe",
+              "on-tertiary-fixed-variant": "#54516d",
+              "surface-container-high": "#e4e8f3",
+              "surface-tint": "#005bc1",
+              "outline": "#747b86",
+              "secondary-fixed-dim": "#d5d4d9",
+              "tertiary-fixed": "#d8d3f4",
+              "surface-container-highest": "#dce3f0",
+              "primary": "#005bc1",
+              "inverse-on-surface": "#9c9da1",
+              "surface-variant": "#dce3f0",
+              "on-tertiary-container": "#4a4863",
+              "inverse-primary": "#4b8eff",
+              "tertiary-container": "#d8d3f4",
+              "on-secondary-fixed": "#3e3f43",
+              "on-error": "#fff7f6",
+              "on-primary": "#f7f7ff",
+              "inverse-surface": "#0c0e12",
+              "on-primary-container": "#004ea8",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f2f3fa",
+              "on-background": "#2c333d",
+              "tertiary-fixed-dim": "#cac6e6",
+              "secondary": "#5e5f63",
+              "on-secondary-fixed-variant": "#5b5b60",
+              "on-surface": "#2c333d",
+              "on-primary-fixed": "#003d85",
+              "surface-bright": "#f9f9fe",
+              "secondary-container": "#e3e2e7",
+              "on-tertiary-fixed": "#37354f",
+              "secondary-dim": "#525357",
+              "primary-container": "#d8e2ff",
+              "on-tertiary": "#fcf7ff",
+              "on-surface-variant": "#595f6a",
+              "on-primary-fixed-variant": "#0058bb",
+              "error-container": "#fe8983",
+              "outline-variant": "#acb2bf",
+              "surface-container": "#ebeef7",
+              "error": "#9f403d",
+              "background": "#f9f9fe",
+              "on-secondary-container": "#515156",
+              "on-secondary": "#f9f8fe",
+              "surface-dim": "#d3dae9",
+              "tertiary": "#5f5c78",
+              "on-error-container": "#752121",
+              "error-dim": "#4e0309",
+              "secondary-fixed": "#e3e2e7",
+              "primary-fixed": "#d8e2ff",
+              "primary-dim": "#004faa",
+              "primary-fixed-dim": "#c2d4ff"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9fe; color: #2c333d; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-effect { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    </style>
+</head>
+<body class="bg-surface antialiased overflow-x-hidden">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full flex flex-col justify-between py-6 px-4 h-screen w-64 border-r border-slate-200/20 bg-slate-50/80 backdrop-blur-xl z-50">
+<div class="space-y-8">
+<div class="px-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg">architecture</span>
+</div>
+<div class="flex flex-col">
+<span class="text-lg font-semibold tracking-tight text-slate-900">PromptArchitect</span>
+<span class="text-xs text-slate-500">AI Workspace</span>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-200/30 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-['Inter']">Prompt Library</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-200/30 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="star">star</span>
+<span class="font-['Inter']">Favorites</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-200/30 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="collections_bookmark">collections_bookmark</span>
+<span class="font-['Inter']">Collections</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-200/30 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-['Inter']">Recent</span>
+</a>
+</nav>
+</div>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-200/30 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-['Inter']">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-slate-900 hover:bg-slate-200/30 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Inter']">Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-40 w-full flex items-center justify-between h-16 px-8 bg-white/70 backdrop-blur-xl border-b border-slate-200/10 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-xl">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search prompts..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-slate-100 rounded-full p-2 text-slate-500 transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:bg-slate-100 rounded-full p-2 text-slate-500 transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/20">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="Close up portrait of a smiling young man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPsOyI9B61Ed_0wIKfj4km72L3WZgwBfThnXwZgDlWE2hKo6Y9PzEfiJNmg2WhHA7BoKSiWF7K2ReLBUSC4TTripTEtLvtszegupnG0mP5PF6t_lJj8frKpsGQpv8RU720Ry008_aRKWlXElykj8LOdIQSI9egRJTYKMv1rVjNGfPF4TVMHR1M9iOLz55Tmoo7b_OtnKD_R7RCKzTKiLWtKjurwnVlmhsDaYic-Fj8iUA9ntTjm-KrGyGakCtONR3ng0k1xfuaY58"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 p-10 max-w-6xl mx-auto w-full">
+<!-- Header Section -->
+<div class="mb-12 flex items-end justify-between">
+<div>
+<h1 class="text-3xl font-semibold tracking-tight text-on-surface mb-2">Create New Prompt</h1>
+<p class="text-on-surface-variant font-medium">Design your next masterpiece with architectural precision.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-surface-container-high transition-colors">Cancel</button>
+<button class="px-8 py-2.5 rounded-xl font-medium bg-primary text-on-primary shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">Save Prompt</button>
+</div>
+</div>
+<!-- Bento Form Grid -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Left Column: Primary Fields -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<!-- Basic Info Card -->
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/10">
+<div class="space-y-6">
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-wider text-outline px-1">Prompt Title</label>
+<input class="w-full text-xl font-medium px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/60" placeholder="Enter a descriptive title..." type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold uppercase tracking-wider text-outline px-1">Core Prompt String</label>
+<textarea class="w-full text-base px-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/60 resize-none" placeholder="A cinematic shot of a futuristic neon city under heavy rain, 8k resolution, hyper-realistic..." rows="6"></textarea>
+</div>
+</div>
+</div>
+<!-- Media Upload Bento Section -->
+<div class="grid grid-cols-2 gap-6">
+<div class="col-span-2 bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/10">
+<div class="flex items-center justify-between mb-6">
+<label class="text-xs font-bold uppercase tracking-wider text-outline">Reference Media</label>
+<span class="text-xs text-outline-variant">Up to 4 files</span>
+</div>
+<div class="grid grid-cols-4 gap-4">
+<!-- Upload Placeholder -->
+<div class="aspect-square rounded-xl border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center gap-2 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">add_photo_alternate</span>
+<span class="text-[10px] font-bold text-outline group-hover:text-primary uppercase tracking-widest">Upload</span>
+</div>
+<!-- Reference Item 1 -->
+<div class="aspect-square rounded-xl overflow-hidden relative group">
+<img alt="Reference 1" class="w-full h-full object-cover" data-alt="Abstract vibrant geometric 3D shapes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb16fklDURgayHBhRLtGyKKz0qI6XF95miL8y55QvEmlWjUayEKvGrJRqQSlzLKz7f9WjhSv5HpHViW6evyG_h5Wc1lTdpf__w-pOAUslomhOpibBV00Zq9kNGUuuC3e35J9jKy-VwVGuImMMJU-rMElmYJhYg38OIAY3j0as0R5-qKoNTRoAoMYsa9I3X0CeLZpzUJo5bSesEwfhHck7YzOWZ-Qxf16zEuYV4zf7ncopxAI_1RJQC4fqoPi4SCOMLXIZifU-thf8"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<button class="text-white">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Reference Item 2 -->
+<div class="aspect-square rounded-xl overflow-hidden relative group">
+<img alt="Reference 2" class="w-full h-full object-cover" data-alt="Cyberpunk city street at night with rain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJSitz62KTXg7x7t0OJZYJbv4cZjLkv_XNlciH1bUYz2YoK63iBjTgNHkBo92aWLsZuXJEyrsOF4azGwvAYydRgweH9rQxRjwM3TEWrUq2FUHTPTHiupGq3PZ1Gcxh3KtRGDTxI83SdUeQIHZ91dgoQQKE-p-b9ggfcb-K0ByQeFnR5os3gXe5rsBD0Vf0N3iF5ooBinu2A6VfE6MeLw7bs9mrykKKM08lPNMo5l1Rl1yu4nezX8AxfKee_d2WJ1pKGoIsYeQG4ys"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<button class="text-white">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Empty State -->
+<div class="aspect-square rounded-xl bg-surface-container-low border border-outline-variant/10"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Metadata -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<!-- Category Selection -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
+<label class="text-xs font-bold uppercase tracking-wider text-outline mb-4 block">Prompt Category</label>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary/10 border border-primary/20 text-primary">
+<span class="material-symbols-outlined">image</span>
+<span class="text-sm font-semibold">Image</span>
+</button>
+<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">movie</span>
+<span class="text-sm font-semibold">Video</span>
+</button>
+</div>
+</div>
+<!-- Collections & Tags -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 space-y-6">
+<div class="space-y-3">
+<label class="text-xs font-bold uppercase tracking-wider text-outline block">Add to Collection</label>
+<select class="w-full px-4 py-2.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20">
+<option>Select a collection...</option>
+<option>Architecture Series</option>
+<option>Cyberpunk 2077</option>
+<option>Nature &amp; Landscapes</option>
+</select>
+</div>
+<div class="space-y-3">
+<label class="text-xs font-bold uppercase tracking-wider text-outline block">Tags</label>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-xs font-medium text-on-surface-variant flex items-center gap-1">
+                                    Photorealistic <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span>
+</span>
+<span class="px-3 py-1 rounded-full bg-surface-container-high text-xs font-medium text-on-surface-variant flex items-center gap-1">
+                                    8K <span class="material-symbols-outlined text-[14px] cursor-pointer">close</span>
+</span>
+<button class="px-3 py-1 rounded-full border border-dashed border-outline-variant text-xs font-medium text-outline flex items-center gap-1 hover:border-primary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[14px]">add</span> Add Tag
+                                </button>
+</div>
+</div>
+</div>
+<!-- Visibility Card -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline">lock</span>
+<span class="text-sm font-medium">Private Prompt</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-secondary-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Hidden as per mandate for focused details screens) -->
+</body></html>

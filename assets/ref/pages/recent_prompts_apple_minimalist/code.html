@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary": "#5e5f63",
+              "surface-container-high": "#e4e8f3",
+              "on-background": "#2c333d",
+              "secondary-container": "#e3e2e7",
+              "on-secondary-fixed": "#3e3f43",
+              "error": "#9f403d",
+              "surface-dim": "#d3dae9",
+              "secondary-dim": "#525357",
+              "on-error": "#fff7f6",
+              "error-container": "#fe8983",
+              "on-primary": "#f7f7ff",
+              "primary-dim": "#004faa",
+              "tertiary-fixed": "#d8d3f4",
+              "surface-tint": "#005bc1",
+              "on-secondary-fixed-variant": "#5b5b60",
+              "on-primary-fixed-variant": "#0058bb",
+              "primary-container": "#d8e2ff",
+              "secondary-fixed": "#e3e2e7",
+              "inverse-on-surface": "#9c9da1",
+              "inverse-surface": "#0c0e12",
+              "primary": "#005bc1",
+              "on-tertiary": "#fcf7ff",
+              "on-secondary": "#f9f8fe",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed-dim": "#c2d4ff",
+              "on-secondary-container": "#515156",
+              "surface-container-highest": "#dce3f0",
+              "tertiary-fixed-dim": "#cac6e6",
+              "surface": "#f9f9fe",
+              "inverse-primary": "#4b8eff",
+              "tertiary": "#5f5c78",
+              "on-tertiary-fixed": "#37354f",
+              "background": "#f9f9fe",
+              "on-surface-variant": "#595f6a",
+              "secondary-fixed-dim": "#d5d4d9",
+              "outline": "#747b86",
+              "on-tertiary-fixed-variant": "#54516d",
+              "on-primary-container": "#004ea8",
+              "on-tertiary-container": "#4a4863",
+              "error-dim": "#4e0309",
+              "surface-container-low": "#f2f3fa",
+              "on-error-container": "#752121",
+              "tertiary-container": "#d8d3f4",
+              "surface-variant": "#dce3f0",
+              "surface-bright": "#f9f9fe",
+              "outline-variant": "#acb2bf",
+              "on-surface": "#2c333d",
+              "on-primary-fixed": "#003d85",
+              "surface-container": "#ebeef7",
+              "primary-fixed": "#d8e2ff",
+              "tertiary-dim": "#53506b"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      body { font-family: 'Inter', sans-serif; }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased overflow-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 z-50 bg-slate-50 border-r border-slate-100 flex flex-col h-full p-4 gap-y-2">
+<div class="flex items-center gap-3 px-2 mb-8 mt-2">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-sm">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-slate-900">PromptStudio</h1>
+<p class="text-[10px] font-medium tracking-widest uppercase text-slate-500">AI Workflow</p>
+</div>
+</div>
+<button class="mb-6 flex items-center justify-center gap-2 bg-primary text-on-primary py-3 rounded-xl font-semibold shadow-sm hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>New Prompt</span>
+</button>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-slate-900 hover:translate-x-1 transition-transform duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span>Prompt Library</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-slate-900 hover:translate-x-1 transition-transform duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">star</span>
+<span>Favorites</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-slate-900 hover:translate-x-1 transition-transform duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span>Collections</span>
+</a>
+<!-- Active Tab: Recent -->
+<a class="flex items-center gap-3 px-3 py-2.5 bg-white text-blue-600 shadow-sm rounded-lg font-medium text-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+<span>Recent</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-slate-900 hover:translate-x-1 transition-transform duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="pt-4 border-t border-slate-100 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-slate-900 hover:translate-x-1 transition-transform duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-slate-900 hover:translate-x-1 transition-transform duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">person</span>
+<span>Account</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100/50 shadow-sm shadow-slate-200/50 flex justify-between items-center h-16 px-6 ml-64">
+<div class="flex-1 flex items-center">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+<input class="w-full bg-slate-100/50 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search prompts..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-[1px] bg-slate-100 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-slate-200">
+<img alt="User profile avatar" data-alt="Professional male user avatar profile photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4FqDb4Vcy1fba4wGcsiAr9snt4qgmcnxK-Dc_lqNLLtTH-OZwXhC3aTNgrLybPqTz7L4dCkgKhGVl2cVJ_fdQU-eyOgA4QIIT76ACcc9pnfB3wG0ue8LngWWIYn4A4Me-5B5dzf9Hu3oBr7JdcQ1kd-PWr2uJBLCrGdArV_M_JoJGijZ7L0ByGyJme6atnHgyZCechoA3ddQIE6eMXCKg8raNjpibTVuJQKvKjGfobqMgj3fR3HoptCxYTntHCdEFDyGh9rn4GM8"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="mt-16 p-8 flex-1 overflow-y-auto bg-surface">
+<div class="max-w-5xl mx-auto">
+<div class="mb-10 flex items-end justify-between">
+<div>
+<p class="text-primary font-bold tracking-widest text-[10px] uppercase mb-1">Activity Log</p>
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Recent Prompts</h2>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-xl">
+<button class="px-4 py-1.5 text-xs font-semibold bg-white shadow-sm rounded-lg text-primary">All</button>
+<button class="px-4 py-1.5 text-xs font-semibold text-secondary hover:text-on-surface transition-colors">Image</button>
+<button class="px-4 py-1.5 text-xs font-semibold text-secondary hover:text-on-surface transition-colors">Video</button>
+</div>
+</div>
+<!-- Timeline Section: Today -->
+<section class="mb-12">
+<div class="flex items-center gap-4 mb-6">
+<span class="text-xs font-bold uppercase tracking-widest text-secondary/60">Today</span>
+<div class="h-[1px] flex-1 bg-slate-100"></div>
+</div>
+<div class="grid gap-4">
+<!-- Prompt Card 1 -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-2xl flex items-center justify-between hover:scale-[1.01] transition-all duration-300 border border-transparent hover:border-slate-100 shadow-sm hover:shadow-md">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined text-3xl">image</span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h3 class="text-lg font-bold text-on-surface">Cinematic Cyberpunk Street</h3>
+<span class="px-2 py-0.5 rounded-md bg-primary-container text-on-primary-container text-[10px] font-bold uppercase tracking-wider">Image</span>
+</div>
+<p class="text-sm text-secondary font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        Edited 2h ago
+                                    </p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span>Copy</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:shadow-lg transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+<span>Open</span>
+</button>
+</div>
+</div>
+<!-- Prompt Card 2 -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-2xl flex items-center justify-between hover:scale-[1.01] transition-all duration-300 border border-transparent hover:border-slate-100 shadow-sm hover:shadow-md">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+<span class="material-symbols-outlined text-3xl">movie_filter</span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h3 class="text-lg font-bold text-on-surface">Fluid Motion Landscape 4K</h3>
+<span class="px-2 py-0.5 rounded-md bg-tertiary-container text-on-tertiary-container text-[10px] font-bold uppercase tracking-wider">Video</span>
+</div>
+<p class="text-sm text-secondary font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        Edited 5h ago
+                                    </p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span>Copy</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:shadow-lg transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+<span>Open</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Timeline Section: Yesterday -->
+<section>
+<div class="flex items-center gap-4 mb-6">
+<span class="text-xs font-bold uppercase tracking-widest text-secondary/60">Yesterday</span>
+<div class="h-[1px] flex-1 bg-slate-100"></div>
+</div>
+<div class="grid gap-4 opacity-80">
+<!-- Prompt Card 3 -->
+<div class="group relative bg-surface-container-low/50 p-5 rounded-2xl flex items-center justify-between hover:bg-surface-container-lowest hover:scale-[1.01] transition-all duration-300 border border-transparent hover:border-slate-100">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
+<span class="material-symbols-outlined text-3xl">image</span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h3 class="text-lg font-bold text-on-surface">Minimalist Logo Variations</h3>
+<span class="px-2 py-0.5 rounded-md bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Image</span>
+</div>
+<p class="text-sm text-secondary font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        Edited yesterday at 4:15 PM
+                                    </p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span>Copy</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:shadow-lg transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+<span>Open</span>
+</button>
+</div>
+</div>
+<!-- Prompt Card 4 -->
+<div class="group relative bg-surface-container-low/50 p-5 rounded-2xl flex items-center justify-between hover:bg-surface-container-lowest hover:scale-[1.01] transition-all duration-300 border border-transparent hover:border-slate-100">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
+<span class="material-symbols-outlined text-3xl">image</span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h3 class="text-lg font-bold text-on-surface">Vibrant Watercolor Portrait</h3>
+<span class="px-2 py-0.5 rounded-md bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Image</span>
+</div>
+<p class="text-sm text-secondary font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        Edited yesterday at 11:30 AM
+                                    </p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span>Copy</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:shadow-lg transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+<span>Open</span>
+</button>
+</div>
+</div>
+<!-- Prompt Card 5 -->
+<div class="group relative bg-surface-container-low/50 p-5 rounded-2xl flex items-center justify-between hover:bg-surface-container-lowest hover:scale-[1.01] transition-all duration-300 border border-transparent hover:border-slate-100">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
+<span class="material-symbols-outlined text-3xl">movie_filter</span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h3 class="text-lg font-bold text-on-surface">Abstract Particle Flow</h3>
+<span class="px-2 py-0.5 rounded-md bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Video</span>
+</div>
+<p class="text-sm text-secondary font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        Edited yesterday at 9:05 AM
+                                    </p>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span>Copy</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:shadow-lg transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+<span>Open</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer White Space -->
+<div class="h-24"></div>
+</div>
+</div>
+</main>
+<!-- FAB (Suppressed on Recent/History as per Shell Visibility Rules, but added here if needed for specific action) -->
+<!-- Suppression logic check: Primary intent is 'browsing history', so FAB is hidden to prioritize content. -->
+</body></html>
