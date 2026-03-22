@@ -41,20 +41,22 @@
             <div
               v-if="prompt.reference_images?.length"
               class="absolute -top-2 -right-2 shadow-lg border-2 border-white rounded-sm overflow-visible z-10 transition-transform group-hover:rotate-0 bg-white"
-              :style="{ 
+              :style="{
                 height: '112px',
                 width: '90px',
                 padding: '3px',
-                transform: `rotate(${thumbnailRotations[idx % thumbnailRotations.length]}deg)` 
+                transform: `rotate(${thumbnailRotations[idx % thumbnailRotations.length]}deg)`,
+                cursor: 'zoom-in'
               }"
+              @click.stop="openImageViewer(prompt.reference_images, 0)"
             >
               <img
                 :src="prompt.reference_images[0]"
                 alt="Thumbnail"
                 class="w-full h-full object-contain"
               />
-              <span 
-                class="material-symbols-outlined absolute -top-3 text-slate-400 rotate-[40deg] scale-x-[-1] z-20 font-light" 
+              <span
+                class="material-symbols-outlined absolute -top-3 text-slate-400 rotate-[40deg] scale-x-[-1] z-20 font-light"
                 style="font-variation-settings: 'wght' 300; font-size: 28px; --tw-translate-x: 22px;"
               >attachment</span>
             </div>
@@ -114,7 +116,7 @@
                 <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Name</th>
                 <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Category</th>
                 <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Date Edited</th>
-                <th class="px-6 py-4 text-right"></th>
+                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Option</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -129,6 +131,7 @@
                     <div
                       class="w-10 h-10 rounded-lg flex items-center justify-center"
                       :class="getCategoryStyle(prompt.category).bg"
+                      style="min-width:40px;"
                     >
                       <span class="material-symbols-outlined text-lg" :class="getCategoryStyle(prompt.category).textColor">{{ getCategoryStyle(prompt.category).icon }}</span>
                     </div>
@@ -140,8 +143,9 @@
                 </td>
                 <td class="px-6 py-5">
                   <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap text-center"
                     :class="getCategoryStyle(prompt.category).badgeList"
+                    style="padding:10px;"
                   >
                     {{ prompt.category }}
                   </span>
@@ -150,7 +154,7 @@
                   {{ formatDate(prompt.updated_at) }}
                 </td>
                 <td class="px-6 py-5 text-right">
-                  <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div class="flex items-center justify-center gap-1 transition-opacity">
                     <button
                       @click.stop="store.toggleFavorite(prompt.id!)"
                       class="p-2 rounded-full hover:bg-surface-container transition-colors"
@@ -167,7 +171,7 @@
                       <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
                     </button>
                     <button class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                      <span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+                      <span class="material-symbols-outlined text-on-surface-variant">edit</span>
                     </button>
                   </div>
                 </td>
@@ -181,16 +185,27 @@
         </div>
       </template>
     </div>
+    <ImageViewer
+      v-model:visible="viewerVisible"
+      :images="viewerImages"
+      :initial-index="viewerIndex"
+      @close="viewerVisible = false"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePromptStore } from '@/stores/prompts'
+import ImageViewer from '@/components/ImageViewer.vue'
 
 const router = useRouter()
 const store = usePromptStore()
+
+const viewerVisible = ref(false)
+const viewerImages = ref<string[]>([])
+const viewerIndex = ref(0)
 
 const thumbnailRotations = [3, -2, 4, -3, 2, -4]
 
@@ -267,6 +282,12 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
   window.dispatchEvent(new CustomEvent('show-toast', {
     detail: { message, type, duration: 2000 }
   }))
+}
+
+function openImageViewer(images: string[], index: number) {
+  viewerImages.value = images
+  viewerIndex.value = index
+  viewerVisible.value = true
 }
 
 onMounted(() => {

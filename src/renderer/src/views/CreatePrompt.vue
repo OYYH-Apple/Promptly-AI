@@ -27,7 +27,7 @@
             <span class="material-symbols-outlined text-base">translate</span>
             Chinese Prompt Content
           </label>
-          <textarea v-model="form.content_zh" class="w-full text-base px-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/60 resize-none" placeholder="输入中文提示词内容..." rows="6"></textarea>
+          <textarea v-model="form.content_zh" class="w-full text-base px-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/60 resize-none" placeholder="Enter Chinese prompt content..." rows="6"></textarea>
         </div>
         <div class="space-y-2">
           <label class="text-xs font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2">
