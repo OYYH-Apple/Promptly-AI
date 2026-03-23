@@ -19,22 +19,38 @@
           <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/10">
       <div class="space-y-6">
         <div class="space-y-2">
-          <label class="text-xs font-bold uppercase tracking-wider text-outline px-1">Prompt Title</label>
-          <input v-model="form.title" class="w-full text-xl font-medium px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/60" placeholder="Enter a descriptive title..." />
+          <label class="text-xs font-bold uppercase tracking-wider text-outline px-1">Prompt Title <span class="text-error">*</span></label>
+          <input 
+            v-model="form.title" 
+            :class="['w-full text-xl font-medium px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 transition-all placeholder:text-outline-variant/60', errors.title ? 'ring-2 ring-error/50' : 'focus:ring-primary/20']"
+            placeholder="Enter a descriptive title..." 
+          />
+          <p v-if="errors.title" class="text-xs text-error px-1">{{ errors.title }}</p>
         </div>
         <div class="space-y-2">
           <label class="text-xs font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2">
             <span class="material-symbols-outlined text-base">translate</span>
-            Chinese Prompt Content
+            Chinese Prompt Content <span v-if="!form.content_en.trim()" class="text-error">*</span>
           </label>
-          <textarea v-model="form.content_zh" class="w-full text-base px-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/60 resize-none" placeholder="Enter Chinese prompt content..." rows="6"></textarea>
+          <textarea 
+            v-model="form.content_zh" 
+            :class="['w-full text-base px-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 transition-all placeholder:text-outline-variant/60 resize-none', errors.content ? 'ring-2 ring-error/50' : 'focus:ring-primary/20']"
+            placeholder="Enter Chinese prompt content..." 
+            rows="6"
+          ></textarea>
         </div>
         <div class="space-y-2">
           <label class="text-xs font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2">
             <span class="material-symbols-outlined text-base">language</span>
-            English Prompt Content
+            English Prompt Content <span v-if="!form.content_zh.trim()" class="text-error">*</span>
           </label>
-          <textarea v-model="form.content_en" class="w-full text-base px-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant/60 resize-none" placeholder="Enter English prompt content..." rows="6"></textarea>
+          <textarea 
+            v-model="form.content_en" 
+            :class="['w-full text-base px-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 transition-all placeholder:text-outline-variant/60 resize-none', errors.content ? 'ring-2 ring-error/50' : 'focus:ring-primary/20']"
+            placeholder="Enter English prompt content..." 
+            rows="6"
+          ></textarea>
+          <p v-if="errors.content" class="text-xs text-error px-1">{{ errors.content }}</p>
         </div>
       </div>
     </div>
@@ -108,14 +124,31 @@
               <div class="flex flex-wrap gap-2">
                 <span v-for="(tag, idx) in form.tags" :key="idx" class="px-3 py-1 rounded-full bg-surface-container-high text-xs font-medium text-on-surface-variant flex items-center gap-1">
                   {{ tag }}
-                  <span @click="removeTag(idx)" class="material-symbols-outlined text-[14px] cursor-pointer hover:text-error">close</span>
+                  <span @click="removeTag(idx)" class="material-symbols-outlined cursor-pointer hover:text-red-500 hover:rotate-90 transition-all" style="font-size: 14px;">close</span>
                 </span>
-                <input 
-                  v-model="newTag"
-                  @keydown.enter.prevent="addTag"
-                  class="px-3 py-1 rounded-full border border-dashed border-outline-variant text-xs font-medium text-outline flex items-center gap-1 focus:outline-none"
-                  placeholder="Add tag..."
-                />
+                <div class="relative">
+                  <input 
+                    v-model="newTag"
+                    @keydown.enter.prevent="addTag"
+                    @focus="showTagSuggestions = true"
+                    @blur="hideTagSuggestions"
+                    class="px-3 py-1 rounded-full border border-dashed border-outline-variant text-xs font-medium text-outline flex items-center gap-1 focus:outline-none focus:border-primary"
+                    placeholder="Add tag..."
+                  />
+                  <div 
+                    v-if="showTagSuggestions && filteredTags.length > 0"
+                    class="absolute top-full left-0 mt-2 w-48 max-h-40 overflow-y-auto bg-white rounded-xl shadow-lg border border-slate-100 z-10"
+                  >
+                    <button
+                      v-for="tag in filteredTags"
+                      :key="tag"
+                      @mousedown.prevent="selectTag(tag)"
+                      class="w-full px-4 py-2 text-left text-sm text-slate-600 hover:bg-primary/5 hover:text-primary transition-colors"
+                    >
+                      {{ tag }}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -159,6 +192,8 @@ const store = usePromptStore()
 const isEdit = computed(() => !!route.params.id)
 const newTag = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
+const showTagSuggestions = ref(false)
+const errors = ref<{ title?: string; content?: string }>({})
 
 const MAX_IMAGES = 15
 const categories = ['Image Generation', 'Video Prompt']
@@ -183,11 +218,33 @@ function getCategoryIcon(category: string) {
   return icons[category] || 'text_snippet'
 }
 
+const filteredTags = computed(() => {
+  const existingTags = new Set(form.value.tags)
+  return store.allTags.filter(tag => 
+    !existingTags.has(tag) && 
+    (newTag.value === '' || tag.toLowerCase().includes(newTag.value.toLowerCase()))
+  )
+})
+
 function addTag() {
   if (newTag.value.trim() && !form.value.tags.includes(newTag.value.trim())) {
     form.value.tags.push(newTag.value.trim())
     newTag.value = ''
   }
+}
+
+function selectTag(tag: string) {
+  if (!form.value.tags.includes(tag)) {
+    form.value.tags.push(tag)
+  }
+  newTag.value = ''
+  showTagSuggestions.value = false
+}
+
+function hideTagSuggestions() {
+  setTimeout(() => {
+    showTagSuggestions.value = false
+  }, 200)
 }
 
 function removeTag(index: number) {
@@ -224,8 +281,17 @@ function removeImage(index: number) {
 }
 
 async function savePrompt() {
+  errors.value = {}
+
   if (!form.value.title.trim()) {
-    alert('Please fill in title')
+    errors.value.title = 'Title is required'
+  }
+
+  if (!form.value.content_zh.trim() && !form.value.content_en.trim()) {
+    errors.value.content = 'Please fill in at least one prompt content'
+  }
+
+  if (Object.keys(errors.value).length > 0) {
     return
   }
 
@@ -239,6 +305,12 @@ async function savePrompt() {
 
 onMounted(async () => {
   await store.fetchCollections()
+
+  // 从 query 参数中读取分类
+  const categoryParam = route.query.category as string
+  if (categoryParam && categories.includes(categoryParam)) {
+    form.value.category = categoryParam
+  }
 
   if (isEdit.value) {
     const prompt = await store.fetchPrompt(Number(route.params.id))

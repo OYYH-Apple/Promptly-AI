@@ -6,6 +6,17 @@
           <p class="text-primary font-bold tracking-widest text-[10px] uppercase mb-1">Activity Log</p>
           <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Recent Prompts</h2>
         </div>
+        <div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-xl">
+          <button
+            v-for="cat in categories"
+            :key="cat.value"
+            @click="selectedCategory = cat.value"
+            class="px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors"
+            :class="selectedCategory === cat.value ? 'bg-white shadow-sm text-primary' : 'text-secondary hover:text-on-surface'"
+          >
+            {{ cat.label }}
+          </button>
+        </div>
       </div>
 
       <section v-for="(group, label) in groupedPrompts" :key="label" class="mb-12">
@@ -13,34 +24,49 @@
           <span class="text-xs font-bold uppercase tracking-widest text-secondary/60">{{ label }}</span>
           <div class="h-[1px] flex-1 bg-slate-100"></div>
         </div>
-        <div class="grid gap-4">
-          <div 
-            v-for="prompt in group" 
+        <div class="grid gap-4" :class="isToday(label) ? '' : 'opacity-80'">
+          <div
+            v-for="prompt in group"
             :key="prompt.id"
-            class="group relative bg-surface-container-lowest p-5 rounded-2xl flex items-center justify-between hover:scale-[1.01] transition-all duration-300 border border-transparent hover:border-slate-100 shadow-sm hover:shadow-md cursor-pointer"
+            class="group relative p-5 rounded-2xl flex items-center justify-between hover:scale-[1.01] transition-all duration-300 border border-transparent hover:border-slate-100 shadow-sm hover:shadow-md cursor-pointer"
+            :class="isToday(label) ? 'bg-surface-container-lowest' : 'bg-surface-container-low/50 hover:bg-surface-container-lowest'"
             @click="router.push(`/prompt/${prompt.id}`)"
           >
             <div class="flex items-center gap-5">
-              <div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+              <div
+                class="w-14 h-14 rounded-xl flex items-center justify-center"
+                :style="{ backgroundColor: getCategoryBgColor(prompt.category), color: getCategoryTextColor(prompt.category) }"
+              >
                 <span class="material-symbols-outlined text-3xl">{{ getCategoryIcon(prompt.category) }}</span>
               </div>
               <div>
                 <div class="flex items-center gap-3 mb-1">
                   <h3 class="text-lg font-bold text-on-surface">{{ prompt.title }}</h3>
-                  <span class="px-2 py-0.5 rounded-md bg-primary-container text-on-primary-container text-[10px] font-bold uppercase tracking-wider">{{ prompt.category }}</span>
+                  <span
+                    class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider"
+                    :class="getCategoryBadgeClass(prompt.category)"
+                  >
+                    {{ getCategoryLabel(prompt.category) }}
+                  </span>
                 </div>
                 <p class="text-sm text-secondary font-medium flex items-center gap-2">
                   <span class="material-symbols-outlined text-sm">schedule</span>
-                  {{ formatTime(prompt.updated_at) }}
+                  {{ formatTime(prompt.updated_at, label) }}
                 </p>
               </div>
             </div>
             <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button @click.stop="copyPrompt(prompt.content)" class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors">
+              <button
+                @click.stop="copyPrompt(prompt)"
+                class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors"
+              >
                 <span class="material-symbols-outlined text-[18px]">content_copy</span>
                 <span>Copy</span>
               </button>
-              <button @click.stop="router.push(`/prompt/${prompt.id}`)" class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:shadow-lg transition-all active:scale-95">
+              <button
+                @click.stop="router.push(`/prompt/${prompt.id}`)"
+                class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:shadow-lg transition-all active:scale-95"
+              >
                 <span class="material-symbols-outlined text-[18px]">open_in_new</span>
                 <span>Open</span>
               </button>
@@ -60,12 +86,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePromptStore } from '@/stores/prompts'
 
 const router = useRouter()
 const store = usePromptStore()
+const selectedCategory = ref('All')
+
+const categories = [
+  { value: 'All', label: 'All' },
+  { value: 'Image Generation', label: 'Image' },
+  { value: 'Video Prompt', label: 'Video' }
+]
+
+const filteredPrompts = computed(() => {
+  if (selectedCategory.value === 'All') return store.prompts
+  return store.prompts.filter(p => p.category === selectedCategory.value)
+})
 
 const groupedPrompts = computed(() => {
   const groups: Record<string, any[]> = {}
@@ -73,10 +111,14 @@ const groupedPrompts = computed(() => {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)
 
-  store.prompts.forEach(prompt => {
+  const sortedPrompts = [...filteredPrompts.value].sort((a, b) => {
+    return new Date(b.updated_at!).getTime() - new Date(a.updated_at!).getTime()
+  })
+
+  sortedPrompts.forEach(prompt => {
     const d = new Date(prompt.updated_at!)
     const promptDate = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-    
+
     let label: string
     if (promptDate.getTime() === today.getTime()) {
       label = 'Today'
@@ -93,30 +135,85 @@ const groupedPrompts = computed(() => {
   return groups
 })
 
+function isToday(label: string) {
+  return label === 'Today'
+}
+
 function getCategoryIcon(category: string) {
   const icons: Record<string, string> = {
     'Image Generation': 'image',
-    'Video Prompt': 'movie',
+    'Video Prompt': 'movie_filter',
     'Coding': 'code',
     'General': 'text_snippet'
   }
   return icons[category] || 'text_snippet'
 }
 
-function formatTime(date?: string) {
+function getCategoryBgColor(category: string) {
+  const colors: Record<string, string> = {
+    'Image Generation': '#eff6ff',
+    'Video Prompt': '#f3e8ff',
+    'Coding': '#f1f5f9',
+    'General': '#f5f5f5'
+  }
+  return colors[category] || '#f5f5f5'
+}
+
+function getCategoryTextColor(category: string) {
+  const colors: Record<string, string> = {
+    'Image Generation': '#2563eb',
+    'Video Prompt': '#9333ea',
+    'Coding': '#475569',
+    'General': '#525252'
+  }
+  return colors[category] || '#525252'
+}
+
+function getCategoryBadgeClass(category: string) {
+  const classes: Record<string, string> = {
+    'Image Generation': 'bg-primary-container text-on-primary-container',
+    'Video Prompt': 'bg-tertiary-container text-on-tertiary-container',
+    'Coding': 'bg-secondary-container text-on-secondary-container',
+    'General': 'bg-surface-container-high text-on-surface-variant'
+  }
+  return classes[category] || 'bg-surface-container-high text-on-surface-variant'
+}
+
+function getCategoryLabel(category: string) {
+  const labels: Record<string, string> = {
+    'Image Generation': 'Image',
+    'Video Prompt': 'Video',
+    'Coding': 'Code',
+    'General': 'General'
+  }
+  return labels[category] || category
+}
+
+function formatTime(date?: string, groupLabel?: string) {
   if (!date) return ''
   const d = new Date(date)
   const now = new Date()
   const diff = now.getTime() - d.getTime()
   const hours = Math.floor(diff / (1000 * 60 * 60))
-  if (hours < 1) return 'Just now'
-  if (hours < 24) return `${hours}h ago`
+
+  if (groupLabel === 'Today') {
+    if (hours < 1) return 'Just now'
+    return `${hours}h ago`
+  }
+
+  if (groupLabel === 'Yesterday') {
+    return `Yesterday at ${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
+  }
+
   return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 }
 
-async function copyPrompt(content: string) {
-  await navigator.clipboard.writeText(content)
-  showToast('Copied to clipboard', 'success')
+async function copyPrompt(prompt: any) {
+  const content = prompt.content_zh || prompt.content_en
+  if (content) {
+    await navigator.clipboard.writeText(content)
+    showToast('Copied to clipboard', 'success')
+  }
 }
 
 function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') {

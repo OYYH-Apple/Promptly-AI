@@ -1,9 +1,7 @@
 <template>
   <aside class="fixed left-0 top-0 h-full w-72 border-r border-slate-200/15 bg-[#f9f9fe] flex flex-col p-6">
     <div class="flex items-center gap-3 mb-10 px-2">
-      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
-        <span class="material-symbols-outlined">auto_awesome</span>
-      </div>
+      <img src="@/public/logo.png" alt="Promptly AI" class="w-12 h-12 rounded-xl" />
       <div>
         <h1 class="text-xl font-bold tracking-tight text-slate-900">Promptly AI</h1>
         <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Personal Workspace</p>

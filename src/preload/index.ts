@@ -29,6 +29,20 @@ export interface Stats {
   favorites: number
 }
 
+export interface UpdateInfo {
+  available: boolean
+  version?: string
+  releaseDate?: string
+  releaseNotes?: string | string[]
+  error?: string
+}
+
+export interface DownloadProgress {
+  percent: number
+  transferred: number
+  total: number
+}
+
 const api = {
   getPrompts: (params: {
     category?: string
@@ -61,9 +75,47 @@ const api = {
 
   getStats: () => ipcRenderer.invoke('db:getStats'),
 
+  getStoragePath: () => ipcRenderer.invoke('db:getStoragePath'),
+
+  changeStoragePath: () => ipcRenderer.invoke('db:changeStoragePath'),
+
+  purgeAllData: () => ipcRenderer.invoke('db:purgeAllData'),
+
   exportData: () => ipcRenderer.invoke('db:exportData'),
 
-  importData: () => ipcRenderer.invoke('db:importData')
+  importData: () => ipcRenderer.invoke('db:importData'),
+
+  checkForUpdates: (): Promise<UpdateInfo> => 
+    ipcRenderer.invoke('check-for-updates'),
+
+  downloadUpdate: () => 
+    ipcRenderer.invoke('download-update'),
+
+  quitAndInstall: () => 
+    ipcRenderer.invoke('quit-and-install'),
+
+  onUpdateAvailable: (callback: (info: { version: string; releaseDate?: string; releaseNotes?: string | string[] }) => void) => {
+    ipcRenderer.on('update-available', (_, info) => callback(info))
+  },
+
+  onUpdateDownloaded: (callback: () => void) => {
+    ipcRenderer.on('update-downloaded', () => callback())
+  },
+
+  onUpdateError: (callback: (error: string) => void) => {
+    ipcRenderer.on('update-error', (_, error) => callback(error))
+  },
+
+  onDownloadProgress: (callback: (progress: DownloadProgress) => void) => {
+    ipcRenderer.on('download-progress', (_, progress) => callback(progress))
+  },
+
+  removeUpdateListeners: () => {
+    ipcRenderer.removeAllListeners('update-available')
+    ipcRenderer.removeAllListeners('update-downloaded')
+    ipcRenderer.removeAllListeners('update-error')
+    ipcRenderer.removeAllListeners('download-progress')
+  }
 }
 
 contextBridge.exposeInMainWorld('api', api)

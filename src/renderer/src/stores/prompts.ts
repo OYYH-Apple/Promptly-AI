@@ -40,6 +40,14 @@ export const usePromptStore = defineStore('prompts', () => {
     return Array.from(cats).filter(Boolean)
   })
 
+  const allTags = computed(() => {
+    const tagSet = new Set<string>()
+    prompts.value.forEach(p => {
+      p.tags?.forEach(tag => tagSet.add(tag))
+    })
+    return Array.from(tagSet).sort()
+  })
+
 const filteredPrompts = computed(() => {
   let result = prompts.value
   if (searchQuery.value) {
@@ -126,13 +134,18 @@ async function updatePrompt(id: number, prompt: Partial<Prompt>) {
     await fetchPrompts()
   }
 
-  async function createCollection(collection: Partial<Collection>) {
-    const id = await window.api.createCollection(collection)
-    await fetchCollections()
-    return id
-  }
+async function createCollection(collection: Partial<Collection>) {
+  const id = await window.api.createCollection(collection)
+  await fetchCollections()
+  return id
+}
 
-  async function deleteCollection(id: number) {
+async function updateCollection(id: number, collection: Partial<Collection>) {
+  await window.api.updateCollection(id, collection)
+  await fetchCollections()
+}
+
+async function deleteCollection(id: number) {
     await window.api.deleteCollection(id)
     await fetchCollections()
     await fetchPrompts()
@@ -160,6 +173,7 @@ async function updatePrompt(id: number, prompt: Partial<Prompt>) {
     selectedCategory,
     viewMode,
     categories,
+    allTags,
     filteredPrompts,
     fetchPrompts,
     fetchCollections,
@@ -169,6 +183,7 @@ async function updatePrompt(id: number, prompt: Partial<Prompt>) {
     deletePrompt,
     toggleFavorite,
     createCollection,
+    updateCollection,
     deleteCollection,
     exportData,
     importData

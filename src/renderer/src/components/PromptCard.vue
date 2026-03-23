@@ -43,7 +43,7 @@
     </div>
 
     <h3 class="font-bold text-lg text-slate-800 leading-tight">{{ prompt.title }}</h3>
-    <p class="text-sm text-slate-500 line-clamp-6">{{ prompt.content_zh || prompt.content_en }}</p>
+    <p class="text-sm text-slate-500 line-clamp-6" style="min-height: 120px;">{{ prompt.content_zh || prompt.content_en }}</p>
 
     <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
       <span class="text-[11px] font-medium text-slate-400">{{ formatDate(prompt.updated_at) }}</span>
@@ -66,6 +66,18 @@
           >
             <span class="material-symbols-outlined text-lg">content_copy</span>
           </button>
+          <button
+            @click.stop="$emit('edit', prompt.id)"
+            class="text-slate-300 hover:text-blue-500 transition-colors p-1"
+          >
+            <span class="material-symbols-outlined text-lg">edit</span>
+          </button>
+          <button
+            @click.stop="$emit('delete', prompt.id)"
+            class="text-slate-300 hover:text-red-500 transition-colors p-1"
+          >
+            <span class="material-symbols-outlined text-lg">delete</span>
+          </button>
         </slot>
       </div>
     </div>
@@ -87,6 +99,8 @@ defineEmits<{
   (e: 'toggle-favorite', id: number | undefined): void
   (e: 'copy', prompt: Prompt): void
   (e: 'open-image', images: string[], index: number): void
+  (e: 'edit', id: number | undefined): void
+  (e: 'delete', id: number | undefined): void
 }>()
 
 const thumbnailRotations = [3, -2, 4, -3, 2, -4]

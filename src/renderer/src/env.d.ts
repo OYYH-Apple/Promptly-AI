@@ -37,6 +37,20 @@ interface Stats {
   favorites: number
 }
 
+interface UpdateInfo {
+  available: boolean
+  version?: string
+  releaseDate?: string
+  releaseNotes?: string | string[]
+  error?: string
+}
+
+interface DownloadProgress {
+  percent: number
+  transferred: number
+  total: number
+}
+
 interface Window {
   api: {
     getPrompts: (params?: { category?: string; search?: string; favorites?: boolean; collectionId?: number; limit?: number; offset?: number }) => Promise<Prompt[]>
@@ -51,7 +65,18 @@ interface Window {
     deleteCollection: (id: number) => Promise<void>
     getCategories: () => Promise<string[]>
     getStats: () => Promise<Stats>
-    exportData: () => Promise<string | null>
-    importData: () => Promise<{ prompts?: Prompt[]; collections?: Collection[] } | null>
-  }
+    getStoragePath: () => Promise<string>
+    changeStoragePath: () => Promise<{ oldPath: string; newPath: string } | null>
+    purgeAllData: () => Promise<boolean>
+exportData: () => Promise<string | null>
+  importData: () => Promise<{ prompts?: Prompt[]; collections?: Collection[] } | null>
+  checkForUpdates: () => Promise<UpdateInfo>
+  downloadUpdate: () => Promise<{ success: boolean; error?: string }>
+  quitAndInstall: () => Promise<void>
+  onUpdateAvailable: (callback: (info: { version: string; releaseDate?: string; releaseNotes?: string | string[] }) => void) => void
+  onUpdateDownloaded: (callback: () => void) => void
+  onUpdateError: (callback: (error: string) => void) => void
+  onDownloadProgress: (callback: (progress: DownloadProgress) => void) => void
+  removeUpdateListeners: () => void
+}
 }

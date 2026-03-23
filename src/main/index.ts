@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import type { Database, SqlJsStatic } from 'sql.js'
+import { autoUpdater } from 'electron-updater'
 
 let mainWindow: BrowserWindow | null = null
 let db: Database | null = null
@@ -209,8 +210,8 @@ ipcMain.handle('db:getPrompts', (_, { category, search, favorites, collectionId,
     params.push(category)
   }
   if (search) {
-    sql += ' AND (title LIKE ? OR content LIKE ?)'
-    params.push(`%${search}%`, `%${search}%`)
+    sql += ' AND (title LIKE ? OR content_zh LIKE ? OR content_en LIKE ?)'
+    params.push(`%${search}%`, `%${search}%`, `%${search}%`)
   }
   if (favorites) {
     sql += ' AND is_favorite = 1'
@@ -256,21 +257,26 @@ ipcMain.handle('db:createPrompt', (_, prompt) => {
 })
 
 ipcMain.handle('db:updatePrompt', (_, id, prompt) => {
+  const existing = queryOne('SELECT * FROM prompts WHERE id = ?', [id])
+  if (!existing) return false
+
+  const title = prompt.title ?? existing.title
+  const content_zh = prompt.content_zh ?? existing.content_zh ?? ''
+  const content_en = prompt.content_en ?? existing.content_en ?? ''
+  const category = prompt.category ?? existing.category ?? 'Image Generation'
+  const tags = prompt.tags !== undefined ? JSON.stringify(prompt.tags) : existing.tags ?? '[]'
+  const collection_id = prompt.collection_id !== undefined ? prompt.collection_id : existing.collection_id
+  const is_favorite = prompt.is_favorite !== undefined ? (prompt.is_favorite ? 1 : 0) : existing.is_favorite
+  const is_private = prompt.is_private !== undefined ? (prompt.is_private ? 1 : 0) : existing.is_private
+  const reference_images = prompt.reference_images !== undefined ? JSON.stringify(prompt.reference_images) : existing.reference_images ?? '[]'
+
   runQuery(`
     UPDATE prompts SET title = ?, content_zh = ?, content_en = ?, category = ?, tags = ?,
     collection_id = ?, is_favorite = ?, is_private = ?, reference_images = ?, updated_at = datetime('now')
     WHERE id = ?
   `, [
-    prompt.title,
-    prompt.content_zh || '',
-    prompt.content_en || '',
-    prompt.category,
-    JSON.stringify(prompt.tags),
-    prompt.collection_id,
-    prompt.is_favorite ? 1 : 0,
-    prompt.is_private ? 1 : 0,
-    JSON.stringify(prompt.reference_images),
-    id
+    title, content_zh, content_en, category, tags,
+    collection_id, is_favorite, is_private, reference_images, id
   ])
   return true
 })
@@ -325,6 +331,40 @@ ipcMain.handle('db:getStats', () => {
   }
 })
 
+ipcMain.handle('db:getStoragePath', () => {
+  return dbPath
+})
+
+ipcMain.handle('db:changeStoragePath', async () => {
+  const result = await dialog.showOpenDialog(mainWindow!, {
+    properties: ['openDirectory']
+  })
+
+  if (result.canceled || !result.filePaths[0]) return null
+
+  const newDir = result.filePaths[0]
+  const newPath = join(newDir, 'prompts.db')
+
+  if (db) {
+    const data = db.export()
+    const buffer = Buffer.from(data)
+    writeFileSync(newPath, buffer)
+  }
+
+  return { oldPath: dbPath, newPath }
+})
+
+ipcMain.handle('db:purgeAllData', async () => {
+  if (!db) return false
+
+  db.run('DELETE FROM prompts')
+  db.run('DELETE FROM collections')
+  db.run('DELETE FROM settings')
+  saveDatabase()
+
+  return true
+})
+
 ipcMain.handle('db:exportData', async () => {
   const result = await dialog.showSaveDialog(mainWindow!, {
     defaultPath: `prompts-export-${new Date().toISOString().split('T')[0]}.json`,
@@ -365,16 +405,99 @@ ipcMain.handle('db:importData', async () => {
 
   if (data.prompts) {
     for (const prompt of data.prompts) {
+      const content_zh = prompt.content_zh ?? prompt.content ?? ''
+      const content_en = prompt.content_en ?? ''
+      const category = prompt.category ?? 'Image Generation'
+      const tags = typeof prompt.tags === 'string' ? prompt.tags : JSON.stringify(prompt.tags ?? [])
+      const reference_images = typeof prompt.reference_images === 'string' ? prompt.reference_images : JSON.stringify(prompt.reference_images ?? [])
+      const is_private = prompt.is_private ?? 1
+
       runQuery(`
-        INSERT OR REPLACE INTO prompts (id, title, content, category, tags, collection_id, is_favorite, reference_images, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT OR REPLACE INTO prompts (id, title, content_zh, content_en, category, tags, collection_id, is_favorite, is_private, reference_images, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
-        prompt.id, prompt.title, prompt.content, prompt.category,
-        prompt.tags, prompt.collection_id, prompt.is_favorite,
-        prompt.reference_images, prompt.created_at, prompt.updated_at
+        prompt.id, prompt.title, content_zh, content_en, category,
+        tags, prompt.collection_id, prompt.is_favorite ? 1 : 0, is_private,
+        reference_images, prompt.created_at, prompt.updated_at
       ])
     }
   }
 
   return data
 })
+
+// ==================== Auto Update ====================
+
+function setupAutoUpdater() {
+  autoUpdater.autoDownload = false
+  autoUpdater.autoInstallOnAppQuit = true
+
+  autoUpdater.on('checking-for-update', () => {
+    console.log('Checking for update...')
+  })
+
+  autoUpdater.on('update-available', (info) => {
+    mainWindow?.webContents.send('update-available', {
+      version: info.version,
+      releaseDate: info.releaseDate,
+      releaseNotes: info.releaseNotes
+    })
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    console.log('Update not available.')
+  })
+
+  autoUpdater.on('error', (err) => {
+    console.error('Update error:', err)
+    mainWindow?.webContents.send('update-error', err.message)
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    mainWindow?.webContents.send('download-progress', {
+      percent: progress.percent,
+      transferred: progress.transferred,
+      total: progress.total
+    })
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    mainWindow?.webContents.send('update-downloaded')
+  })
+}
+
+ipcMain.handle('check-for-updates', async () => {
+  try {
+    const result = await autoUpdater.checkForUpdates()
+    if (result && result.updateInfo) {
+      const currentVersion = app.getVersion()
+      const latestVersion = result.updateInfo.version
+      return {
+        available: latestVersion !== currentVersion,
+        version: latestVersion,
+        releaseDate: result.updateInfo.releaseDate,
+        releaseNotes: result.updateInfo.releaseNotes
+      }
+    }
+    return { available: false }
+  } catch (err) {
+    console.error('Check update error:', err)
+    return { available: false, error: String(err) }
+  }
+})
+
+ipcMain.handle('download-update', async () => {
+  try {
+    await autoUpdater.downloadUpdate()
+    return { success: true }
+  } catch (err) {
+    console.error('Download update error:', err)
+    return { success: false, error: String(err) }
+  }
+})
+
+ipcMain.handle('quit-and-install', () => {
+  autoUpdater.quitAndInstall(false, true)
+})
+
+setupAutoUpdater()

@@ -31,3 +31,9 @@ npm-debug.log*
 
 # Installer
 rustup-init.exe
+
+# 原型稿件
+assets/
+
+# 文档
+docs/

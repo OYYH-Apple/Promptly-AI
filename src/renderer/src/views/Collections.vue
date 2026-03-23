@@ -2,21 +2,30 @@
   <section class="flex-1 overflow-y-auto p-10 bg-surface">
     <div class="max-w-7xl mx-auto">
       <div class="flex flex-col gap-8">
-        <div class="flex justify-between items-end">
-          <div>
-            <span class="text-xs font-bold tracking-widest text-primary uppercase mb-2 block">Library Overview</span>
-            <h2 class="text-3xl font-semibold tracking-tight text-slate-900">Prompt Collections</h2>
-            <p class="text-slate-500 mt-2">Organize your AI workflows into semantic workspaces.</p>
-          </div>
-          <div class="flex gap-3">
+      <div class="flex justify-between items-end">
+        <div>
+          <span class="text-xs font-bold tracking-widest text-primary uppercase mb-2 block">Library Overview</span>
+          <h2 class="text-3xl font-semibold tracking-tight text-slate-900">Prompt Collections</h2>
+          <p class="text-slate-500 mt-2">Organize your AI workflows into semantic workspaces.</p>
+        </div>
+        <div class="flex gap-3 items-center">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <input
+              v-model="searchQuery"
+              class="w-64 pl-10 pr-10 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20"
+              placeholder="Search collections..."
+            />
             <button
-              class="px-4 py-2.5 rounded-xl bg-surface-container-highest text-slate-900 font-medium text-sm flex items-center gap-2 hover:bg-slate-200 transition-all"
+              v-if="searchQuery"
+              @click="searchQuery = ''"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
             >
-              <span class="material-symbols-outlined text-[20px]">filter_list</span>
-              Filter
+              <span class="material-symbols-outlined">close</span>
             </button>
           </div>
         </div>
+      </div>
 
         <div v-if="store.loading" class="flex items-center justify-center py-20">
           <span class="material-symbols-outlined animate-spin text-primary">progress_activity</span>
@@ -28,7 +37,7 @@
             class="group relative h-full min-h-[220px] rounded-xl border-2 border-dashed border-slate-200 hover:border-primary/40 hover:bg-primary/[0.02] transition-all flex flex-col items-center justify-center gap-4"
           >
             <div class="w-12 h-12 rounded-full bg-primary/5 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-              <span class="material-symbols-outlined text-3xl">add</span>
+              <span class="material-symbols-outlined text-3xl transition-all hover:rotate-90">add</span>
             </div>
             <div class="text-center">
               <span class="block font-semibold text-slate-900">New Collection</span>
@@ -36,9 +45,9 @@
             </div>
           </button>
 
-          <div
-            v-for="collection in store.collections"
-            :key="collection.id"
+        <div
+          v-for="collection in filteredCollections"
+          :key="collection.id"
             class="group bg-surface-container-lowest rounded-xl p-6 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between border border-transparent hover:border-slate-100 cursor-pointer"
             @click="openCollection(collection)"
           >
@@ -53,7 +62,7 @@
                     class="p-2 rounded-full hover:bg-primary/10 transition-colors"
                     title="Add prompts to collection"
                   >
-                    <span class="material-symbols-outlined text-primary">add_circle</span>
+                    <span class="material-symbols-outlined text-primary transition-all hover:rotate-90">add_circle</span>
                   </button>
                   <button
                     @click.stop="confirmDelete(collection)"
@@ -81,10 +90,10 @@
         </div>
 
         <div class="mt-8 bg-surface-container-low rounded-2xl p-8 flex items-center justify-around">
-          <div class="text-center">
-            <span class="block text-2xl font-bold text-slate-900">{{ store.collections.length }}</span>
-            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">Collections</span>
-          </div>
+      <div class="text-center">
+        <span class="block text-2xl font-bold text-slate-900">{{ filteredCollections.length }}</span>
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">Collections</span>
+      </div>
           <div class="w-px h-8 bg-slate-200"></div>
           <div class="text-center">
             <span class="block text-2xl font-bold text-slate-900">{{ totalPrompts }}</span>
@@ -103,7 +112,7 @@
       class="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-primary text-white shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
       @click="showCreateModal = true"
     >
-      <span class="material-symbols-outlined">add</span>
+      <span class="material-symbols-outlined transition-all hover:rotate-90">add</span>
     </button>
 
     <div v-if="showCreateModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="showCreateModal = false">
@@ -118,24 +127,24 @@
             <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
             <input v-model="newCollection.description" class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20" placeholder="Optional description..." />
           </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Icon</label>
-            <select v-model="newCollection.icon" class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20">
-              <option value="folder">Folder</option>
-              <option value="architecture">Architecture</option>
-              <option value="code">Code</option>
-              <option value="palette">Palette</option>
-              <option value="campaign">Marketing</option>
-              <option value="camera_roll">Camera</option>
-              <option value="image">Image</option>
-              <option value="movie">Video</option>
-              <option value="brush">Art</option>
-              <option value="web">Design</option>
-            </select>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Icon</label>
+          <div class="grid grid-cols-5 gap-2">
+            <button
+              v-for="icon in availableIcons"
+              :key="icon.value"
+              @click="newCollection.icon = icon.value"
+              class="w-10 h-10 rounded-lg flex items-center justify-center transition-all"
+              :class="newCollection.icon === icon.value ? 'bg-primary text-white ring-2 ring-primary' : 'bg-surface-container-low text-slate-600 hover:bg-surface-container'"
+              :title="icon.label"
+            >
+              <span class="material-symbols-outlined">{{ icon.value }}</span>
+            </button>
           </div>
+        </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Color</label>
-            <input v-model="newCollection.color" type="color" class="w-full h-10 rounded-xl cursor-pointer" />
+            <input v-model="newCollection.color" type="color" class="w-50 h-10 rounded-md cursor-pointer p-1" />
           </div>
         </div>
         <div class="flex gap-3 mt-6">
@@ -179,6 +188,20 @@ const showAddPromptModal = ref(false)
 const collectionToDelete = ref<any>(null)
 const selectedCollection = ref<any>(null)
 const newCollection = ref({ name: '', description: '', icon: 'folder', color: '#005bc1' })
+const searchQuery = ref('')
+
+const availableIcons = [
+  { value: 'folder', label: 'Folder' },
+  { value: 'architecture', label: 'Architecture' },
+  { value: 'code', label: 'Code' },
+  { value: 'palette', label: 'Palette' },
+  { value: 'campaign', label: 'Marketing' },
+  { value: 'camera_roll', label: 'Camera' },
+  { value: 'image', label: 'Image' },
+  { value: 'movie', label: 'Video' },
+  { value: 'brush', label: 'Art' },
+  { value: 'web', label: 'Design' }
+]
 
 const collectionCounts = computed(() => {
   const counts: Record<number, number> = {}
@@ -192,6 +215,15 @@ const collectionCounts = computed(() => {
 
 const totalPrompts = computed(() => store.prompts.length)
 const totalFavorites = computed(() => store.prompts.filter(p => p.is_favorite).length)
+
+const filteredCollections = computed(() => {
+  if (!searchQuery.value) return store.collections
+  const q = searchQuery.value.toLowerCase()
+  return store.collections.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    c.description?.toLowerCase().includes(q)
+  )
+})
 
 function getCollectionCount(id: number) {
   return collectionCounts.value[id] || 0

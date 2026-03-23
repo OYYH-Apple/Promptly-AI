@@ -1,16 +1,16 @@
 <template>
   <section class="flex-1 overflow-y-auto p-10 bg-surface">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex items-end justify-between mb-12">
+    <div class="max-w-7xl mx-auto space-y-12">
+      <div class="flex items-end justify-between">
         <div>
           <h2 class="text-3xl font-bold tracking-tight text-on-surface mb-2">Favorites</h2>
           <p class="text-on-surface-variant max-w-md">Quick access to your most-used and starred prompts.</p>
         </div>
         <div class="flex gap-2 p-1 bg-surface-container-low rounded-xl">
           <button
-            @click="viewMode = 'grid'"
-            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
-          >Grid</button>
+            @click="viewMode = 'section'"
+            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'section' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
+          >Section</button>
           <button
             @click="viewMode = 'list'"
             :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
@@ -28,19 +28,52 @@
       </div>
 
       <template v-else>
-        <div v-if="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        <PromptCard
-          v-for="(prompt, idx) in favorites"
-          :key="prompt.id"
-          :prompt="prompt"
-          :rotation-index="idx"
-          @click="router.push(`/prompt/${prompt.id}`)"
-          @toggle-favorite="store.toggleFavorite(prompt.id!)"
-          @copy="copyPrompt"
-          @open-image="openImageViewer"
-        />
-        </div>
+        <!-- Section View -->
+        <template v-if="viewMode === 'section'">
+          <PromptSection
+            title="Image Generation"
+            icon="image"
+            icon-color="#005bc1"
+            :items="imageFavorites"
+            :show-add-button="false"
+          >
+<template #default="{ items }">
+      <PromptCard
+        v-for="(prompt, idx) in items"
+        :key="prompt.id"
+        :prompt="prompt"
+        :rotation-index="idx"
+        @click="router.push(`/prompt/${prompt.id}`)"
+        @toggle-favorite="prompt.id && store.toggleFavorite(prompt.id)"
+        @copy="copyPrompt"
+        @open-image="openImageViewer"
+      />
+    </template>
+    </PromptSection>
 
+    <PromptSection
+      title="Video Prompts"
+      icon="movie"
+      icon-color="#5f5c78"
+      :items="videoFavorites"
+      :show-add-button="false"
+    >
+    <template #default="{ items }">
+      <PromptCard
+        v-for="(prompt, idx) in items"
+        :key="prompt.id"
+        :prompt="prompt"
+        :rotation-index="idx"
+        @click="router.push(`/prompt/${prompt.id}`)"
+        @toggle-favorite="prompt.id && store.toggleFavorite(prompt.id)"
+        @copy="copyPrompt"
+        @open-image="openImageViewer"
+      />
+    </template>
+    </PromptSection>
+        </template>
+
+        <!-- List View -->
         <div v-else class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
           <table class="w-full text-left border-collapse">
             <thead>
@@ -130,16 +163,25 @@ import { useRouter } from 'vue-router'
 import { usePromptStore } from '@/stores/prompts'
 import ImageViewer from '@/components/ImageViewer.vue'
 import PromptCard from '@/components/PromptCard.vue'
+import PromptSection from '@/components/PromptSection.vue'
 
 const router = useRouter()
 const store = usePromptStore()
 
-const viewMode = ref<'grid' | 'list'>('grid')
+const viewMode = ref<'section' | 'list'>('section')
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)
 
 const favorites = computed(() => store.prompts.filter(p => p.is_favorite))
+
+const imageFavorites = computed(() => {
+  return favorites.value.filter(p => p.category === 'Image Generation')
+})
+
+const videoFavorites = computed(() => {
+  return favorites.value.filter(p => p.category === 'Video Prompt')
+})
 
 const categoryStyles: Record<string, { icon: string; badge: string; bg: string; textColor: string; badgeList: string }> = {
   'Image Generation': {
