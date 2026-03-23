@@ -33,6 +33,18 @@ A modern AI prompt management tool built with Vue 3, Electron, and TypeScript.
 ### ImageView
 ![ImageView](src/renderer/src/assets/images/ImageView.png)
 
+## GIF
+
+### Creat new prompt
+![creat new prompt](src/renderer/src/assets/gif/creatnewprompt.gif)
+
+### View prompt detail
+![view prompt detail](src/renderer/src/assets/gif/promptdetail.gif)
+
+### Collection operation
+![collection operation](src/renderer/src/assets/gif/collection.gif)
+
+
 ## Getting Started
 
 ### Prerequisites
