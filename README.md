@@ -22,16 +22,16 @@ A modern AI prompt management tool built with Vue 3, Electron, and TypeScript.
 ## Screenshots
 
 ### Prompt Library
-![Library](src\renderer\src\assets\images\Library.png)
+![Library](src/renderer/src/assets/images/Library.png)
 
 ### Favorites
-![Favorites](src\renderer\src\assets\images\Favorites.png)
+![Favorites](src/renderer/src/assets/images/Favorites.png)
 
 ### Collection
-![Collection](src\renderer\src\assets\images\Collection.png)
+![Collection](src/renderer/src/assets/images/Collection.png)
 
 ### ImageView
-![ImageView](src\renderer\src\assets\images\ImageView.png)
+![ImageView](src/renderer/src/assets/images/ImageView.png)
 
 ## Getting Started
 
