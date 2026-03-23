@@ -33,7 +33,8 @@ npm-debug.log*
 rustup-init.exe
 
 # 文档
-/docs/
+/docs/*
+!/docs/index.html
 
 # 脚本
 /scripts/
