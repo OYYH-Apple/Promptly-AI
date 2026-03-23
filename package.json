@@ -26,6 +26,7 @@
     "autoprefixer": "^10.4.18",
     "electron": "^29.1.4",
     "electron-builder": "^24.13.3",
+    "png-to-ico": "^3.0.1",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.4.2",
@@ -59,11 +60,17 @@
           ]
         }
       ],
-      "icon": "build/icon.png"
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcuts": true,
+      "shortcutName": "Promptly AI",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installDir": "Promptly AI"
     },
     "publish": {
       "provider": "github",
