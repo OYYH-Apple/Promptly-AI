@@ -68,6 +68,7 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Promptly AI",
       "deleteAppDataOnUninstall": true,
+      "include": "build/installer.nsh",
       "perMachine": false
     },
     "publish": {
