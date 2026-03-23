@@ -44,7 +44,6 @@ A modern AI prompt management tool built with Vue 3, Electron, and TypeScript.
 ### Collection operation
 ![collection operation](src/renderer/src/assets/gif/collection.gif)
 
-
 ## Getting Started
 
 ### Prerequisites
