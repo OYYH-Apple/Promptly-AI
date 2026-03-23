@@ -1,6 +1,6 @@
 {
   "name": "promptly-ai",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "AI Prompt Management Tool",
   "main": "dist-electron/main/index.js",
   "author": "codename19",
@@ -10,7 +10,8 @@
     "build": "vue-tsc --noEmit && vite build && electron-builder",
     "preview": "vite preview",
     "electron:dev": "vite",
-    "electron:build": "vite build && electron-builder"
+    "electron:build": "vite build && electron-builder",
+    "release": "npm run build && electron-builder --publish always"
   },
   "dependencies": {
     "@vueuse/core": "^10.9.0",

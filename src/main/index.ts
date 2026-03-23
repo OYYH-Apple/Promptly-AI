@@ -138,6 +138,8 @@ function createWindow() {
     height: 800,
     minWidth: 1024,
     minHeight: 600,
+    frame: false,
+    titleBarStyle: 'hidden',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -148,7 +150,7 @@ function createWindow() {
 
   if (process.env.VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
-    mainWindow.webContents.openDevTools()
+    // DevTools closed by default, press Ctrl+Shift+I to open
   } else {
     mainWindow.loadFile(join(__dirname, '../../dist/index.html'))
   }
@@ -501,3 +503,26 @@ ipcMain.handle('quit-and-install', () => {
 })
 
 setupAutoUpdater()
+
+// ==================== Window Controls ====================
+
+ipcMain.handle('window:minimize', () => {
+  mainWindow?.minimize()
+})
+
+ipcMain.handle('window:maximize', () => {
+  if (mainWindow?.isMaximized()) {
+    mainWindow.unmaximize()
+  } else {
+    mainWindow?.maximize()
+  }
+  return mainWindow?.isMaximized()
+})
+
+ipcMain.handle('window:close', () => {
+  mainWindow?.close()
+})
+
+ipcMain.handle('window:isMaximized', () => {
+  return mainWindow?.isMaximized()
+})

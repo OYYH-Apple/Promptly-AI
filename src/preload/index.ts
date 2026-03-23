@@ -44,6 +44,12 @@ export interface DownloadProgress {
 }
 
 const api = {
+  // Window controls
+  minimizeWindow: (): Promise<void> => ipcRenderer.invoke('window:minimize'),
+  maximizeWindow: (): Promise<boolean> => ipcRenderer.invoke('window:maximize'),
+  closeWindow: (): Promise<void> => ipcRenderer.invoke('window:close'),
+  isMaximized: (): Promise<boolean> => ipcRenderer.invoke('window:isMaximized'),
+
   getPrompts: (params: {
     category?: string
     search?: string

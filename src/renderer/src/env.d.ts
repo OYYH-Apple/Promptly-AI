@@ -53,6 +53,12 @@ interface DownloadProgress {
 
 interface Window {
   api: {
+    // Window controls
+    minimizeWindow: () => Promise<void>
+    maximizeWindow: () => Promise<boolean>
+    closeWindow: () => Promise<void>
+    isMaximized: () => Promise<boolean>
+
     getPrompts: (params?: { category?: string; search?: string; favorites?: boolean; collectionId?: number; limit?: number; offset?: number }) => Promise<Prompt[]>
     getPrompt: (id: number) => Promise<Prompt | null>
     createPrompt: (prompt: Partial<Prompt>) => Promise<number>
@@ -68,15 +74,15 @@ interface Window {
     getStoragePath: () => Promise<string>
     changeStoragePath: () => Promise<{ oldPath: string; newPath: string } | null>
     purgeAllData: () => Promise<boolean>
-exportData: () => Promise<string | null>
-  importData: () => Promise<{ prompts?: Prompt[]; collections?: Collection[] } | null>
-  checkForUpdates: () => Promise<UpdateInfo>
-  downloadUpdate: () => Promise<{ success: boolean; error?: string }>
-  quitAndInstall: () => Promise<void>
-  onUpdateAvailable: (callback: (info: { version: string; releaseDate?: string; releaseNotes?: string | string[] }) => void) => void
-  onUpdateDownloaded: (callback: () => void) => void
-  onUpdateError: (callback: (error: string) => void) => void
-  onDownloadProgress: (callback: (progress: DownloadProgress) => void) => void
-  removeUpdateListeners: () => void
-}
+    exportData: () => Promise<string | null>
+    importData: () => Promise<{ prompts?: Prompt[]; collections?: Collection[] } | null>
+    checkForUpdates: () => Promise<UpdateInfo>
+    downloadUpdate: () => Promise<{ success: boolean; error?: string }>
+    quitAndInstall: () => Promise<void>
+    onUpdateAvailable: (callback: (info: { version: string; releaseDate?: string; releaseNotes?: string | string[] }) => void) => void
+    onUpdateDownloaded: (callback: () => void) => void
+    onUpdateError: (callback: (error: string) => void) => void
+    onDownloadProgress: (callback: (progress: DownloadProgress) => void) => void
+    removeUpdateListeners: () => void
+  }
 }
