@@ -4,7 +4,7 @@
   "description": "AI Prompt Management Tool",
   "main": "dist-electron/main/index.js",
   "author": "codename19",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder",

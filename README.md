@@ -22,13 +22,16 @@ A modern AI prompt management tool built with Vue 3, Electron, and TypeScript.
 ## Screenshots
 
 ### Prompt Library
-![Library View](assets/ref/pages/prompt_library_apple_minimalist/screen.png)
+![Library View](src\renderer\src\assets\images\Library.png)
 
-### Collections
-![Collections View](assets/ref/pages/collections_spa_uniform/screen.png)
+### Favorites
+![Collections View](src\renderer\src\assets\images\Favorites.png)
 
-### Collection Detail
-![Collection Detail](assets/ref/pages/collections_detail/screen.png)
+### Collection
+![Collection Detail](src\renderer\src\assets\images\Collection.png)
+
+### ImageView
+![Collection Detail](src\renderer\src\assets\images\ImageView.png)
 
 ## Getting Started
 
@@ -120,7 +123,7 @@ npm run electron:build
 
 ## License
 
-MIT
+Apache-2.0
 
 ## Author
 
