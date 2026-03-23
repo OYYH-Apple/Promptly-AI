@@ -59,18 +59,17 @@
             "x64"
           ]
         }
-      ],
-      "icon": "build/icon.ico"
+      ]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcuts": true,
+      "createStartMenuShortcut": true,
       "shortcutName": "Promptly AI",
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico",
-      "installDir": "Promptly AI"
+      "deleteAppDataOnUninstall": true,
+      "include": "build/installer.nsh",
+      "perMachine": false
     },
     "publish": {
       "provider": "github",
