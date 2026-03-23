@@ -75,53 +75,17 @@
       </div>
     </div>
 
-    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
-      @close="viewerVisible = false" />
+<ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
+    @close="viewerVisible = false" />
 
-    <div v-if="showAddPromptModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      @click.self="showAddPromptModal = false">
-      <div class="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-bold">Add Prompts to "{{ collection?.name }}"</h3>
-          <button @click="showAddPromptModal = false" class="p-2 hover:bg-slate-100 rounded-full">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-        <div class="mb-4">
-          <input v-model="promptSearchQuery"
-            class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-            placeholder="Search prompts..." />
-        </div>
-        <div class="flex-1 overflow-y-auto space-y-2">
-          <div v-for="prompt in availablePrompts" :key="prompt.id"
-            class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl hover:bg-surface-container transition-colors cursor-pointer"
-            :class="{ 'ring-2 ring-primary bg-primary/5': selectedPromptIds.includes(prompt.id as number) }"
-            @click="togglePromptSelection(prompt.id as number)">
-            <div class="flex-1 min-w-0">
-              <p class="font-medium text-slate-900 truncate">{{ prompt.title }}</p>
-              <p class="text-xs text-slate-500 truncate">{{ prompt.content_zh?.slice(0, 60) ||
-                prompt.content_en?.slice(0, 60) }}...</p>
-            </div>
-            <span v-if="prompt.collection_id === collection?.id"
-              class="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">In collection</span>
-            <span v-else-if="prompt.collection_id" class="text-xs px-2 py-1 bg-slate-100 text-slate-500 rounded-full">In
-              other</span>
-          </div>
-        </div>
-        <div class="flex gap-3 mt-4 pt-4 border-t">
-          <span class="text-sm text-slate-500">{{ selectedPromptIds.length }} selected</span>
-          <div class="flex-1"></div>
-          <button @click="showAddPromptModal = false"
-            class="px-4 py-2 bg-surface-container-high rounded-xl font-medium">Cancel</button>
-          <button @click="addPromptsToCollection" class="px-4 py-2 bg-primary text-white rounded-xl font-medium"
-            :disabled="selectedPromptIds.length === 0">
-            Add {{ selectedPromptIds.length || '' }} Prompts
-          </button>
-        </div>
-      </div>
-    </div>
+  <AddPromptModal
+    v-model:visible="showAddPromptModal"
+    :collection-id="collectionId"
+    :collection-name="collection?.name || ''"
+    @added="handlePromptsAdded"
+  />
 
-    <ConfirmDialog v-model:visible="showRemoveDialog" type="warning" title="Remove from Collection"
+  <ConfirmDialog v-model:visible="showRemoveDialog" type="warning" title="Remove from Collection"
       :message="`Remove '${promptToRemove?.title}' from this collection? The prompt will not be deleted.`"
       confirm-text="Remove" cancel-text="Cancel" @confirm="handleRemove" />
   </section>
@@ -134,6 +98,7 @@ import { usePromptStore } from '@/stores/prompts'
 import ImageViewer from '@/components/ImageViewer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PromptCard from '@/components/PromptCard.vue'
+import AddPromptModal from '@/components/AddPromptModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -145,27 +110,12 @@ const loading = ref(true)
 const showAddPromptModal = ref(false)
 const showRemoveDialog = ref(false)
 const promptToRemove = ref<any>(null)
-const selectedPromptIds = ref<number[]>([])
-const promptSearchQuery = ref('')
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)
 
 const collectionPrompts = computed(() => {
   return store.prompts.filter(p => p.collection_id === collectionId.value)
-})
-
-const availablePrompts = computed(() => {
-  let prompts = store.prompts
-  if (promptSearchQuery.value) {
-    const q = promptSearchQuery.value.toLowerCase()
-    prompts = prompts.filter(p =>
-      p.title.toLowerCase().includes(q) ||
-      p.content_zh?.toLowerCase().includes(q) ||
-      p.content_en?.toLowerCase().includes(q)
-    )
-  }
-  return prompts
 })
 
 async function copyPrompt(prompt: any) {
@@ -182,26 +132,7 @@ function openImageViewer(images: string[], index: number) {
   viewerVisible.value = true
 }
 
-function togglePromptSelection(promptId: number) {
-  const index = selectedPromptIds.value.indexOf(promptId)
-  if (index > -1) {
-    selectedPromptIds.value.splice(index, 1)
-  } else {
-    selectedPromptIds.value.push(promptId)
-  }
-}
-
-async function addPromptsToCollection() {
-  if (!collection.value || selectedPromptIds.value.length === 0) return
-
-  for (const promptId of selectedPromptIds.value) {
-    if (promptId !== undefined && promptId !== null) {
-      await store.updatePrompt(promptId, { collection_id: collection.value.id })
-    }
-  }
-
-  showAddPromptModal.value = false
-  selectedPromptIds.value = []
+function handlePromptsAdded() {
   showToast('Prompts added to collection', 'success')
 }
 

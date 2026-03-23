@@ -35,7 +35,7 @@
           :prompt="prompt"
           :rotation-index="idx"
           @click="router.push(`/prompt/${prompt.id}`)"
-          @toggle-favorite="store.toggleFavorite($event)"
+          @toggle-favorite="store.toggleFavorite(prompt.id!)"
           @copy="copyPrompt"
           @open-image="openImageViewer"
         />
@@ -138,8 +138,6 @@ const viewMode = ref<'grid' | 'list'>('grid')
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)
-
-const thumbnailRotations = [3, -2, 4, -3, 2, -4]
 
 const favorites = computed(() => store.prompts.filter(p => p.is_favorite))
 
