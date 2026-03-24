@@ -328,12 +328,17 @@ export default {
     makePrivateMessage: 'This prompt will be hidden from others. Are you sure?',
     // Purge data
     purgeDataTitle: 'Purge All Data',
+    purgeAllDataTitle: 'Purge All Data',
     purgeDataMessage: 'This will permanently delete all your prompts, collections, and settings. This action cannot be undone.',
+    purgeAllDataMessage: 'This will permanently delete all your prompts, collections, and settings. This action cannot be undone.',
     purgeConfirm: 'Purge All',
+    purgeAll: 'Purge All',
     // Update available
     updateAvailableTitle: 'Update Available',
+    versionReadyToInstall: 'Version {version} is ready to install',
     updateAvailableMessage: 'Version {version} is ready to install',
     whatsNew: "What's new:",
+    downloadAndInstall: 'Download & Install',
     // Collections
     deleteCollectionTitle: 'Delete Collection',
     deleteCollectionMessage: "Are you sure you want to delete '{name}'? Prompts in this collection will not be deleted.",
@@ -342,7 +347,9 @@ export default {
     // System Logs
     systemLogsTitle: 'System Logs',
     noLogs: 'No logs available',
-    logEntries: '{count} log entries'
+    noLogsAvailable: 'No logs available',
+    logEntries: '{count} log entries',
+    logEntriesCount: '{count} log entries'
   },
 
   // ==================== Notifications ====================

@@ -328,12 +328,17 @@ export default {
     makePrivateMessage: '此提示词将对其他人隐藏。确定吗？',
     // 清除数据
     purgeDataTitle: '清除所有数据',
+    purgeAllDataTitle: '清除所有数据',
     purgeDataMessage: '这将永久删除您的所有提示词、集合和设置。此操作无法撤销。',
+    purgeAllDataMessage: '这将永久删除您的所有提示词、集合和设置。此操作无法撤销。',
     purgeConfirm: '清除全部',
+    purgeAll: '清除全部',
     // 更新可用
     updateAvailableTitle: '有可用更新',
+    versionReadyToInstall: '版本 {version} 已准备好安装',
     updateAvailableMessage: '版本 {version} 已准备好安装',
     whatsNew: '更新内容：',
+    downloadAndInstall: '下载并安装',
     // 集合
     deleteCollectionTitle: '删除集合',
     deleteCollectionMessage: '确定要删除「{name}」吗？集合中的提示词不会被删除。',
@@ -342,7 +347,9 @@ export default {
     // 系统日志
     systemLogsTitle: '系统日志',
     noLogs: '暂无日志',
-    logEntries: '{count} 条日志记录'
+    noLogsAvailable: '暂无日志',
+    logEntries: '{count} 条日志记录',
+    logEntriesCount: '{count} 条日志记录'
   },
 
   // ==================== 通知 ====================
