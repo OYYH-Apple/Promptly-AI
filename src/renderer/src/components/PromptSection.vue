@@ -12,7 +12,7 @@
           </span>
         </h3>
         <div class="flex items-center gap-1 bg-surface-container-low rounded-lg p-0.5">
-          <Tooltip text="Sort by newest" placement="top">
+          <Tooltip :text="t('tooltip.sortByNewest')" placement="top">
             <button
               @click="sortBy = 'newest'"
               :class="[
@@ -20,10 +20,10 @@
                 sortBy === 'newest' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'
               ]"
             >
-              Newest
+              {{ t('library.newest') }}
             </button>
           </Tooltip>
-          <Tooltip text="Sort by oldest" placement="top">
+          <Tooltip :text="t('tooltip.sortByOldest')" placement="top">
             <button
               @click="sortBy = 'oldest'"
               :class="[
@@ -31,21 +31,21 @@
                 sortBy === 'oldest' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'
               ]"
             >
-              Oldest
+              {{ t('library.oldest') }}
             </button>
           </Tooltip>
         </div>
       </div>
       <div class="flex items-center gap-3">
         <span v-if="!isExpanded && totalCount > maxVisible" class="text-xs text-slate-400">
-          Showing {{ maxVisible }} of {{ totalCount }}
+          {{ t('view.showingOf', { visible: maxVisible, total: totalCount }) }}
         </span>
-        <Tooltip v-if="showViewAll && totalCount > maxVisible" :text="isExpanded ? 'Collapse section' : 'Show all items'" placement="top">
+        <Tooltip v-if="showViewAll && totalCount > maxVisible" :text="isExpanded ? t('tooltip.collapseSection') : t('tooltip.showAllItems')" placement="top">
           <button
             @click="toggleExpand"
             class="text-primary text-xs font-semibold hover:underline"
           >
-            {{ isExpanded ? 'Show Less' : `View all (${totalCount})` }}
+            {{ isExpanded ? t('library.showLess') : t('library.viewAll', { count: totalCount }) }}
           </button>
         </Tooltip>
       </div>
@@ -73,7 +73,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import Tooltip from './Tooltip.vue'
+
+const { t } = useI18n()
 
 const props = withDefaults(defineProps<{
   title: string
