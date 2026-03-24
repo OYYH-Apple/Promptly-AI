@@ -443,6 +443,11 @@ const defaultNotifications = [
 
 const notifications = ref(defaultNotifications.map(n => ({ ...n, read: false })))
 
+// 计算未读通知数量
+const unreadCount = computed(() => {
+  return notifications.value.filter(n => !n.read).length
+})
+
 function loadNotificationStates() {
   try {
     const saved = localStorage.getItem('notification-states')
@@ -480,10 +485,6 @@ const helpSectionIcons: Record<string, string> = {
   shortcuts: 'keyboard',
   data: 'storage'
 }
-
-const currentSectionIcon = computed(() => helpSectionIcons[activeSection.value])
-
-const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
