@@ -27,7 +27,8 @@ export default {
     remove: 'Remove',
     clear: 'Clear',
     searchCollections: 'Search collections...',
-    upload: 'Upload'
+    upload: 'Upload',
+    change: 'Change'
   },
 
   // ==================== Navigation ====================
@@ -281,19 +282,24 @@ export default {
     feedbackFailed: 'Failed to send feedback',
     // Updates
     latestVersion: 'You are running the latest version',
+    failedToCheckUpdates: 'Failed to check for updates',
     checkUpdateFailed: 'Failed to check for updates',
     updateDownloaded: 'Update downloaded, restart to install',
+    failedToDownloadUpdate: 'Failed to download update',
     downloadUpdateFailed: 'Failed to download update',
     updateDownloadedRestart: 'Update downloaded, restart app to install',
     updateError: 'Update error',
     // Data Management
     storageMoved: 'Storage moved to {path}',
+    failedToChangeStoragePath: 'Failed to change storage path',
     changeStorageFailed: 'Failed to change storage path',
     dataExported: 'Data exported successfully',
     exportFailed: 'Export failed',
+    importedPrompts: 'Imported {count} prompts',
     dataImported: 'Imported {count} prompts',
     importFailed: 'Import failed',
     dataPurged: 'All data has been purged',
+    failedToPurgeData: 'Failed to purge data',
     purgeFailed: 'Failed to purge data',
     // Collections
     promptsAddedToCollection: 'Prompts added to collection',

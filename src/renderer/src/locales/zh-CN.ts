@@ -27,7 +27,8 @@ export default {
     remove: '移除',
     clear: '清除',
     searchCollections: '搜索集合...',
-    upload: '上传'
+    upload: '上传',
+    change: '更改'
   },
 
   // ==================== 导航 ====================
@@ -281,19 +282,24 @@ export default {
     feedbackFailed: '反馈发送失败',
     // 更新
     latestVersion: '当前已是最新版本',
+    failedToCheckUpdates: '检查更新失败',
     checkUpdateFailed: '检查更新失败',
     updateDownloaded: '更新已下载，重启后安装',
+    failedToDownloadUpdate: '下载更新失败',
     downloadUpdateFailed: '下载更新失败',
     updateDownloadedRestart: '更新已下载完成，重启应用即可安装',
     updateError: '更新出错',
     // 数据管理
     storageMoved: '存储位置已更改到 {path}',
+    failedToChangeStoragePath: '更改存储路径失败',
     changeStorageFailed: '更改存储路径失败',
     dataExported: '数据导出成功',
     exportFailed: '导出失败',
+    importedPrompts: '已导入 {count} 个提示词',
     dataImported: '已导入 {count} 个提示词',
     importFailed: '导入失败',
     dataPurged: '所有数据已清除',
+    failedToPurgeData: '清除数据失败',
     purgeFailed: '清除数据失败',
     // 集合
     promptsAddedToCollection: '提示词已添加到集合',
