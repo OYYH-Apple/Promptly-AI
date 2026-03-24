@@ -2,13 +2,13 @@
   <section class="flex-1 overflow-y-auto py-16 px-8 bg-surface">
     <div class="max-w-4xl mx-auto">
       <div class="mb-12">
-        <h2 class="text-3xl font-bold tracking-tight text-on-surface mb-2">Settings & Data</h2>
-        <p class="text-on-surface-variant">Manage your workspace preferences, local environment, and data portability.</p>
+        <h2 class="text-3xl font-bold tracking-tight text-on-surface mb-2">{{ t('settings.title') }}</h2>
+        <p class="text-on-surface-variant">{{ t('settings.subtitle') }}</p>
       </div>
 
       <!-- Storage Configuration -->
       <div class="space-y-6 mb-12">
-        <h3 class="text-xs font-bold uppercase tracking-[0.15em] text-outline px-1">Storage Configuration</h3>
+        <h3 class="text-xs font-bold uppercase tracking-[0.15em] text-outline px-1">{{ t('settings.storageConfig') }}</h3>
         <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-slate-200/5 overflow-hidden">
           <div class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors duration-200">
             <div class="flex items-center gap-4">
@@ -16,16 +16,16 @@
                 <span class="material-symbols-outlined">folder_open</span>
               </div>
               <div>
-                <h4 class="font-semibold text-on-surface">Local Storage Path</h4>
+                <h4 class="font-semibold text-on-surface">{{ t('settings.localStoragePath') }}</h4>
                 <p class="text-sm text-on-surface-variant font-mono mt-0.5">{{ storagePath }}</p>
               </div>
             </div>
-            <Tooltip text="Change storage path" placement="top">
+            <Tooltip :text="t('tooltip.changeStoragePath')" placement="top">
               <button
                 @click="changeStoragePath"
                 class="px-5 py-2 text-sm font-semibold text-primary bg-primary-container/40 rounded-xl hover:bg-primary-container transition-all active:scale-[0.97]"
               >
-                Change
+                {{ t('common.change') }}
               </button>
             </Tooltip>
           </div>
@@ -34,7 +34,7 @@
 
       <!-- Data Management -->
       <div class="space-y-6 mb-12">
-        <h3 class="text-xs font-bold uppercase tracking-[0.15em] text-outline px-1">Data Management</h3>
+        <h3 class="text-xs font-bold uppercase tracking-[0.15em] text-outline px-1">{{ t('settings.dataManagement') }}</h3>
         <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-slate-200/5 divide-y divide-slate-100">
           <div class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors duration-200">
             <div class="flex items-center gap-4">
@@ -42,17 +42,17 @@
                 <span class="material-symbols-outlined">ios_share</span>
               </div>
               <div>
-                <h4 class="font-semibold text-on-surface">Export Workspace Data</h4>
-                <p class="text-sm text-on-surface-variant mt-0.5">Download a JSON archive of all your prompts and collections.</p>
+                <h4 class="font-semibold text-on-surface">{{ t('settings.exportData') }}</h4>
+                <p class="text-sm text-on-surface-variant mt-0.5">{{ t('settings.exportDataDesc') }}</p>
               </div>
             </div>
-            <Tooltip text="Export as JSON file" placement="top">
+            <Tooltip :text="t('tooltip.exportAsJson')" placement="top">
               <button
                 @click="handleExport"
                 :disabled="isExporting"
                 class="px-5 py-2 text-sm font-semibold text-on-surface bg-surface-container-high rounded-xl hover:bg-surface-container-highest transition-all active:scale-[0.97] disabled:opacity-50"
               >
-                {{ isExporting ? 'Exporting...' : 'Export Data' }}
+                {{ isExporting ? t('settings.exporting') : t('settings.exportData') }}
               </button>
             </Tooltip>
           </div>
@@ -62,17 +62,17 @@
                 <span class="material-symbols-outlined">file_upload</span>
               </div>
               <div>
-                <h4 class="font-semibold text-on-surface">Import Data</h4>
-                <p class="text-sm text-on-surface-variant mt-0.5">Merge existing archives into your current workspace.</p>
+                <h4 class="font-semibold text-on-surface">{{ t('settings.importData') }}</h4>
+                <p class="text-sm text-on-surface-variant mt-0.5">{{ t('settings.importDataDesc') }}</p>
               </div>
             </div>
-            <Tooltip text="Import from JSON file" placement="top">
+            <Tooltip :text="t('tooltip.importFromJson')" placement="top">
               <button
                 @click="handleImport"
                 :disabled="isImporting"
                 class="px-5 py-2 text-sm font-semibold text-on-surface bg-surface-container-high rounded-xl hover:bg-surface-container-highest transition-all active:scale-[0.97] disabled:opacity-50"
               >
-                {{ isImporting ? 'Importing...' : 'Import Data' }}
+                {{ isImporting ? t('settings.importing') : t('settings.importData') }}
               </button>
             </Tooltip>
           </div>
@@ -81,7 +81,7 @@
 
       <!-- Software Update -->
       <div class="mb-12 space-y-6">
-        <h3 class="text-xs font-bold uppercase tracking-[0.15em] text-outline px-1">Software Update</h3>
+        <h3 class="text-xs font-bold uppercase tracking-[0.15em] text-outline px-1">{{ t('settings.softwareUpdate') }}</h3>
         <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-slate-200/5 divide-y divide-slate-100 overflow-hidden">
           <!-- Check for Updates -->
           <div class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors duration-200">
@@ -90,10 +90,10 @@
                 <span class="material-symbols-outlined">update</span>
               </div>
               <div>
-                <h4 class="font-semibold text-on-surface">System Version</h4>
+                <h4 class="font-semibold text-on-surface">{{ t('settings.systemVersion') }}</h4>
                 <p class="text-sm text-on-surface-variant mt-0.5">
-                  Current version: <span class="font-mono">{{ currentVersion }}</span>
-                  <span v-if="updateAvailable" class="ml-2 text-amber-500 font-medium">(Update available)</span>
+                  {{ t('settings.currentVersion') }}: <span class="font-mono">{{ currentVersion }}</span>
+                  <span v-if="updateAvailable" class="ml-2 text-amber-500 font-medium">({{ t('settings.updateAvailable') }})</span>
                 </p>
               </div>
             </div>
@@ -101,7 +101,7 @@
               <!-- 下载进度条 -->
               <div v-if="isDownloading" class="w-48">
                 <div class="flex justify-between text-xs text-on-surface-variant mb-1">
-                  <span>下载中...</span>
+                  <span>{{ t('settings.downloading') }}</span>
                   <span>{{ downloadProgress.percent.toFixed(1) }}%</span>
                 </div>
                 <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
@@ -115,7 +115,7 @@
                 </div>
               </div>
 
-              <Tooltip text="Check for new version" placement="top">
+              <Tooltip :text="t('tooltip.checkForNewVersion')" placement="top">
                 <button
                   @click="checkForUpdates"
                   :disabled="isChecking || isDownloading"
@@ -123,9 +123,9 @@
                 >
                   <span v-if="isChecking" class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-                    检查中...
+                    {{ t('settings.checking') }}
                   </span>
-                  <span v-else>检查更新</span>
+                  <span v-else>{{ t('settings.checkUpdate') }}</span>
                 </button>
               </Tooltip>
             </div>
@@ -137,8 +137,8 @@
                 <span class="material-symbols-outlined">sync_saved_locally</span>
               </div>
               <div>
-                <h4 class="font-semibold text-on-surface">Automatic Updates</h4>
-                <p class="text-sm text-on-surface-variant mt-0.5">Automatically download and install future updates.</p>
+                <h4 class="font-semibold text-on-surface">{{ t('settings.automaticUpdates') }}</h4>
+                <p class="text-sm text-on-surface-variant mt-0.5">{{ t('settings.automaticUpdatesDesc') }}</p>
               </div>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
@@ -153,8 +153,8 @@
       <div class="p-8 bg-surface-container-low rounded-3xl border border-slate-200/10">
         <div class="flex items-start justify-between">
           <div>
-            <h3 class="text-lg font-bold text-on-surface mb-1">System Health</h3>
-            <p class="text-sm text-on-surface-variant mb-6">Real-time status of your local environment and engine connections.</p>
+            <h3 class="text-lg font-bold text-on-surface mb-1">{{ t('settings.systemHealth') }}</h3>
+            <p class="text-sm text-on-surface-variant mb-6">{{ t('settings.systemHealthDesc') }}</p>
             <div class="grid grid-cols-2 gap-8">
               <div class="flex items-center gap-3">
                 <div class="relative">
@@ -162,29 +162,29 @@
                   <div class="absolute inset-0 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping opacity-40"></div>
                 </div>
                 <div>
-                  <span class="block text-sm font-semibold text-on-surface">Local Node</span>
-                  <span class="block text-xs text-on-surface-variant">Operating at 100% capacity</span>
+                  <span class="block text-sm font-semibold text-on-surface">{{ t('systemHealth.localNode') }}</span>
+                  <span class="block text-xs text-on-surface-variant">{{ t('systemHealth.localNodeStatus') }}</span>
                 </div>
               </div>
               <div class="flex items-center gap-3">
                 <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
                 <div>
-                  <span class="block text-sm font-semibold text-on-surface">Search Index</span>
-                  <span class="block text-xs text-on-surface-variant">Last synced just now</span>
+                  <span class="block text-sm font-semibold text-on-surface">{{ t('systemHealth.searchIndex') }}</span>
+                  <span class="block text-xs text-on-surface-variant">{{ t('systemHealth.searchIndexStatus') }}</span>
                 </div>
               </div>
               <div class="flex items-center gap-3">
                 <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
                 <div>
-                  <span class="block text-sm font-semibold text-on-surface">Database</span>
-                  <span class="block text-xs text-on-surface-variant">SQLite Optimized ({{ stats.prompts }} items)</span>
+                  <span class="block text-sm font-semibold text-on-surface">{{ t('systemHealth.database') }}</span>
+                  <span class="block text-xs text-on-surface-variant">{{ t('systemHealth.databaseStatus', { count: stats.prompts }) }}</span>
                 </div>
               </div>
               <div class="flex items-center gap-3">
                 <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
                 <div>
-                  <span class="block text-sm font-semibold text-on-surface">Collections</span>
-                  <span class="block text-xs text-on-surface-variant">{{ stats.collections }} workspaces</span>
+                  <span class="block text-sm font-semibold text-on-surface">{{ t('systemHealth.collections') }}</span>
+                  <span class="block text-xs text-on-surface-variant">{{ t('systemHealth.collectionsStatus', { count: stats.collections }) }}</span>
                 </div>
               </div>
             </div>
@@ -193,9 +193,9 @@
             <div class="px-3 py-1 bg-white rounded-full border border-slate-200 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant shadow-sm">
               {{ currentVersion }}
             </div>
-            <Tooltip text="View system logs" placement="top">
+            <Tooltip :text="t('tooltip.viewSystemLogs')" placement="top">
               <button @click="showLogsModal = true" class="text-xs text-primary font-medium hover:underline">
-                View detailed logs
+                {{ t('settings.viewDetailedLogs') }}
               </button>
             </Tooltip>
           </div>
@@ -206,15 +206,15 @@
       <div class="mt-20 pt-10 border-t border-slate-200/30">
         <div class="flex items-center justify-between p-6 bg-error-container/10 rounded-2xl border border-error-container/20">
           <div>
-            <h4 class="font-bold text-on-error-container">Purge All Workspace Data</h4>
-            <p class="text-sm text-on-error-container opacity-80">This action is irreversible. All local prompts and indexes will be permanently deleted.</p>
+            <h4 class="font-bold text-on-error-container">{{ t('settings.purgeData') }}</h4>
+            <p class="text-sm text-on-error-container opacity-80">{{ t('settings.purgeDataDesc') }}</p>
           </div>
-          <Tooltip text="Permanently delete all data" placement="top">
+          <Tooltip :text="t('tooltip.permanentlyDeleteAllData')" placement="top">
             <button
               @click="showPurgeDialog = true"
               class="px-5 py-2 text-sm font-bold text-on-error bg-error rounded-xl hover:shadow-lg hover:shadow-error/20 transition-all active:scale-[0.97]"
             >
-              Purge Data
+              {{ t('settings.purgeData') }}
             </button>
           </Tooltip>
         </div>
@@ -225,10 +225,10 @@
     <ConfirmDialog
       v-model:visible="showPurgeDialog"
       type="danger"
-      title="Purge All Data"
-      message="This will permanently delete all your prompts, collections, and settings. This action cannot be undone."
-      confirm-text="Purge All"
-      cancel-text="Cancel"
+      :title="t('dialog.purgeAllDataTitle')"
+      :message="t('dialog.purgeAllDataMessage')"
+      :confirm-text="t('dialog.purgeAll')"
+      :cancel-text="t('dialog.cancel')"
       @confirm="handlePurge"
     />
 
@@ -240,12 +240,12 @@
             <span class="material-symbols-outlined text-2xl">system_update</span>
           </div>
           <div>
-            <h3 class="text-xl font-bold text-on-surface">Update Available</h3>
-            <p class="text-sm text-slate-500">Version {{ latestVersion }} is ready to install</p>
+            <h3 class="text-xl font-bold text-on-surface">{{ t('dialog.updateAvailableTitle') }}</h3>
+            <p class="text-sm text-slate-500">{{ t('dialog.versionReadyToInstall', { version: latestVersion }) }}</p>
           </div>
         </div>
         <div class="bg-surface-container-low rounded-xl p-4 mb-6">
-          <h4 class="font-semibold text-sm text-on-surface mb-2">What's new:</h4>
+          <h4 class="font-semibold text-sm text-on-surface mb-2">{{ t('dialog.whatsNew') }}</h4>
           <ul class="text-sm text-on-surface-variant space-y-1">
             <li v-for="(note, idx) in releaseNotes" :key="idx" class="flex items-start gap-2">
               <span class="text-primary mt-0.5">•</span>
@@ -254,12 +254,12 @@
           </ul>
         </div>
         <div class="flex gap-3">
-          <Tooltip text="Remind me later" placement="top">
-            <button @click="showUpdateDialog = false" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">Later</button>
+          <Tooltip :text="t('tooltip.remindMeLater')" placement="top">
+            <button @click="showUpdateDialog = false" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">{{ t('dialog.later') }}</button>
           </Tooltip>
-          <Tooltip text="Download and install update" placement="top">
+          <Tooltip :text="t('tooltip.downloadAndInstall')" placement="top">
             <button @click="downloadUpdate" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">
-              Download & Install
+              {{ t('dialog.downloadAndInstall') }}
             </button>
           </Tooltip>
         </div>
@@ -270,14 +270,14 @@
     <div v-if="showLogsModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="showLogsModal = false">
       <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
         <div class="flex items-center justify-between p-4 border-b border-slate-100">
-          <h3 class="text-lg font-bold text-on-surface">System Logs</h3>
+          <h3 class="text-lg font-bold text-on-surface">{{ t('dialog.systemLogsTitle') }}</h3>
           <button @click="showLogsModal = false" class="p-2 hover:bg-slate-100 rounded-full">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
         <div class="flex-1 overflow-y-auto p-4 bg-slate-900 font-mono text-xs">
           <div v-if="logs.length === 0" class="text-slate-500 text-center py-8">
-            No logs available
+            {{ t('dialog.noLogsAvailable') }}
           </div>
           <div v-else class="space-y-1">
             <div
@@ -297,23 +297,23 @@
           </div>
         </div>
         <div class="flex items-center justify-between p-4 border-t border-slate-100 bg-slate-50">
-          <span class="text-xs text-slate-500">{{ logs.length }} log entries</span>
+          <span class="text-xs text-slate-500">{{ t('dialog.logEntriesCount', { count: logs.length }) }}</span>
           <div class="flex gap-2">
-            <Tooltip text="Reload logs" placement="top">
+            <Tooltip :text="t('tooltip.reloadLogs')" placement="top">
               <button
                 @click="refreshLogs"
                 class="px-4 py-2 text-sm font-medium text-slate-600 bg-white rounded-xl hover:bg-slate-100 transition-colors"
               >
                 <span class="material-symbols-outlined text-sm align-middle mr-1">refresh</span>
-                Refresh
+                {{ t('common.refresh') }}
               </button>
             </Tooltip>
-            <Tooltip text="Close logs" placement="top">
+            <Tooltip :text="t('tooltip.closeLogs')" placement="top">
               <button
                 @click="showLogsModal = false"
                 class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary-dim transition-colors"
               >
-                Close
+                {{ t('common.close') }}
               </button>
             </Tooltip>
           </div>
@@ -325,11 +325,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { usePromptStore } from '@/stores/prompts'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import Tooltip from '@/components/Tooltip.vue'
 
 const store = usePromptStore()
+const { t } = useI18n()
 const stats = ref({ prompts: 0, collections: 0, favorites: 0 })
 const storagePath = ref('Loading...')
 const isExporting = ref(false)
@@ -367,10 +369,10 @@ async function checkForUpdates() {
       updateAvailable.value = true
       showUpdateDialog.value = true
     } else {
-      showToast('You are running the latest version', 'success')
+      showToast(t('toast.latestVersion'), 'success')
     }
   } catch (e) {
-    showToast('Failed to check for updates', 'error')
+    showToast(t('toast.failedToCheckUpdates'), 'error')
   } finally {
     isChecking.value = false
   }
@@ -384,12 +386,12 @@ async function downloadUpdate() {
   try {
     const result = await window.api.downloadUpdate?.()
     if (result?.success) {
-      showToast('更新已下载，重启后安装', 'success')
+      showToast(t('toast.updateDownloaded'), 'success')
     } else {
-      showToast(result?.error || '下载更新失败', 'error')
+      showToast(result?.error || t('toast.failedToDownloadUpdate'), 'error')
     }
   } catch (e) {
-    showToast('下载更新失败', 'error')
+    showToast(t('toast.failedToDownloadUpdate'), 'error')
   } finally {
     isDownloading.value = false
   }
@@ -400,10 +402,10 @@ async function changeStoragePath() {
     const result = await window.api.changeStoragePath()
     if (result) {
       storagePath.value = result.newPath
-      showToast(`Storage moved to ${result.newPath}`, 'success')
+      showToast(t('toast.storageMoved', { path: result.newPath }), 'success')
     }
   } catch (e) {
-    showToast('Failed to change storage path', 'error')
+    showToast(t('toast.failedToChangeStoragePath'), 'error')
   }
 }
 
@@ -426,10 +428,10 @@ async function handleExport() {
   try {
     const path = await store.exportData()
     if (path) {
-      showToast(`Data exported successfully`, 'success')
+      showToast(t('toast.dataExported'), 'success')
     }
   } catch (e) {
-    showToast('Export failed', 'error')
+    showToast(t('toast.exportFailed'), 'error')
   } finally {
     isExporting.value = false
   }
@@ -440,11 +442,11 @@ async function handleImport() {
   try {
     const data = await store.importData()
     if (data) {
-      showToast(`Imported ${data.prompts?.length || 0} prompts`, 'success')
+      showToast(t('toast.importedPrompts', { count: data.prompts?.length || 0 }), 'success')
       stats.value = await window.api.getStats()
     }
   } catch (e) {
-    showToast('Import failed', 'error')
+    showToast(t('toast.importFailed'), 'error')
   } finally {
     isImporting.value = false
   }
@@ -454,12 +456,12 @@ async function handlePurge() {
   try {
     const success = await window.api.purgeAllData()
     if (success) {
-      showToast('All data has been purged', 'success')
+      showToast(t('toast.dataPurged'), 'success')
       stats.value = { prompts: 0, collections: 0, favorites: 0 }
       await store.fetchPrompts()
       await store.fetchCollections()
     } else {
-      showToast('Failed to purge data', 'error')
+    showToast(t('toast.failedToPurgeData'), 'error')
     }
   } catch (e) {
     showToast('Failed to purge data', 'error')
@@ -507,13 +509,13 @@ onMounted(async () => {
   // 监听更新下载完成
   window.api.onUpdateDownloaded?.(() => {
     isDownloading.value = false
-    showToast('更新已下载完成，重启应用即可安装', 'success')
+    showToast(t('toast.updateDownloadedRestart'), 'success')
   })
 
   // 监听更新错误
   window.api.onUpdateError?.((error) => {
     isDownloading.value = false
-    showToast('更新出错: ' + error, 'error')
+    showToast(t('toast.updateError', { error }), 'error')
   })
 })
 </script>
