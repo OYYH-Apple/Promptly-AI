@@ -554,6 +554,27 @@ onMounted(async () => {
     autoUpdate.value = savedAutoUpdate === 'true'
   }
 
+  // 监听发现新版本事件（自动检查或手动检查）
+  window.api.onUpdateAvailable?.((info) => {
+    latestVersion.value = info.version || 'v1.0.1'
+    updateAvailable.value = true
+    // 处理 Release Notes
+    if (info.releaseNotes) {
+      if (Array.isArray(info.releaseNotes)) {
+        releaseNotes.value = info.releaseNotes
+        releaseNotesMarkdown.value = info.releaseNotes.join('\n')
+      } else {
+        releaseNotes.value = info.releaseNotes.split('\n').filter(line => line.trim())
+        releaseNotesMarkdown.value = info.releaseNotes
+      }
+    } else {
+      releaseNotes.value = ['Bug fixes and performance improvements', 'New features added']
+      releaseNotesMarkdown.value = ''
+    }
+    // 显示更新提示弹窗
+    showUpdateDialog.value = true
+  })
+
   // 监听下载进度
   window.api.onDownloadProgress?.((progress) => {
     downloadProgress.value = {

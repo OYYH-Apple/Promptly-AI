@@ -1,6 +1,6 @@
 {
   "name": "promptly-ai",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "AI Prompt Management Tool",
   "main": "dist-electron/main/index.js",
   "author": "codename19",
@@ -84,7 +84,9 @@
     "publish": {
       "provider": "github",
       "owner": "OYYH-Apple",
-      "repo": "Promptly-AI"
+      "repo": "Promptly-AI",
+      "vPrefixedTagName": true,
+      "releaseType": "release"
     }
   }
 }
