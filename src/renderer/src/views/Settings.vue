@@ -106,7 +106,7 @@
                 <p class="text-on-surface-variant mt-0.5" :class="locale === 'zh-CN' ? 'text-base' : 'text-sm'">
                   {{ t('settings.currentVersion') }}: <span class="font-mono">{{ currentVersion }}</span>
                   <span v-if="updateAvailable" class="ml-2 text-amber-500 font-medium">({{ t('settings.updateAvailable')
-                    }})</span>
+                  }})</span>
                 </p>
               </div>
             </div>
@@ -393,6 +393,12 @@ const downloadProgress = ref({
   total: 0
 })
 
+// 更新安装失败恢复相关状态
+const showRetryDialog = ref(false)        // 是否显示重试对话框
+const retryVersion = ref('')              // 待重试的版本号
+const retryReleaseNotes = ref('')         // 待重试版本的更新日志
+const showInstallConfirmDialog = ref(false)  // 下载完成后的安装确认弹窗
+
 async function checkForUpdates() {
   isChecking.value = true
   try {
@@ -584,10 +590,10 @@ onMounted(async () => {
     }
   })
 
-  // 监听更新下载完成
+  // 监听更新下载完成 — 弹出安装确认弹窗
   window.api.onUpdateDownloaded?.(() => {
     isDownloading.value = false
-    showToast(t('toast.updateDownloadedRestart'), 'success')
+    showInstallConfirmDialog.value = true
   })
 
   // 监听更新错误

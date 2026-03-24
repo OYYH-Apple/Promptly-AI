@@ -1,6 +1,6 @@
 {
   "name": "promptly-ai",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "AI Prompt Management Tool",
   "main": "dist-electron/main/index.js",
   "author": "codename19",
@@ -70,7 +70,8 @@
             "x64"
           ]
         }
-      ]
+      ],
+      "artifactName": "Promptly.AI.${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -79,7 +80,8 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Promptly AI",
       "deleteAppDataOnUninstall": true,
-      "perMachine": false
+      "perMachine": false,
+      "artifactName": "Promptly.AI.Setup.${version}.${ext}"
     },
     "publish": {
       "provider": "github",

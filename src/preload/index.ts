@@ -103,6 +103,18 @@ const api = {
   quitAndInstall: () => 
     ipcRenderer.invoke('quit-and-install'),
 
+  // 查询当前更新状态（用于启动时恢复检查）
+  getUpdateState: () =>
+    ipcRenderer.invoke('get-update-state'),
+
+  // 清理更新缓存（用于更新反复失败时手动清理）
+  clearUpdateCache: () =>
+    ipcRenderer.invoke('clear-update-cache'),
+
+  // 忽略指定版本的更新
+  ignoreUpdateVersion: (version: string) =>
+    ipcRenderer.invoke('ignore-update-version', version),
+
   onUpdateAvailable: (callback: (info: { version: string; releaseDate?: string; releaseNotes?: string | string[] }) => void) => {
     ipcRenderer.on('update-available', (_, info) => callback(info))
   },
@@ -119,11 +131,23 @@ const api = {
     ipcRenderer.on('download-progress', (_, progress) => callback(progress))
   },
 
+  // 监听安装失败事件
+  onInstallFailed: (callback: (data: { error: string }) => void) => {
+    ipcRenderer.on('update-install-failed', (_, data) => callback(data))
+  },
+
+  // 监听启动时的安装失败恢复事件
+  onInstallFailedRecovery: (callback: (data: { version: string; releaseNotes: string | null; lastAttemptTime: string | null }) => void) => {
+    ipcRenderer.on('update-install-failed-recovery', (_, data) => callback(data))
+  },
+
   removeUpdateListeners: () => {
     ipcRenderer.removeAllListeners('update-available')
     ipcRenderer.removeAllListeners('update-downloaded')
     ipcRenderer.removeAllListeners('update-error')
     ipcRenderer.removeAllListeners('download-progress')
+    ipcRenderer.removeAllListeners('update-install-failed')
+    ipcRenderer.removeAllListeners('update-install-failed-recovery')
   },
 
   sendFeedbackEmail: (feedback: { type: string; content: string; contact: string }) =>

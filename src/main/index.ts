@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import type { Database, SqlJsStatic } from 'sql.js'
-import { autoUpdater } from 'electron-updater'
+import { autoUpdater, type GenericServerOptions } from 'electron-updater'
 import nodemailer from 'nodemailer'
 
 // 加载 .env 文件（开发环境自动加载，生产环境需手动放置 .env 文件）
@@ -438,6 +438,137 @@ ipcMain.handle('db:importData', async () => {
 
 // ==================== Auto Update ====================
 
+// ==================== 更新状态持久化 ====================
+
+interface UpdatePersistState {
+  pendingUpdateVersion: string | null      // 已下载待安装的版本号
+  pendingReleaseNotes: string | null       // 待安装版本的更新日志
+  lastInstallAttemptFailed: boolean        // 上次安装是否失败
+  lastInstallAttemptTime: string | null    // 上次安装尝试时间（ISO 字符串）
+  ignoredVersion: string | null            // 用户选择忽略的版本号
+}
+
+const UPDATE_STATE_FILE = join(app.getPath('userData'), 'update-state.json')
+
+function readUpdateState(): UpdatePersistState {
+  // 默认状态
+  const defaultState: UpdatePersistState = {
+    pendingUpdateVersion: null,
+    pendingReleaseNotes: null,
+    lastInstallAttemptFailed: false,
+    lastInstallAttemptTime: null,
+    ignoredVersion: null
+  }
+  try {
+    if (existsSync(UPDATE_STATE_FILE)) {
+      const raw = readFileSync(UPDATE_STATE_FILE, 'utf-8')
+      return { ...defaultState, ...JSON.parse(raw) }
+    }
+  } catch (err) {
+    console.error('读取更新状态文件失败:', err)
+  }
+  return defaultState
+}
+
+function writeUpdateState(partialState: Partial<UpdatePersistState>): void {
+  try {
+    const currentState = readUpdateState()
+    const newState = { ...currentState, ...partialState }
+    writeFileSync(UPDATE_STATE_FILE, JSON.stringify(newState, null, 2), 'utf-8')
+  } catch (err) {
+    console.error('写入更新状态文件失败:', err)
+  }
+}
+
+function clearUpdateState(): void {
+  try {
+    if (existsSync(UPDATE_STATE_FILE)) {
+      writeFileSync(UPDATE_STATE_FILE, JSON.stringify({
+        pendingUpdateVersion: null,
+        pendingReleaseNotes: null,
+        lastInstallAttemptFailed: false,
+        lastInstallAttemptTime: null,
+        ignoredVersion: null
+      }, null, 2), 'utf-8')
+    }
+  } catch (err) {
+    console.error('清理更新状态文件失败:', err)
+  }
+}
+
+// ==================== 竞态防护 ====================
+
+// 防止检查更新、下载更新、安装更新三个操作并发执行
+let isUpdateOperationInProgress = false
+
+// ==================== 更新文件格式配置 ====================
+
+// 定义多种可能的文件名格式，按优先级排序
+const POSSIBLE_ARTIFACT_PATTERNS = [
+  // 点号格式 (当前使用)
+  { setup: 'Promptly.AI.Setup.${version}.exe', portable: 'Promptly.AI.${version}.exe' },
+  // 横线格式 (旧版本兼容)
+  { setup: 'Promptly-AI-Setup-${version}.exe', portable: 'Promptly-AI-${version}.exe' },
+  // 空格格式 (备选)
+  { setup: 'Promptly AI Setup ${version}.exe', portable: 'Promptly AI ${version}.exe' },
+]
+
+// 当前尝试的文件名格式索引
+let currentArtifactIndex = 0
+let lastUpdateInfo: any = null
+
+// ==================== 启动恢复检查 ====================
+
+// 启动时检查是否有待恢复的更新
+async function checkPendingUpdateOnStartup(): Promise<void> {
+  const updateState = readUpdateState()
+
+  // 如果没有待处理的更新版本，直接返回
+  if (!updateState.pendingUpdateVersion) return
+
+  const currentVersion = app.getVersion()
+
+  // 如果当前版本已经 >= 待安装版本，说明更新已成功安装，清理状态
+  if (!isNewerVersion(updateState.pendingUpdateVersion, currentVersion)) {
+    console.log('更新已成功安装，清理旧的更新状态')
+    clearUpdateState()
+    return
+  }
+
+  // 如果用户已忽略该版本，跳过
+  if (updateState.ignoredVersion === updateState.pendingUpdateVersion) {
+    console.log('用户已忽略版本:', updateState.ignoredVersion)
+    return
+  }
+
+  // 如果上次安装失败，通知渲染进程显示恢复提示
+  if (updateState.lastInstallAttemptFailed) {
+    console.log('检测到上次更新安装失败，通知渲染进程:', updateState.pendingUpdateVersion)
+    // 等待主窗口加载完成后再发送通知
+    const notifyRenderer = () => {
+      mainWindow?.webContents.send('update-install-failed-recovery', {
+        version: updateState.pendingUpdateVersion,
+        releaseNotes: updateState.pendingReleaseNotes,
+        lastAttemptTime: updateState.lastInstallAttemptTime
+      })
+    }
+    // 如果窗口已加载则直接通知，否则等待加载完成
+    if (mainWindow?.webContents.isLoading()) {
+      mainWindow.webContents.once('did-finish-load', notifyRenderer)
+    } else {
+      // 延迟一下确保渲染进程已完成初始化
+      setTimeout(notifyRenderer, 2000)
+    }
+    return
+  }
+
+  // 存在已下载但未安装的更新（非失败状态），说明可能用户选择了"稍后"
+  // 不做额外处理，让正常的自动检查流程接管
+  console.log('存在已下载待安装的更新:', updateState.pendingUpdateVersion)
+}
+
+// ==================== 核心更新逻辑 ====================
+
 function setupAutoUpdater() {
   autoUpdater.autoDownload = false
   autoUpdater.autoInstallOnAppQuit = true
@@ -451,6 +582,9 @@ function setupAutoUpdater() {
 
   autoUpdater.on('update-available', (info) => {
     console.log('发现新版本:', info.version)
+    // 保存更新信息用于多格式重试
+    lastUpdateInfo = info
+    currentArtifactIndex = 0 // 重置索引
     mainWindow?.webContents.send('update-available', {
       version: info.version,
       releaseDate: info.releaseDate,
@@ -458,23 +592,20 @@ function setupAutoUpdater() {
     })
   })
 
-  // 应用启动后延迟检查更新（仅打包后的生产环境）
-  if (shouldAutoCheck) {
-    setTimeout(() => {
-      console.log('执行自动更新检查...')
-      autoUpdater.checkForUpdates().catch(err => {
-        console.error('自动检查更新失败:', err)
-      })
-    }, 5000) // 延迟5秒，避免启动时网络拥堵
-  }
-
   autoUpdater.on('update-not-available', () => {
     console.log('当前已是最新版本')
   })
 
   autoUpdater.on('error', (err) => {
     console.error('Update error:', err)
-    mainWindow?.webContents.send('update-error', err.message)
+    // 检查是否是下载文件不存在错误
+    const errorMessage = err.message || String(err)
+    if (errorMessage.includes('404') || errorMessage.includes('Cannot download')) {
+      // 尝试下一个文件名格式
+      tryNextArtifactFormat(errorMessage)
+    } else {
+      mainWindow?.webContents.send('update-error', err.message)
+    }
   })
 
   autoUpdater.on('download-progress', (progress) => {
@@ -485,9 +616,76 @@ function setupAutoUpdater() {
     })
   })
 
-  autoUpdater.on('update-downloaded', () => {
+  autoUpdater.on('update-downloaded', (info) => {
+    // 重置索引
+    currentArtifactIndex = 0
+    // 记录已下载的更新版本，以便安装失败后重启时恢复
+    writeUpdateState({
+      pendingUpdateVersion: info.version,
+      pendingReleaseNotes: typeof info.releaseNotes === 'string' ? info.releaseNotes : Array.isArray(info.releaseNotes) ? info.releaseNotes.map(n => typeof n === 'string' ? n : n.note).join('\n') : null,
+      lastInstallAttemptFailed: false,
+      lastInstallAttemptTime: null
+    })
     mainWindow?.webContents.send('update-downloaded')
   })
+
+  // 应用启动后延迟检查更新（仅打包后的生产环境）
+  if (shouldAutoCheck) {
+    setTimeout(async () => {
+      // 先检查是否有上次安装失败的待恢复更新
+      await checkPendingUpdateOnStartup()
+
+      // 再执行常规的自动更新检查
+      if (!isUpdateOperationInProgress) {
+        console.log('执行自动更新检查...')
+        autoUpdater.checkForUpdates().catch(err => {
+          console.error('自动检查更新失败:', err)
+        })
+      }
+    }, 5000) // 延迟5秒，避免启动时网络拥堵
+  }
+}
+
+// 尝试下一个文件名格式
+function tryNextArtifactFormat(errorMessage: string) {
+  currentArtifactIndex++
+  if (currentArtifactIndex < POSSIBLE_ARTIFACT_PATTERNS.length) {
+    console.log(`尝试下一个文件名格式 (${currentArtifactIndex + 1}/${POSSIBLE_ARTIFACT_PATTERNS.length})...`)
+    // 重新触发下载，使用新的文件名格式
+    if (lastUpdateInfo) {
+      downloadUpdateWithFormat(lastUpdateInfo, currentArtifactIndex)
+    }
+  } else {
+    // 所有格式都尝试过，发送错误消息
+    console.error('所有文件名格式都尝试失败')
+    currentArtifactIndex = 0 // 重置索引
+    mainWindow?.webContents.send('update-error', '无法找到更新文件，请检查网络连接或稍后重试')
+  }
+}
+
+// 使用指定格式下载更新
+async function downloadUpdateWithFormat(updateInfo: any, formatIndex: number) {
+  try {
+    const pattern = POSSIBLE_ARTIFACT_PATTERNS[formatIndex]
+    const version = updateInfo.version
+    const setupFileName = pattern.setup.replace('${version}', version)
+
+    console.log(`尝试下载: ${setupFileName}`)
+
+    // 使用 generic provider 配合自定义 URL 来支持多格式
+    const feedOptions: GenericServerOptions = {
+      provider: 'generic',
+      url: `https://github.com/OYYH-Apple/Promptly-AI/releases/download/v${version}/`,
+      channel: 'latest'
+    }
+    autoUpdater.setFeedURL(feedOptions)
+
+    // 开始下载
+    await autoUpdater.downloadUpdate()
+  } catch (err) {
+    console.error(`格式 ${formatIndex + 1} 下载失败:`, err)
+    tryNextArtifactFormat(String(err))
+  }
 }
 
 // 语义化版本比较函数：如果 latest > current 返回 true
@@ -505,12 +703,20 @@ function isNewerVersion(latest: string, current: string): boolean {
   return false
 }
 
+// ==================== IPC Handlers ====================
+
 // 获取应用当前版本号
 ipcMain.handle('get-app-version', () => {
   return app.getVersion()
 })
 
 ipcMain.handle('check-for-updates', async () => {
+  // 竞态防护：如果有其他更新操作正在进行，直接返回
+  if (isUpdateOperationInProgress) {
+    return { available: false, error: '更新操作正在进行中，请稍后重试' }
+  }
+
+  isUpdateOperationInProgress = true
   try {
     const result = await autoUpdater.checkForUpdates()
     if (result && result.updateInfo) {
@@ -543,21 +749,70 @@ ipcMain.handle('check-for-updates', async () => {
     }
 
     return { available: false, error: '检查更新失败: ' + errorMessage }
+  } finally {
+    isUpdateOperationInProgress = false
   }
 })
 
 ipcMain.handle('download-update', async () => {
+  // 竞态防护：如果有其他更新操作正在进行，直接返回
+  if (isUpdateOperationInProgress) {
+    return { success: false, error: '更新操作正在进行中，请稍后重试' }
+  }
+
+  isUpdateOperationInProgress = true
   try {
     await autoUpdater.downloadUpdate()
     return { success: true }
   } catch (err) {
-    console.error('Download update error:', err)
+    console.error('下载更新失败:', err)
     return { success: false, error: String(err) }
+  } finally {
+    isUpdateOperationInProgress = false
   }
 })
 
 ipcMain.handle('quit-and-install', () => {
-  autoUpdater.quitAndInstall(false, true)
+  try {
+    // 标记安装尝试，便于安装失败后恢复
+    // 注意：在调用 quitAndInstall 之前写入，这样即使进程被终止也能检测到失败状态
+    // 如果安装成功，下次启动时 checkPendingUpdateOnStartup 会发现版本已更新，自动清理状态
+    writeUpdateState({
+      lastInstallAttemptFailed: true,
+      lastInstallAttemptTime: new Date().toISOString()
+    })
+
+    autoUpdater.quitAndInstall(false, true)
+  } catch (err) {
+    console.error('执行安装更新失败:', err)
+    // 通知渲染进程安装失败
+    mainWindow?.webContents.send('update-install-failed', {
+      error: err instanceof Error ? err.message : String(err)
+    })
+    return { success: false, error: String(err) }
+  }
+})
+
+// 清理更新缓存（供用户在更新反复失败时手动使用）
+ipcMain.handle('clear-update-cache', () => {
+  try {
+    clearUpdateState()
+    return { success: true }
+  } catch (err) {
+    console.error('清理更新缓存失败:', err)
+    return { success: false, error: String(err) }
+  }
+})
+
+// 查询当前更新状态（供渲染进程启动时恢复检查）
+ipcMain.handle('get-update-state', () => {
+  return readUpdateState()
+})
+
+// 忽略指定版本的更新
+ipcMain.handle('ignore-update-version', (_event, version: string) => {
+  writeUpdateState({ ignoredVersion: version })
+  return { success: true }
 })
 
 setupAutoUpdater()
