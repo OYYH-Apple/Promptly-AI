@@ -4,9 +4,9 @@
       <div class="flex flex-col gap-8">
         <div class="flex justify-between items-end">
           <div>
-            <span class="text-xs font-bold tracking-widest text-primary uppercase mb-2 block">Library Overview</span>
-            <h2 class="text-3xl font-semibold tracking-tight text-slate-900">Prompt Collections</h2>
-            <p class="text-slate-500 mt-2">Organize your AI workflows into semantic workspaces.</p>
+            <span class="text-xs font-bold tracking-widest text-primary uppercase mb-2 block">{{ t('collections.overview') }}</span>
+            <h2 class="text-3xl font-semibold tracking-tight text-slate-900">{{ t('collections.title') }}</h2>
+            <p class="text-slate-500 mt-2">{{ t('collections.subtitle') }}</p>
           </div>
           <div class="flex gap-3 items-center">
             <div class="relative">
@@ -14,8 +14,8 @@
                 class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
               <input v-model="searchQuery"
                 class="w-64 pl-10 pr-10 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                placeholder="Search collections..." />
-              <Tooltip v-if="searchQuery" text="Clear search" placement="top">
+                :placeholder="t('common.searchCollections')" />
+              <Tooltip v-if="searchQuery" :text="t('tooltip.clearSearch')" placement="top">
                 <button @click="searchQuery = ''"
                   class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
                   <span class="material-symbols-outlined">close</span>
@@ -37,8 +37,8 @@
               <span class="material-symbols-outlined text-3xl transition-all hover:rotate-90">add</span>
             </div>
             <div class="text-center">
-              <span class="block font-semibold text-slate-900">New Collection</span>
-              <span class="text-xs text-slate-400">Create a focused workspace</span>
+              <span class="block font-semibold text-slate-900">{{ t('collections.newCollection') }}</span>
+              <span class="text-xs text-slate-400">{{ t('collections.createWorkspace') }}</span>
             </div>
           </button>
 
@@ -52,14 +52,14 @@
                   <span class="material-symbols-outlined text-2xl">{{ collection.icon }}</span>
                 </div>
                 <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Tooltip text="Add prompts" placement="top">
+                  <Tooltip :text="t('tooltip.addPrompts')" placement="top">
                     <button @click.stop="showAddPromptDialog(collection)"
                       class="p-2 rounded-full hover:bg-primary/10 transition-colors">
                       <span
                         class="material-symbols-outlined text-primary transition-all hover:rotate-90">add_circle</span>
                     </button>
                   </Tooltip>
-                  <Tooltip text="Delete collection" placement="top">
+                  <Tooltip :text="t('tooltip.deleteCollection')" placement="top">
                     <button @click.stop="confirmDelete(collection)"
                       class="p-2 rounded-full hover:bg-red-50 transition-colors">
                       <span class="material-symbols-outlined text-slate-400 hover:text-red-500">delete</span>
@@ -68,15 +68,15 @@
                 </div>
               </div>
               <h4 class="text-lg font-semibold text-slate-900">{{ collection.name }}</h4>
-              <p class="text-sm text-slate-500 mt-1">{{ collection.description || 'No description' }}</p>
+              <p class="text-sm text-slate-500 mt-1">{{ collection.description || t('collections.noDescription') }}</p>
             </div>
             <div class="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
               <div class="flex flex-col">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Prompts</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ t('collections.promptsLabel') }}</span>
                 <span class="text-sm font-semibold text-slate-900">{{ getCollectionCount(collection.id!) }} items</span>
               </div>
               <div class="text-right">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Updated</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ t('collections.updatedLabel') }}</span>
                 <span class="text-sm text-slate-600 block">{{ formatDate(collection.updated_at) }}</span>
               </div>
             </div>
@@ -86,7 +86,7 @@
         <div class="mt-8 bg-surface-container-low rounded-2xl p-8 flex items-center justify-around">
           <div class="text-center">
             <span class="block text-2xl font-bold text-slate-900">{{ filteredCollections.length }}</span>
-            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">Collections</span>
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">{{ t('collections.collectionsLabel') }}</span>
           </div>
           <div class="w-px h-8 bg-slate-200"></div>
           <div class="text-center">
@@ -96,7 +96,7 @@
           <div class="w-px h-8 bg-slate-200"></div>
           <div class="text-center">
             <span class="block text-2xl font-bold text-slate-900">{{ totalFavorites }}</span>
-            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">Favorites</span>
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">{{ t('collections.favoritesLabel') }}</span>
           </div>
         </div>
       </div>
@@ -111,22 +111,22 @@
     <div v-if="showCreateModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       @click.self="showCreateModal = false">
       <div class="bg-white rounded-2xl p-8 w-full max-w-md">
-        <h3 class="text-xl font-bold mb-6">Create Collection</h3>
+        <h3 class="text-xl font-bold mb-6">{{ t('collectionModal.title') }}</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.name') }}</label>
             <input v-model="newCollection.name"
               class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-              placeholder="Collection name..." />
+              :placeholder="t('collectionModal.namePlaceholder')" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.description') }}</label>
             <input v-model="newCollection.description"
               class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-              placeholder="Optional description..." />
+              :placeholder="t('collectionModal.descriptionPlaceholder')" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-2">Icon</label>
+            <label class="block text-sm font-medium text-slate-700 mb-2">{{ t('collectionModal.icon') }}</label>
             <div class="grid grid-cols-5 gap-2">
               <button v-for="icon in availableIcons" :key="icon.value" @click="newCollection.icon = icon.value"
                 class="w-10 h-10 rounded-lg flex items-center justify-center transition-all"
@@ -137,15 +137,15 @@
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Color</label>
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.color') }}</label>
             <input v-model="newCollection.color" type="color" class="w-50 h-10 rounded-md cursor-pointer p-1" />
           </div>
         </div>
         <div class="flex gap-3 mt-6">
           <button @click="showCreateModal = false"
-            class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">Cancel</button>
+            class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">{{ t('dialog.cancel') }}</button>
           <button @click="createCollection"
-            class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">Create</button>
+            class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">{{ t('dialog.create') }}</button>
         </div>
       </div>
     </div>
@@ -153,15 +153,16 @@
     <AddPromptModal v-model:visible="showAddPromptModal" :collection-id="selectedCollection?.id || 0"
       :collection-name="selectedCollection?.name || ''" @added="handlePromptsAdded" />
 
-    <ConfirmDialog v-model:visible="showDeleteDialog" type="danger" title="Delete Collection"
-      :message="`Are you sure you want to delete '${collectionToDelete?.name}'? Prompts in this collection will not be deleted.`"
-      confirm-text="Delete" cancel-text="Cancel" @confirm="handleDelete" />
+    <ConfirmDialog v-model:visible="showDeleteDialog" type="danger" :title="t('dialog.deleteCollectionTitle')"
+      :message="t('dialog.deleteCollectionMessage', { name: collectionToDelete?.name })"
+      :confirm-text="t('dialog.delete')" :cancel-text="t('dialog.cancel')" @confirm="handleDelete" />
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { usePromptStore } from '@/stores/prompts'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import AddPromptModal from '@/components/AddPromptModal.vue'
@@ -169,6 +170,7 @@ import Tooltip from '@/components/Tooltip.vue'
 
 const router = useRouter()
 const store = usePromptStore()
+const { t } = useI18n()
 const showCreateModal = ref(false)
 const showDeleteDialog = ref(false)
 const showAddPromptModal = ref(false)
@@ -265,7 +267,7 @@ function showAddPromptDialog(collection: any) {
 
 function handlePromptsAdded() {
   selectedCollection.value = null
-  showToast('Prompts added to collection', 'success')
+  showToast(t('toast.promptsAddedToCollection'), 'success')
 }
 
 function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') {
@@ -273,6 +275,10 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
     detail: { message, type, duration: 2000 }
   }))
 }
+
+// 使用 useDateFormatter 替代 formatDate
+import { useDateFormatter } from '@/utils/format'
+const { formatRelativeTime } = useDateFormatter()
 
 onMounted(() => {
   store.fetchPrompts()
