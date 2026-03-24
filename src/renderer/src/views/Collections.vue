@@ -4,7 +4,8 @@
       <div class="flex flex-col gap-8">
         <div class="flex justify-between items-end">
           <div>
-            <span class="text-xs font-bold tracking-widest text-primary uppercase mb-2 block">{{ t('collections.overview') }}</span>
+            <span class="text-xs font-bold tracking-widest text-primary uppercase mb-2 block">{{
+              t('collections.overview') }}</span>
             <h2 class="text-3xl font-semibold tracking-tight text-slate-900">{{ t('collections.title') }}</h2>
             <p class="text-slate-500 mt-2">{{ t('collections.subtitle') }}</p>
           </div>
@@ -15,12 +16,10 @@
               <input v-model="searchQuery"
                 class="w-64 pl-10 pr-10 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20"
                 :placeholder="t('common.searchCollections')" />
-              <Tooltip v-if="searchQuery" :text="t('tooltip.clearSearch')" placement="top">
-                <button @click="searchQuery = ''"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                  <span class="material-symbols-outlined">close</span>
-                </button>
-              </Tooltip>
+              <button @click="searchQuery = ''"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-all hover:rotate-90">
+                <span class="material-symbols-outlined">close</span>
+              </button>
             </div>
           </div>
         </div>
@@ -72,11 +71,13 @@
             </div>
             <div class="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
               <div class="flex flex-col">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ t('collections.promptsLabel') }}</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{
+                  t('collections.promptsLabel') }}</span>
                 <span class="text-sm font-semibold text-slate-900">{{ getCollectionCount(collection.id!) }} items</span>
               </div>
               <div class="text-right">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ t('collections.updatedLabel') }}</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{
+                  t('collections.updatedLabel') }}</span>
                 <span class="text-sm text-slate-600 block">{{ formatDate(collection.updated_at) }}</span>
               </div>
             </div>
@@ -86,17 +87,20 @@
         <div class="mt-8 bg-surface-container-low rounded-2xl p-8 flex items-center justify-around">
           <div class="text-center">
             <span class="block text-2xl font-bold text-slate-900">{{ filteredCollections.length }}</span>
-            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">{{ t('collections.collectionsLabel') }}</span>
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">{{
+              t('collections.collectionsLabel') }}</span>
           </div>
           <div class="w-px h-8 bg-slate-200"></div>
           <div class="text-center">
             <span class="block text-2xl font-bold text-slate-900">{{ totalPrompts }}</span>
-            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">{{ t('collections.activePrompts') }}</span>
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">{{ t('collections.activePrompts')
+              }}</span>
           </div>
           <div class="w-px h-8 bg-slate-200"></div>
           <div class="text-center">
             <span class="block text-2xl font-bold text-slate-900">{{ totalFavorites }}</span>
-            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">{{ t('collections.favoritesLabel') }}</span>
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">{{
+              t('collections.favoritesLabel') }}</span>
           </div>
         </div>
       </div>
@@ -109,7 +113,7 @@
     </button>
 
     <div v-if="showCreateModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      @click.self="showCreateModal = false">
+      @click.self="closeCreateModal">
       <div class="bg-white rounded-2xl p-8 w-full max-w-md">
         <h3 class="text-xl font-bold mb-6">{{ t('collectionModal.title') }}</h3>
         <div class="space-y-4">
@@ -117,13 +121,16 @@
             <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.name') }}</label>
             <input v-model="newCollection.name"
               class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-              :placeholder="t('collectionModal.namePlaceholder')" />
+              :class="{ 'ring-2 ring-red-500': formErrors.name }" :placeholder="t('collectionModal.namePlaceholder')" />
+            <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.description') }}</label>
             <input v-model="newCollection.description"
               class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20"
+              :class="{ 'ring-2 ring-red-500': formErrors.description }"
               :placeholder="t('collectionModal.descriptionPlaceholder')" />
+            <p v-if="formErrors.description" class="mt-1 text-sm text-red-500">{{ formErrors.description }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-2">{{ t('collectionModal.icon') }}</label>
@@ -142,10 +149,10 @@
           </div>
         </div>
         <div class="flex gap-3 mt-6">
-          <button @click="showCreateModal = false"
-            class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">{{ t('dialog.cancel') }}</button>
-          <button @click="createCollection"
-            class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">{{ t('dialog.create') }}</button>
+          <button @click="closeCreateModal" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">{{
+            t('dialog.cancel') }}</button>
+          <button @click="createCollection" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">{{
+            t('dialog.create') }}</button>
         </div>
       </div>
     </div>
@@ -177,6 +184,7 @@ const showAddPromptModal = ref(false)
 const collectionToDelete = ref<any>(null)
 const selectedCollection = ref<any>(null)
 const newCollection = ref({ name: '', description: '', icon: 'folder', color: '#005bc1' })
+const formErrors = ref<{ name?: string; description?: string }>({})
 const searchQuery = ref('')
 
 const availableIcons = [
@@ -236,16 +244,49 @@ function openCollection(collection: any) {
   router.push(`/collection/${collection.id}`)
 }
 
+// 表单校验
+function validateCollectionForm(): boolean {
+  formErrors.value = {}
+  const name = newCollection.value.name.trim()
+
+  // 名称必填校验
+  if (!name) {
+    formErrors.value.name = t('toast.collectionNameRequired')
+    showToast(t('toast.collectionNameRequired'), 'error')
+    return false
+  }
+
+  // 名称长度校验（最多50个字符）
+  if (name.length > 50) {
+    formErrors.value.name = t('toast.maxLength', { field: t('collectionModal.name'), count: 50 })
+    showToast(t('toast.maxLength', { field: t('collectionModal.name'), count: 50 }), 'error')
+    return false
+  }
+
+  // 描述长度校验（最多200个字符）
+  if (newCollection.value.description && newCollection.value.description.length > 200) {
+    formErrors.value.description = t('toast.maxLength', { field: t('collectionModal.description'), count: 200 })
+    showToast(t('toast.maxLength', { field: t('collectionModal.description'), count: 200 }), 'error')
+    return false
+  }
+
+  return true
+}
+
 async function createCollection() {
-  if (!newCollection.value.name.trim()) return
+  // 执行表单校验
+  if (!validateCollectionForm()) return
+
   await store.createCollection({
-    name: newCollection.value.name,
-    description: newCollection.value.description,
+    name: newCollection.value.name.trim(),
+    description: newCollection.value.description.trim(),
     icon: newCollection.value.icon,
     color: newCollection.value.color
   })
+  showToast(t('toast.collectionCreated'), 'success')
   showCreateModal.value = false
   newCollection.value = { name: '', description: '', icon: 'folder', color: '#005bc1' }
+  formErrors.value = {}
 }
 
 function confirmDelete(collection: any) {
@@ -263,6 +304,13 @@ async function handleDelete() {
 function showAddPromptDialog(collection: any) {
   selectedCollection.value = collection
   showAddPromptModal.value = true
+}
+
+// 关闭创建弹窗并重置表单
+function closeCreateModal() {
+  showCreateModal.value = false
+  newCollection.value = { name: '', description: '', icon: 'folder', color: '#005bc1' }
+  formErrors.value = {}
 }
 
 function handlePromptsAdded() {

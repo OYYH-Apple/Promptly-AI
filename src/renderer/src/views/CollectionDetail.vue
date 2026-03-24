@@ -105,12 +105,12 @@
               @open-image="openImageViewer"
             >
               <template #actions="slotProps">
-                <Tooltip text="Copy" placement="top">
+                <Tooltip :text="t('tooltip.copy')" placement="top">
                   <button @click.stop="copyPrompt(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
                     <span class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
                   </button>
                 </Tooltip>
-                <Tooltip text="Remove from collection" placement="top">
+                <Tooltip :text="t('tooltip.removeFromCollection')" placement="top">
                   <button @click.stop="removeFromCollection(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
                     <span class="material-symbols-outlined text-slate-400 hover:text-red-500 text-lg">remove_circle</span>
                   </button>
@@ -131,17 +131,25 @@
       @added="handlePromptsAdded"
     />
 
-    <div v-if="showEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="showEditModal = false">
+    <div v-if="showEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="closeEditModal">
       <div class="bg-white rounded-2xl p-8 w-full max-w-md">
         <h3 class="text-xl font-bold mb-6">{{ t('collectionModal.editTitle') }}</h3>
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.name') }}</label>
-            <input v-model="editForm.name" class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20" :placeholder="t('collectionModal.namePlaceholder')" />
+            <input v-model="editForm.name" 
+              class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20" 
+              :class="{ 'ring-2 ring-red-500': editFormErrors.name }"
+              :placeholder="t('collectionModal.namePlaceholder')" />
+            <p v-if="editFormErrors.name" class="mt-1 text-sm text-red-500">{{ editFormErrors.name }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.description') }}</label>
-            <input v-model="editForm.description" class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20" :placeholder="t('collectionModal.descriptionPlaceholder')" />
+            <input v-model="editForm.description" 
+              class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20" 
+              :class="{ 'ring-2 ring-red-500': editFormErrors.description }"
+              :placeholder="t('collectionModal.descriptionPlaceholder')" />
+            <p v-if="editFormErrors.description" class="mt-1 text-sm text-red-500">{{ editFormErrors.description }}</p>
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-2">{{ t('collectionModal.icon') }}</label>
@@ -164,7 +172,7 @@
           </div>
         </div>
         <div class="flex gap-3 mt-6">
-          <button @click="showEditModal = false" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">{{ t('dialog.cancel') }}</button>
+          <button @click="closeEditModal" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">{{ t('dialog.cancel') }}</button>
           <button @click="saveEditCollection" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">{{ t('dialog.save') }}</button>
         </div>
       </div>
@@ -210,6 +218,7 @@ const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)
 const editForm = ref({ name: '', description: '', icon: 'folder', color: '#005bc1' })
+const editFormErrors = ref<{ name?: string; description?: string }>({})
 
 const availableIcons = [
   { value: 'folder', label: 'Folder' },
@@ -275,22 +284,60 @@ function editCollection() {
       icon: collection.value.icon || 'folder',
       color: collection.value.color || '#005bc1'
     }
+    editFormErrors.value = {}
     showEditModal.value = true
   }
 }
 
+// 关闭编辑弹窗并重置表单
+function closeEditModal() {
+  showEditModal.value = false
+  editFormErrors.value = {}
+}
+
+// 编辑表单校验
+function validateEditForm(): boolean {
+  editFormErrors.value = {}
+  const name = editForm.value.name.trim()
+
+  // 名称必填校验
+  if (!name) {
+    editFormErrors.value.name = t('toast.collectionNameRequired')
+    showToast(t('toast.collectionNameRequired'), 'error')
+    return false
+  }
+
+  // 名称长度校验（最多50个字符）
+  if (name.length > 50) {
+    editFormErrors.value.name = t('toast.maxLength', { field: t('collectionModal.name'), count: 50 })
+    showToast(t('toast.maxLength', { field: t('collectionModal.name'), count: 50 }), 'error')
+    return false
+  }
+
+  // 描述长度校验（最多200个字符）
+  if (editForm.value.description && editForm.value.description.length > 200) {
+    editFormErrors.value.description = t('toast.maxLength', { field: t('collectionModal.description'), count: 200 })
+    showToast(t('toast.maxLength', { field: t('collectionModal.description'), count: 200 }), 'error')
+    return false
+  }
+
+  return true
+}
+
 async function saveEditCollection() {
-  if (!editForm.value.name.trim() || !collection.value) return
+  // 执行表单校验
+  if (!validateEditForm() || !collection.value) return
 
   await store.updateCollection(collection.value.id, {
-    name: editForm.value.name,
-    description: editForm.value.description,
+    name: editForm.value.name.trim(),
+    description: editForm.value.description.trim(),
     icon: editForm.value.icon,
     color: editForm.value.color
   })
 
   collection.value = store.collections.find(c => c.id === collectionId.value)
   showEditModal.value = false
+  editFormErrors.value = {}
   showToast(t('toast.collectionUpdated'), 'success')
 }
 

@@ -119,6 +119,7 @@ export default {
     privatePrompt: 'Private Prompt',
     referenceMedia: 'Reference Media',
     images: 'Images',
+    referenceImage: 'Reference image {number}',
     uploadImage: 'Upload',
     uploadLimit: 'Up to {count} files',
     savePrompt: 'Save Prompt',
@@ -157,7 +158,7 @@ export default {
     exportDesc: 'Download a JSON archive of all your prompts and collections',
     exportDataDesc: 'Export all prompts and collections as JSON for backup or migration.',
     importData: 'Import Data',
-    importing: 'Import Data',
+    importing: 'Importing...',
     importDesc: 'Merge existing archives into your current workspace',
     importDataDesc: 'Import prompts and collections from JSON, merge with existing data.',
     softwareUpdate: 'Software Update',
@@ -231,12 +232,15 @@ export default {
     // View toggle
     gridView: 'Grid view',
     listView: 'List view',
-    // Create/Edit page
+    // Create/Edit Page
     cancelWithoutSaving: 'Cancel without saving',
     saveChanges: 'Save changes',
     createPrompt: 'Create prompt',
+    createNewPrompt: 'Create new prompt',
     uploadImages: 'Upload images',
     maxImagesReached: 'Maximum images reached',
+    maximumImagesReached: 'Maximum images reached',
+    dragToReorder: 'Drag to reorder',
     // Collections
     addPrompts: 'Add prompts',
     deleteCollection: 'Delete collection',
@@ -305,12 +309,18 @@ export default {
     promptsAddedToCollection: 'Prompts added to collection',
     removedFromCollection: 'Removed from collection',
     collectionUpdated: 'Collection updated',
+    collectionCreated: 'Collection created successfully',
     // Create/Edit
     maxImagesAllowed: 'Maximum {count} images allowed',
+    maximumImagesAllowed: 'Maximum {count} images allowed',
     duplicateImagesSkipped: '{count} duplicate image(s) skipped',
     // Form Validation
     titleRequired: 'Title is required',
-    contentRequired: 'Please fill in at least one prompt content'
+    contentRequired: 'Please fill in at least one prompt content',
+    collectionNameRequired: 'Collection name is required',
+    fieldRequired: '{field} is required',
+    maxLength: '{field} must not exceed {count} characters',
+    minLength: '{field} must be at least {count} characters'
   },
 
   // ==================== Dialogs ====================
@@ -551,6 +561,7 @@ export default {
     selectAll: 'Select All',
     deselectAll: 'Deselect All',
     selected: '{count} selected',
+    selectedCount: '{count} selected',
     addPrompts: 'Add {count} Prompts',
     noPromptsAvailable: 'No prompts available to add',
     inCollection: 'In collection',
@@ -640,6 +651,8 @@ export default {
   form: {
     promptTitle: 'Prompt Title',
     required: 'Required',
+    titleRequired: 'Title is required',
+    contentRequired: 'Please enter content in at least one language',
     chineseContent: 'Chinese Prompt Content',
     englishContent: 'English Prompt Content',
     referenceMedia: 'Reference Media',

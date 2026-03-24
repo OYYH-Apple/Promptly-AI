@@ -119,6 +119,7 @@ export default {
     privatePrompt: '私密提示词',
     referenceMedia: '参考媒体',
     images: '图片',
+    referenceImage: '参考图片 {number}',
     uploadImage: '上传图片',
     uploadLimit: '最多 {count} 个文件',
     savePrompt: '保存提示词',
@@ -157,7 +158,7 @@ export default {
     exportDesc: '下载所有提示词和集合的 JSON 归档文件',
     exportDataDesc: '将所有提示词和集合导出为 JSON 文件，用于备份或迁移到其他设备。',
     importData: '导入数据',
-    importing: '导入数据',
+    importing: '导入中...',
     importDesc: '将现有归档合并到当前工作区',
     importDataDesc: '从 JSON 文件导入提示词和集合，支持与现有数据合并。',
     softwareUpdate: '软件更新',
@@ -235,8 +236,11 @@ export default {
     cancelWithoutSaving: '取消保存',
     saveChanges: '保存更改',
     createPrompt: '创建提示词',
+    createNewPrompt: '创建新提示词',
     uploadImages: '上传图片',
     maxImagesReached: '已达到最大图片数量',
+    maximumImagesReached: '已达到最大图片数量',
+    dragToReorder: '拖拽以重新排序',
     // 集合
     addPrompts: '添加提示词',
     deleteCollection: '删除集合',
@@ -305,12 +309,18 @@ export default {
     promptsAddedToCollection: '提示词已添加到集合',
     removedFromCollection: '已从集合移除',
     collectionUpdated: '集合已更新',
+    collectionCreated: '集合创建成功',
     // 创建/编辑
     maxImagesAllowed: '最多允许 {count} 张图片',
+    maximumImagesAllowed: '最多允许 {count} 张图片',
     duplicateImagesSkipped: '已跳过 {count} 张重复图片',
     // 表单验证
     titleRequired: '标题不能为空',
-    contentRequired: '请至少填写一种语言的提示词内容'
+    contentRequired: '请至少填写一种语言的提示词内容',
+    collectionNameRequired: '集合名称不能为空',
+    fieldRequired: '{field}不能为空',
+    maxLength: '{field}最多{count}个字符',
+    minLength: '{field}至少{count}个字符'
   },
 
   // ==================== 对话框 ====================
@@ -551,6 +561,7 @@ export default {
     selectAll: '全选',
     deselectAll: '取消全选',
     selected: '已选择 {count} 个',
+    selectedCount: '已选择 {count} 个',
     addPrompts: '添加 {count} 个提示词',
     noPromptsAvailable: '没有可添加的提示词',
     inCollection: '已在集合中',
@@ -640,6 +651,8 @@ export default {
   form: {
     promptTitle: '提示词标题',
     required: '必填',
+    titleRequired: '标题不能为空',
+    contentRequired: '请至少填写一种语言的提示词内容',
     chineseContent: '中文提示词内容',
     englishContent: '英文提示词内容',
     referenceMedia: '参考媒体',
