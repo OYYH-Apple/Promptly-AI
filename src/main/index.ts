@@ -442,11 +442,15 @@ function setupAutoUpdater() {
   autoUpdater.autoDownload = false
   autoUpdater.autoInstallOnAppQuit = true
 
+  // 延迟检查更新，避免启动时卡顿
+  const shouldAutoCheck = app.isPackaged && !process.env.DISABLE_AUTO_UPDATE
+
   autoUpdater.on('checking-for-update', () => {
-    console.log('Checking for update...')
+    console.log('正在检查更新...')
   })
 
   autoUpdater.on('update-available', (info) => {
+    console.log('发现新版本:', info.version)
     mainWindow?.webContents.send('update-available', {
       version: info.version,
       releaseDate: info.releaseDate,
@@ -454,8 +458,18 @@ function setupAutoUpdater() {
     })
   })
 
+  // 应用启动后延迟检查更新（仅打包后的生产环境）
+  if (shouldAutoCheck) {
+    setTimeout(() => {
+      console.log('执行自动更新检查...')
+      autoUpdater.checkForUpdates().catch(err => {
+        console.error('自动检查更新失败:', err)
+      })
+    }, 5000) // 延迟5秒，避免启动时网络拥堵
+  }
+
   autoUpdater.on('update-not-available', () => {
-    console.log('Update not available.')
+    console.log('当前已是最新版本')
   })
 
   autoUpdater.on('error', (err) => {
@@ -476,23 +490,54 @@ function setupAutoUpdater() {
   })
 }
 
+// 语义化版本比较函数：如果 latest > current 返回 true
+function isNewerVersion(latest: string, current: string): boolean {
+  const normalize = (v: string) => v.replace(/^v/, '').split('.').map(Number)
+  const latestParts = normalize(latest)
+  const currentParts = normalize(current)
+
+  for (let i = 0; i < Math.max(latestParts.length, currentParts.length); i++) {
+    const l = latestParts[i] || 0
+    const c = currentParts[i] || 0
+    if (l > c) return true
+    if (l < c) return false
+  }
+  return false
+}
+
 ipcMain.handle('check-for-updates', async () => {
   try {
     const result = await autoUpdater.checkForUpdates()
     if (result && result.updateInfo) {
       const currentVersion = app.getVersion()
       const latestVersion = result.updateInfo.version
+      const hasUpdate = isNewerVersion(latestVersion, currentVersion)
+
       return {
-        available: latestVersion !== currentVersion,
+        available: hasUpdate,
         version: latestVersion,
+        currentVersion: currentVersion,
         releaseDate: result.updateInfo.releaseDate,
         releaseNotes: result.updateInfo.releaseNotes
       }
     }
     return { available: false }
   } catch (err) {
-    console.error('Check update error:', err)
-    return { available: false, error: String(err) }
+    console.error('检查更新失败:', err)
+    const errorMessage = err instanceof Error ? err.message : String(err)
+
+    // 区分不同类型的错误
+    if (errorMessage.includes('404')) {
+      return { available: false, error: '未找到更新配置，请检查网络连接' }
+    }
+    if (errorMessage.includes('401') || errorMessage.includes('403')) {
+      return { available: false, error: 'GitHub API 访问受限，请稍后重试' }
+    }
+    if (errorMessage.includes('network') || errorMessage.includes('ECONNREFUSED')) {
+      return { available: false, error: '网络连接失败，请检查网络设置' }
+    }
+
+    return { available: false, error: '检查更新失败: ' + errorMessage }
   }
 })
 

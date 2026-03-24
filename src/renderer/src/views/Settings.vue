@@ -97,19 +97,38 @@
                 </p>
               </div>
             </div>
-            <Tooltip text="Check for new version" placement="top">
-              <button
-                @click="checkForUpdates"
-                :disabled="isChecking"
-                class="px-5 py-2 text-sm font-semibold text-primary bg-primary-container/40 rounded-xl hover:bg-primary-container transition-all active:scale-[0.97] disabled:opacity-50"
-              >
-                <span v-if="isChecking" class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-                  Checking...
-                </span>
-                <span v-else>Check for Updates</span>
-              </button>
-            </Tooltip>
+            <div class="flex flex-col items-end gap-2">
+              <!-- 下载进度条 -->
+              <div v-if="isDownloading" class="w-48">
+                <div class="flex justify-between text-xs text-on-surface-variant mb-1">
+                  <span>下载中...</span>
+                  <span>{{ downloadProgress.percent.toFixed(1) }}%</span>
+                </div>
+                <div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-primary transition-all duration-300 rounded-full"
+                    :style="{ width: downloadProgress.percent + '%' }"
+                  ></div>
+                </div>
+                <div class="text-xs text-on-surface-variant mt-1 text-right">
+                  {{ formatBytes(downloadProgress.transferred) }} / {{ formatBytes(downloadProgress.total) }}
+                </div>
+              </div>
+
+              <Tooltip text="Check for new version" placement="top">
+                <button
+                  @click="checkForUpdates"
+                  :disabled="isChecking || isDownloading"
+                  class="px-5 py-2 text-sm font-semibold text-primary bg-primary-container/40 rounded-xl hover:bg-primary-container transition-all active:scale-[0.97] disabled:opacity-50"
+                >
+                  <span v-if="isChecking" class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                    检查中...
+                  </span>
+                  <span v-else>检查更新</span>
+                </button>
+              </Tooltip>
+            </div>
           </div>
           <!-- Automatic Updates Toggle -->
           <div class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors duration-200">
@@ -327,6 +346,14 @@ const showUpdateDialog = ref(false)
 const autoUpdate = ref(true)
 const releaseNotes = ref<string[]>([])
 
+// 下载进度状态
+const isDownloading = ref(false)
+const downloadProgress = ref({
+  percent: 0,
+  transferred: 0,
+  total: 0
+})
+
 async function checkForUpdates() {
   isChecking.value = true
   try {
@@ -351,16 +378,20 @@ async function checkForUpdates() {
 
 async function downloadUpdate() {
   showUpdateDialog.value = false
-  showToast('Downloading update...', 'info')
+  isDownloading.value = true
+  downloadProgress.value = { percent: 0, transferred: 0, total: 0 }
+
   try {
     const result = await window.api.downloadUpdate?.()
     if (result?.success) {
-      showToast('Update downloaded. Restart to install.', 'success')
+      showToast('更新已下载，重启后安装', 'success')
     } else {
-      showToast(result?.error || 'Failed to download update', 'error')
+      showToast(result?.error || '下载更新失败', 'error')
     }
   } catch (e) {
-    showToast('Failed to download update', 'error')
+    showToast('下载更新失败', 'error')
+  } finally {
+    isDownloading.value = false
   }
 }
 
@@ -441,6 +472,15 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
   }))
 }
 
+// 格式化字节数为可读格式
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
 onMounted(async () => {
   stats.value = await window.api.getStats()
   try {
@@ -449,10 +489,31 @@ onMounted(async () => {
     storagePath.value = 'Unknown'
   }
   refreshLogs()
-  
+
   const savedAutoUpdate = localStorage.getItem('auto-update')
   if (savedAutoUpdate !== null) {
     autoUpdate.value = savedAutoUpdate === 'true'
   }
+
+  // 监听下载进度
+  window.api.onDownloadProgress?.((progress) => {
+    downloadProgress.value = {
+      percent: Math.round(progress.percent * 100) / 100,
+      transferred: progress.transferred,
+      total: progress.total
+    }
+  })
+
+  // 监听更新下载完成
+  window.api.onUpdateDownloaded?.(() => {
+    isDownloading.value = false
+    showToast('更新已下载完成，重启应用即可安装', 'success')
+  })
+
+  // 监听更新错误
+  window.api.onUpdateError?.((error) => {
+    isDownloading.value = false
+    showToast('更新出错: ' + error, 'error')
+  })
 })
 </script>
