@@ -7,7 +7,7 @@
           v-model="store.searchQuery"
           @input="handleSearch"
           class="w-full bg-surface-container-low border-none rounded-xl pl-10 pr-10 py-2 text-sm focus:ring-1 ring-[#007AFF]/20 transition-all placeholder:text-slate-400"
-          placeholder="Search prompts..."
+          :placeholder="t('common.searchPrompts')"
           type="text"
         />
         <Tooltip :text="t('tooltip.clearSearch')" placement="bottom">
@@ -60,15 +60,15 @@
       class="absolute right-8 top-14 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50"
     >
       <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-        <h3 class="font-bold text-on-surface">Notifications</h3>
+        <h3 class="font-bold text-on-surface">{{ t('notifications.title') }}</h3>
         <button @click="markAllRead" class="text-xs text-primary font-medium hover:underline">
-          Mark all read
+          {{ t('notifications.markAllRead') }}
         </button>
       </div>
       <div class="max-h-80 overflow-y-auto">
         <div v-if="notifications.length === 0" class="p-8 text-center text-slate-400">
           <span class="material-symbols-outlined text-4xl mb-2 block">notifications_off</span>
-          <p class="text-sm">No notifications</p>
+          <p class="text-sm">{{ t('notifications.noNotifications') }}</p>
         </div>
         <div v-else>
           <div
@@ -108,18 +108,18 @@
           <!-- Left: Document Tree -->
           <div class="w-64 bg-surface-container-low border-r border-slate-100 flex flex-col">
             <div class="p-4 border-b border-slate-200">
-              <h3 class="font-bold text-on-surface">Help Center</h3>
+              <h3 class="font-bold text-on-surface">{{ t('help.title') }}</h3>
             </div>
             <nav class="flex-1 overflow-y-auto p-2">
               <button
-                v-for="section in helpSections"
-                :key="section.id"
-                @click="activeSection = section.id"
+                v-for="sectionId in helpSectionIds"
+                :key="sectionId"
+                @click="activeSection = sectionId"
                 class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors mb-1"
-                :class="activeSection === section.id ? 'bg-primary/10 text-primary font-medium' : 'text-slate-600 hover:bg-slate-100'"
+                :class="activeSection === sectionId ? 'bg-primary/10 text-primary font-medium' : 'text-slate-600 hover:bg-slate-100'"
               >
-                <span class="material-symbols-outlined text-sm align-middle mr-2">{{ section.icon }}</span>
-                {{ section.title }}
+                <span class="material-symbols-outlined text-sm align-middle mr-2">{{ helpSectionIcons[sectionId] }}</span>
+                {{ t(`help.${sectionId}Nav`) }}
               </button>
             </nav>
           </div>
@@ -128,8 +128,8 @@
           <div class="flex-1 flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
               <div>
-                <h2 class="text-xl font-bold text-on-surface">{{ currentSection?.title }}</h2>
-                <p class="text-sm text-slate-500 mt-1">{{ currentSection?.subtitle }}</p>
+                <h2 class="text-xl font-bold text-on-surface">{{ t(`help.${activeSection}Title`) }}</h2>
+                <p class="text-sm text-slate-500 mt-1">{{ t(`help.${activeSection}Subtitle`) }}</p>
               </div>
               <button @click="showHelpModal = false" class="p-2 hover:bg-slate-100 rounded-full">
                 <span class="material-symbols-outlined">close</span>
@@ -304,8 +304,8 @@
         <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
           <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h2 class="text-xl font-bold text-on-surface">Send Feedback</h2>
-              <p class="text-sm text-slate-500 mt-1">Help us improve Promptly AI</p>
+              <h2 class="text-xl font-bold text-on-surface">{{ t('feedback.title') }}</h2>
+              <p class="text-sm text-slate-500 mt-1">{{ t('feedback.subtitle') }}</p>
             </div>
             <button @click="closeFeedbackModal" class="p-2 hover:bg-slate-100 rounded-full">
               <span class="material-symbols-outlined">close</span>
@@ -315,7 +315,7 @@
           <!-- Feedback Form -->
           <div class="p-6 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-on-surface mb-2">Feedback Type</label>
+              <label class="block text-sm font-medium text-on-surface mb-2">{{ t('feedback.typeLabel') }}</label>
               <div class="flex gap-2">
                 <button
                   v-for="type in feedbackTypes"
@@ -330,22 +330,22 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-on-surface mb-2">Your Feedback</label>
+              <label class="block text-sm font-medium text-on-surface mb-2">{{ t('feedback.contentLabel') }}</label>
               <textarea
                 v-model="feedbackContent"
                 rows="4"
                 class="w-full bg-surface-container-low border-none rounded-xl p-3 text-sm focus:ring-1 ring-primary/20 resize-none"
-                placeholder="Please describe your issue or suggestion..."
+                :placeholder="t('feedback.contentPlaceholder')"
               ></textarea>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-on-surface mb-2">Contact (Optional)</label>
+              <label class="block text-sm font-medium text-on-surface mb-2">{{ t('feedback.contactLabel') }}</label>
               <input
                 v-model="feedbackContact"
                 type="text"
                 class="w-full bg-surface-container-low border-none rounded-xl px-3 py-2 text-sm focus:ring-1 ring-primary/20"
-                placeholder="Email or other contact info"
+                :placeholder="t('feedback.contactPlaceholder')"
               />
             </div>
 
@@ -356,7 +356,7 @@
                 class="flex items-center justify-center gap-2 w-full py-2.5 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors"
               >
                 <span class="material-symbols-outlined text-sm">email</span>
-                <span class="text-sm font-medium">Send via Email</span>
+                <span class="text-sm font-medium">{{ t('feedback.sendViaEmail') }}</span>
               </button>
 
               <a
@@ -369,13 +369,13 @@
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                 </svg>
-                <span class="text-sm font-medium">Submit on GitHub</span>
+                <span class="text-sm font-medium">{{ t('feedback.submitOnGitHub') }}</span>
               </a>
             </div>
           </div>
 
           <div class="p-4 bg-surface-container-low text-center">
-            <p class="text-xs text-slate-500">Your feedback helps us improve. Thank you!</p>
+            <p class="text-xs text-slate-500">{{ t('feedback.thankYou') }}</p>
           </div>
         </div>
       </div>
@@ -391,6 +391,7 @@ import Tooltip from './Tooltip.vue'
 import LanguageSwitch from './LanguageSwitch.vue'
 
 const store = usePromptStore()
+const { t } = useI18n()
 const showNotifications = ref(false)
 const showHelpModal = ref(false)
 const showFeedbackModal = ref(false)
@@ -401,17 +402,17 @@ const feedbackType = ref('bug')
 const feedbackContent = ref('')
 const feedbackContact = ref('')
 
-const feedbackTypes = [
-  { value: 'bug', label: 'Bug Report' },
-  { value: 'feature', label: 'Feature Request' },
-  { value: 'other', label: 'Other' }
-]
+const feedbackTypes = computed(() => [
+  { value: 'bug', label: t('feedback.bugReport') },
+  { value: 'feature', label: t('feedback.featureRequest') },
+  { value: 'other', label: t('feedback.other') }
+])
 
 // 发送反馈邮件（通过 SMTP）
 async function sendFeedbackEmail() {
   // 表单校验
   if (!feedbackContent.value.trim()) {
-    showToast('请输入反馈内容', 'warning')
+    showToast(t('feedback.pleaseEnterContent'), 'warning')
     return
   }
 
@@ -423,13 +424,13 @@ async function sendFeedbackEmail() {
     })
 
     if (result.success) {
-      showToast('Feedback sent successfully!', 'success')
+      showToast(t('feedback.sentSuccess'), 'success')
       handleSendFeedback()
     } else {
-      showToast('Failed to send feedback: ' + result.error, 'error')
+      showToast(t('feedback.sendFailed') + result.error, 'error')
     }
   } catch (error) {
-    showToast('Failed to send feedback', 'error')
+    showToast(t('feedback.sendFailed'), 'error')
     console.error('Send feedback error:', error)
   }
 }
@@ -470,16 +471,17 @@ function saveNotificationStates() {
   }
 }
 
-const helpSections = [
-  { id: 'intro', title: '软件介绍', icon: 'info', subtitle: '了解 Promptly AI' },
-  { id: 'library', title: '提示词库', icon: 'folder_special', subtitle: '管理你的提示词' },
-  { id: 'collections', title: '集合功能', icon: 'folder_copy', subtitle: '组织相关提示词' },
-  { id: 'favorites', title: '收藏功能', icon: 'star', subtitle: '快速访问常用提示词' },
-  { id: 'shortcuts', title: '快捷键', icon: 'keyboard', subtitle: '提高操作效率' },
-  { id: 'data', title: '数据管理', icon: 'storage', subtitle: '导入导出与备份' }
-]
+const helpSectionIds = ['intro', 'library', 'collections', 'favorites', 'shortcuts', 'data']
+const helpSectionIcons: Record<string, string> = {
+  intro: 'info',
+  library: 'folder_special',
+  collections: 'folder_copy',
+  favorites: 'star',
+  shortcuts: 'keyboard',
+  data: 'storage'
+}
 
-const currentSection = computed(() => helpSections.find(s => s.id === activeSection.value))
+const currentSectionIcon = computed(() => helpSectionIcons[activeSection.value])
 
 const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
 
