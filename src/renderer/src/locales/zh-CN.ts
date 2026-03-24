@@ -321,19 +321,33 @@ export default {
   help: {
     title: '帮助中心',
     subtitle: 'Help Center',
-    // 章节
-    intro: '软件介绍',
+    // 导航
+    introNav: '软件介绍',
+    libraryNav: '提示词库',
+    collectionsNav: '集合功能',
+    favoritesNav: '收藏功能',
+    shortcutsNav: '快捷键',
+    dataNav: '数据管理',
+    // 章节标题和副标题
+    introTitle: '软件介绍',
     introSubtitle: '了解 Promptly AI',
-    library: '提示词库',
+    libraryTitle: '提示词库',
     librarySubtitle: '管理你的提示词',
-    collections: '集合功能',
+    collectionsTitle: '集合功能',
     collectionsSubtitle: '组织相关提示词',
-    favorites: '收藏功能',
+    favoritesTitle: '收藏功能',
     favoritesSubtitle: '快速访问常用提示词',
-    shortcuts: '快捷键',
+    shortcutsTitle: '快捷键',
     shortcutsSubtitle: '提高操作效率',
-    data: '数据管理',
+    dataTitle: '数据管理',
     dataSubtitle: '导入导出与备份',
+    // 章节（兼容旧代码）
+    intro: '软件介绍',
+    library: '提示词库',
+    collections: '集合功能',
+    favorites: '收藏功能',
+    shortcuts: '快捷键',
+    data: '数据管理',
     // 软件介绍内容
     appDescription: 'Promptly AI 是一款专为 AI 提示词创作者设计的本地化管理工具。它帮助你高效地组织、搜索和复用你的提示词库，让你的 AI 工作流更加顺畅。',
     coreFeatures: '核心特性',
@@ -389,6 +403,21 @@ export default {
   feedback: {
     title: '发送反馈',
     subtitle: '帮助我们改进 Promptly AI',
+    typeLabel: '反馈类型',
+    bugReport: 'Bug 报告',
+    featureRequest: '功能建议',
+    other: '其他',
+    contentLabel: '您的反馈',
+    contentPlaceholder: '请描述您的问题或建议...',
+    contactLabel: '联系方式（可选）',
+    contactPlaceholder: '邮箱或其他联系方式',
+    sendViaEmail: '通过邮件发送',
+    submitOnGitHub: '在 GitHub 提交',
+    thankYou: '您的反馈帮助我们改进。谢谢！',
+    pleaseEnterContent: '请输入反馈内容',
+    sentSuccess: '反馈发送成功！',
+    sendFailed: '发送反馈失败',
+    // 兼容旧代码
     type: '反馈类型',
     types: {
       bug: 'Bug 报告',
@@ -396,12 +425,7 @@ export default {
       other: '其他'
     },
     content: '您的反馈',
-    contentPlaceholder: '请描述您的问题或建议...',
-    contact: '联系方式（可选）',
-    contactPlaceholder: '邮箱或其他联系方式',
-    sendViaEmail: '通过邮件发送',
-    submitOnGitHub: '在 GitHub 提交',
-    thankYou: '您的反馈帮助我们改进。谢谢！'
+    contact: '联系方式（可选）'
   },
 
   // ==================== 元数据 ====================

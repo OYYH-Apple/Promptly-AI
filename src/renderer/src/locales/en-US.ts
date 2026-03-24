@@ -321,19 +321,33 @@ export default {
   help: {
     title: 'Help Center',
     subtitle: 'Help Center',
-    // Sections
-    intro: 'Introduction',
+    // Navigation
+    introNav: 'Introduction',
+    libraryNav: 'Prompt Library',
+    collectionsNav: 'Collections',
+    favoritesNav: 'Favorites',
+    shortcutsNav: 'Shortcuts',
+    dataNav: 'Data Management',
+    // Section titles and subtitles
+    introTitle: 'Introduction',
     introSubtitle: 'Learn about Promptly AI',
-    library: 'Prompt Library',
+    libraryTitle: 'Prompt Library',
     librarySubtitle: 'Manage your prompts',
-    collections: 'Collections',
+    collectionsTitle: 'Collections',
     collectionsSubtitle: 'Organize related prompts',
-    favorites: 'Favorites',
+    favoritesTitle: 'Favorites',
     favoritesSubtitle: 'Quick access to frequently used prompts',
-    shortcuts: 'Shortcuts',
+    shortcutsTitle: 'Shortcuts',
     shortcutsSubtitle: 'Improve your workflow efficiency',
-    data: 'Data Management',
+    dataTitle: 'Data Management',
     dataSubtitle: 'Import, export and backup',
+    // Sections (backward compatibility)
+    intro: 'Introduction',
+    library: 'Prompt Library',
+    collections: 'Collections',
+    favorites: 'Favorites',
+    shortcuts: 'Shortcuts',
+    data: 'Data Management',
     // Introduction content
     appDescription: 'Promptly AI is a local management tool designed for AI prompt creators. It helps you efficiently organize, search, and reuse your prompt library, making your AI workflow smoother.',
     coreFeatures: 'Core Features',
@@ -389,6 +403,21 @@ export default {
   feedback: {
     title: 'Send Feedback',
     subtitle: 'Help us improve Promptly AI',
+    typeLabel: 'Feedback Type',
+    bugReport: 'Bug Report',
+    featureRequest: 'Feature Request',
+    other: 'Other',
+    contentLabel: 'Your Feedback',
+    contentPlaceholder: 'Please describe your issue or suggestion...',
+    contactLabel: 'Contact (Optional)',
+    contactPlaceholder: 'Email or other contact info',
+    sendViaEmail: 'Send via Email',
+    submitOnGitHub: 'Submit on GitHub',
+    thankYou: 'Your feedback helps us improve. Thank you!',
+    pleaseEnterContent: 'Please enter feedback content',
+    sentSuccess: 'Feedback sent successfully!',
+    sendFailed: 'Failed to send feedback',
+    // Backward compatibility
     type: 'Feedback Type',
     types: {
       bug: 'Bug Report',
@@ -396,12 +425,7 @@ export default {
       other: 'Other'
     },
     content: 'Your Feedback',
-    contentPlaceholder: 'Please describe your issue or suggestion...',
-    contact: 'Contact (Optional)',
-    contactPlaceholder: 'Email or other contact info',
-    sendViaEmail: 'Send via Email',
-    submitOnGitHub: 'Submit on GitHub',
-    thankYou: 'Your feedback helps us improve. Thank you!'
+    contact: 'Contact (Optional)'
   },
 
   // ==================== Metadata ====================
