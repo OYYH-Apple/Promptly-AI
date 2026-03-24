@@ -3,8 +3,8 @@
     <div class="max-w-6xl mx-auto">
       <div class="mb-12 flex items-end justify-between">
         <div>
-<h1 class="text-3xl font-semibold tracking-tight text-on-surface mb-2">{{ isEdit ? 'Edit Prompt' : 'Create New Prompt' }}</h1>
-<p class="text-on-surface-variant font-medium">{{ isEdit ? 'Update your prompt details.' : 'Design your next masterpiece with precision.' }}</p>
+          <h1 class="text-3xl font-semibold tracking-tight text-on-surface mb-2">{{ isEdit ? 'Edit Prompt' : 'Create New Prompt' }}</h1>
+          <p class="text-on-surface-variant font-medium">{{ isEdit ? 'Update your prompt details.' : 'Design your next masterpiece with precision.' }}</p>
         </div>
         <div class="flex items-center gap-3">
           <Tooltip text="Cancel without saving" placement="bottom">
@@ -58,15 +58,17 @@
             <div class="col-span-2 bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/10">
               <div class="flex items-center justify-between mb-6">
                 <label class="text-xs font-bold uppercase tracking-wider text-outline">Reference Media</label>
-                <span class="text-xs text-outline-variant">Up to files(≤15)</span>
+                <span class="text-xs text-outline-variant">{{ form.reference_images.length }}/{{ MAX_IMAGES }}
+                  images</span>
               </div>
               <div class="grid grid-cols-4 gap-4 min-h-[155px]">
-                <Tooltip text="Upload images" placement="top">
+                <Tooltip :text="form.reference_images.length >= MAX_IMAGES ? 'Maximum images reached' : 'Upload images'"
+                  placement="top">
                   <div @click="triggerFileInput" :class="[
-                    'aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all cursor-pointer group',
+                    'aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all group',
                     form.reference_images.length >= MAX_IMAGES
                       ? 'border-outline-variant/20 opacity-50 cursor-not-allowed'
-                      : 'border-outline-variant/30 hover:border-primary/40 hover:bg-primary/5'
+                      : 'border-outline-variant/30 hover:border-primary/40 hover:bg-primary/5 cursor-pointer'
                   ]">
                     <span
                       class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">add_photo_alternate</span>
@@ -197,13 +199,18 @@ const newTag = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
 const showTagSuggestions = ref(false)
 const isTagInputFocused = ref(false)
-const tagInputRef = ref<HTMLInputElement | null>(null)
 const errors = ref<{ title?: string; content?: string }>({})
 
 const MAX_IMAGES = 15
 const categories = ['Image Generation', 'Video Prompt']
 const draggedIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
+
+function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') {
+  window.dispatchEvent(new CustomEvent('show-toast', {
+    detail: { message, type, duration: 2000 }
+  }))
+}
 
 const form = ref({
   title: '',
@@ -261,6 +268,10 @@ function removeTag(index: number) {
 }
 
 function triggerFileInput() {
+  if (form.value.reference_images.length >= MAX_IMAGES) {
+    showToast(`Maximum ${MAX_IMAGES} images allowed`, 'warning')
+    return
+  }
   fileInput.value?.click()
 }
 
@@ -270,17 +281,31 @@ function handleFileUpload(event: Event) {
   if (!files) return
 
   const remaining = MAX_IMAGES - form.value.reference_images.length
-  const filesToProcess = Array.from(files).slice(0, remaining)
+  const filesArray = Array.from(files)
+  let addedCount = 0
+  let duplicateCount = 0
 
-  filesToProcess.forEach(file => {
+  filesArray.slice(0, remaining).forEach(file => {
     const reader = new FileReader()
     reader.onload = (e) => {
       if (e.target?.result && form.value.reference_images.length < MAX_IMAGES) {
-        form.value.reference_images.push(e.target.result as string)
+        const newImage = e.target.result as string
+        if (form.value.reference_images.includes(newImage)) {
+          duplicateCount++
+          return
+        }
+        form.value.reference_images.push(newImage)
+        addedCount++
       }
     }
     reader.readAsDataURL(file)
   })
+
+  setTimeout(() => {
+    if (duplicateCount > 0) {
+      showToast(`${duplicateCount} duplicate image(s) skipped`, 'warning')
+    }
+  }, 100)
 
   target.value = ''
 }
