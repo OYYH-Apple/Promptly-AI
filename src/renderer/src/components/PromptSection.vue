@@ -12,7 +12,7 @@
           </span>
         </h3>
         <div class="flex items-center gap-1 bg-surface-container-low rounded-lg p-0.5">
-          <Tooltip :text="t('tooltip.sortByNewest')" placement="top">
+          <Tooltip :text="t('view.sortByNewest')" placement="top">
             <button
               @click="sortBy = 'newest'"
               :class="[
@@ -23,7 +23,7 @@
               {{ t('library.newest') }}
             </button>
           </Tooltip>
-          <Tooltip :text="t('tooltip.sortByOldest')" placement="top">
+          <Tooltip :text="t('view.sortByOldest')" placement="top">
             <button
               @click="sortBy = 'oldest'"
               :class="[

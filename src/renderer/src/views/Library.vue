@@ -20,7 +20,7 @@
               @click="viewMode = 'list'"
               :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
             >
-              List
+              {{ t('view.list') }}
             </button>
           </Tooltip>
         </div>
