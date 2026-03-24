@@ -2,9 +2,9 @@
   <section class="flex-1 overflow-y-auto p-10 bg-surface-container-low">
     <div class="max-w-7xl mx-auto space-y-12">
       <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-6">
-        <span @click="router.push('/collections')" class="hover:text-primary cursor-pointer transition-colors">Collections</span>
+        <span @click="router.push('/collections')" class="hover:text-primary cursor-pointer transition-colors">{{ t('nav.collections') }}</span>
         <span class="material-symbols-outlined text-xs">chevron_right</span>
-        <span class="font-medium text-on-surface">{{ collection?.name || 'Loading...' }}</span>
+        <span class="font-medium text-on-surface">{{ collection?.name || t('common.loading') }}</span>
       </nav>
 
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -18,10 +18,10 @@
             </div>
             <h2 class="text-4xl font-bold tracking-tight text-on-surface">{{ collection?.name }}</h2>
             <span class="px-3 py-1 bg-surface-container-highest rounded-full text-xs font-bold text-on-surface-variant tracking-wider">
-              {{ collectionPrompts.length }} PROMPTS
+              {{ collectionPrompts.length }} {{ t('collectionDetail.promptsCount') }}
             </span>
           </div>
-          <p class="text-on-surface-variant max-w-xl">{{ collection?.description || 'No description available.' }}</p>
+          <p class="text-on-surface-variant max-w-xl">{{ collection?.description || t('collectionDetail.noDescription') }}</p>
         </div>
         <div class="flex items-center gap-3">
           <button
@@ -29,14 +29,14 @@
             class="bg-surface-container-lowest text-on-surface px-5 py-2.5 rounded-xl font-medium shadow-sm hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-2"
           >
             <span class="material-symbols-outlined text-[20px] transition-all hover:rotate-90">add_circle</span>
-            Add Prompts
+            {{ t('collectionDetail.addPrompts') }}
           </button>
           <button
             @click="editCollection"
             class="bg-primary text-on-primary px-5 py-2.5 rounded-xl font-medium shadow-sm hover:bg-primary-dim active:scale-95 transition-all flex items-center gap-2"
           >
             <span class="material-symbols-outlined text-[20px]">edit</span>
-            Edit Collection
+            {{ t('collectionDetail.editCollection') }}
           </button>
         </div>
       </div>
@@ -47,15 +47,15 @@
 
       <div v-else-if="collectionPrompts.length === 0" class="text-center py-20">
         <span class="material-symbols-outlined text-6xl text-slate-300">folder_open</span>
-        <p class="text-slate-500 mt-4">No prompts in this collection yet.</p>
+        <p class="text-slate-500 mt-4">{{ t('collectionDetail.noPromptsInCollection') }}</p>
         <button @click="showAddPromptModal = true" class="mt-4 px-6 py-2 bg-primary text-white rounded-xl font-medium">
-          Add Prompts
+          {{ t('collectionDetail.addPrompts') }}
         </button>
       </div>
 
       <template v-else>
         <PromptSection
-          title="Image Generation"
+          :title="t('library.imagePrompts')"
           icon="image"
           icon-color="#005bc1"
           :items="imagePrompts"
@@ -72,12 +72,12 @@
               @open-image="openImageViewer"
             >
               <template #actions="slotProps">
-                <Tooltip text="Copy" placement="top">
+                <Tooltip :text="t('tooltip.copy')" placement="top">
                   <button @click.stop="copyPrompt(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
                     <span class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
                   </button>
                 </Tooltip>
-                <Tooltip text="Remove from collection" placement="top">
+                <Tooltip :text="t('tooltip.removeFromCollection')" placement="top">
                   <button @click.stop="removeFromCollection(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
                     <span class="material-symbols-outlined text-slate-400 hover:text-red-500 hover:rotate-180 transition-all text-lg">remove_circle</span>
                   </button>
@@ -88,7 +88,7 @@
         </PromptSection>
 
         <PromptSection
-          title="Video Prompts"
+          :title="t('library.videoPrompts')"
           icon="movie"
           icon-color="#5f5c78"
           :items="videoPrompts"
@@ -133,18 +133,18 @@
 
     <div v-if="showEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="showEditModal = false">
       <div class="bg-white rounded-2xl p-8 w-full max-w-md">
-        <h3 class="text-xl font-bold mb-6">Edit Collection</h3>
+        <h3 class="text-xl font-bold mb-6">{{ t('collectionModal.editTitle') }}</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
-            <input v-model="editForm.name" class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20" placeholder="Collection name..." />
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.name') }}</label>
+            <input v-model="editForm.name" class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20" :placeholder="t('collectionModal.namePlaceholder')" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
-            <input v-model="editForm.description" class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20" placeholder="Optional description..." />
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.description') }}</label>
+            <input v-model="editForm.description" class="w-full px-4 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20" :placeholder="t('collectionModal.descriptionPlaceholder')" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-2">Icon</label>
+            <label class="block text-sm font-medium text-slate-700 mb-2">{{ t('collectionModal.icon') }}</label>
             <div class="grid grid-cols-5 gap-2">
               <button
                 v-for="icon in availableIcons"
@@ -159,13 +159,13 @@
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Color</label>
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ t('collectionModal.color') }}</label>
             <input v-model="editForm.color" type="color" class="w-50 h-10 rounded-md cursor-pointer p-1" />
           </div>
         </div>
         <div class="flex gap-3 mt-6">
-          <button @click="showEditModal = false" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">Cancel</button>
-          <button @click="saveEditCollection" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">Save</button>
+          <button @click="showEditModal = false" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">{{ t('dialog.cancel') }}</button>
+          <button @click="saveEditCollection" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">{{ t('dialog.save') }}</button>
         </div>
       </div>
     </div>
@@ -173,10 +173,10 @@
     <ConfirmDialog
       v-model:visible="showRemoveDialog"
       type="warning"
-      title="Remove from Collection"
-      :message="`Remove '${promptToRemove?.title}' from this collection? The prompt will not be deleted.`"
-      confirm-text="Remove"
-      cancel-text="Cancel"
+      :title="t('dialog.removeFromCollectionTitle')"
+      :message="t('dialog.removeFromCollectionMessage', { title: promptToRemove?.title })"
+      :confirm-text="t('dialog.remove')"
+      :cancel-text="t('dialog.cancel')"
       @confirm="handleRemove"
     />
   </section>
@@ -185,6 +185,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { usePromptStore } from '@/stores/prompts'
 import ImageViewer from '@/components/ImageViewer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -196,6 +197,7 @@ import Tooltip from '@/components/Tooltip.vue'
 const route = useRoute()
 const router = useRouter()
 const store = usePromptStore()
+const { t } = useI18n()
 
 const collectionId = computed(() => Number(route.params.id))
 const collection = ref<any>(null)
@@ -238,7 +240,7 @@ async function copyPrompt(prompt: any) {
   const content = prompt.content_zh || prompt.content_en
   if (content) {
     await navigator.clipboard.writeText(content)
-    showToast('Copied to clipboard', 'success')
+    showToast(t('toast.copied'), 'success')
   }
 }
 
@@ -249,7 +251,7 @@ function openImageViewer(images: string[], index: number) {
 }
 
 function handlePromptsAdded() {
-  showToast('Prompts added to collection', 'success')
+  showToast(t('toast.promptsAddedToCollection'), 'success')
 }
 
 function removeFromCollection(prompt: any) {
@@ -260,7 +262,7 @@ function removeFromCollection(prompt: any) {
 async function handleRemove() {
   if (promptToRemove.value && promptToRemove.value.id) {
     await store.updatePrompt(promptToRemove.value.id, { collection_id: null })
-    showToast('Removed from collection', 'success')
+    showToast(t('toast.removedFromCollection'), 'success')
     promptToRemove.value = null
   }
 }
@@ -289,7 +291,7 @@ async function saveEditCollection() {
 
   collection.value = store.collections.find(c => c.id === collectionId.value)
   showEditModal.value = false
-  showToast('Collection updated', 'success')
+  showToast(t('toast.collectionUpdated'), 'success')
 }
 
 function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') {
