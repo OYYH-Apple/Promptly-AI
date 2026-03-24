@@ -197,6 +197,7 @@ export default {
     notifications: '通知',
     help: '帮助',
     feedback: '反馈',
+    language: '语言',
     // 侧边栏
     newPrompt: '新建提示词',
     storage: '存储 {size}',
@@ -501,6 +502,7 @@ export default {
     collectionStatus: '集合状态',
     all: '全部',
     notInCollection: '不在任何集合中',
+    notInAnyCollection: '不在任何集合中',
     inOtherCollection: '在其他集合中',
     inCurrentCollection: '在当前集合中',
     specificCollection: '特定集合',

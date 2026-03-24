@@ -192,11 +192,12 @@ export default {
 
   // ==================== Tooltip Texts ====================
   tooltip: {
-    // TopBar
+    // Top Bar
     clearSearch: 'Clear search',
     notifications: 'Notifications',
     help: 'Help',
     feedback: 'Feedback',
+    language: 'Language',
     // Sidebar
     newPrompt: 'New Prompt',
     storage: 'Storage {size}',
@@ -501,6 +502,7 @@ export default {
     collectionStatus: 'Collection Status',
     all: 'All',
     notInCollection: 'Not in any collection',
+    notInAnyCollection: 'Not in any collection',
     inOtherCollection: 'In other collection',
     inCurrentCollection: 'In current collection',
     specificCollection: 'Specific Collection',
