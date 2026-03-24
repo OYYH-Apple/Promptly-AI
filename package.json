@@ -16,10 +16,12 @@
   "dependencies": {
     "@vueuse/core": "^10.9.0",
     "electron-updater": "^6.8.3",
+    "marked": "^17.0.5",
     "nodemailer": "^8.0.3",
     "pinia": "^2.1.7",
     "sql.js": "^1.10.2",
     "vue": "^3.4.21",
+    "vue-i18n": "^11.3.0",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {

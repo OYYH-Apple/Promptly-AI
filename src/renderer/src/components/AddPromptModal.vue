@@ -2,7 +2,7 @@
   <div v-if="visible" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" @click.self="$emit('update:visible', false)">
     <div class="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-bold">Add Prompts to "{{ collectionName }}"</h3>
+        <h3 class="text-xl font-bold">{{ t('addPromptModal.title', { name: collectionName }) }}</h3>
         <button @click="$emit('update:visible', false)" class="p-2 hover:bg-slate-100 rounded-full">
           <span class="material-symbols-outlined">close</span>
         </button>
@@ -13,7 +13,7 @@
           <input
             v-model="searchQuery"
             class="w-full pl-10 pr-10 py-2 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-            placeholder="Search by title or content..."
+            :placeholder="t('addPromptModal.searchPlaceholder')"
           />
           <button
             v-if="searchQuery"
@@ -30,38 +30,38 @@
             :class="hasActiveFilters ? 'bg-primary/10 text-primary' : 'bg-surface-container-low text-slate-600 hover:bg-surface-container'"
           >
             <span class="material-symbols-outlined text-lg">filter_list</span>
-            Filter
+            {{ t('addPromptModal.filter') }}
             <span v-if="hasActiveFilters" class="w-2 h-2 rounded-full bg-primary"></span>
           </button>
           <div v-if="showFilters" class="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-10">
             <div class="space-y-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Category</label>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ t('addPromptModal.category') }}</label>
                 <select v-model="filterCategory" class="w-full px-3 py-2 bg-surface-container-low rounded-lg text-sm">
-                  <option value="">All Categories</option>
+                  <option value="">{{ t('addPromptModal.allCategories') }}</option>
                   <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
                 </select>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tags</label>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ t('addPromptModal.tags') }}</label>
                 <select v-model="filterTag" class="w-full px-3 py-2 bg-surface-container-low rounded-lg text-sm">
-                  <option value="">All Tags</option>
+                  <option value="">{{ t('addPromptModal.allTags') }}</option>
                   <option v-for="tag in allTags" :key="tag" :value="tag">{{ tag }}</option>
                 </select>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Collection Status</label>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ t('addPromptModal.collectionStatus') }}</label>
                 <select v-model="filterCollectionStatus" class="w-full px-3 py-2 bg-surface-container-low rounded-lg text-sm">
-                  <option value="">All</option>
-                  <option value="none">Not in any collection</option>
-                  <option value="other">In other collection</option>
-                  <option value="current">In current collection</option>
+                  <option value="">{{ t('addPromptModal.all') }}</option>
+                  <option value="none">{{ t('addPromptModal.notInAnyCollection') }}</option>
+                  <option value="other">{{ t('addPromptModal.inOtherCollection') }}</option>
+                  <option value="current">{{ t('addPromptModal.inCurrentCollection') }}</option>
                 </select>
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Specific Collection</label>
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ t('addPromptModal.specificCollection') }}</label>
                 <select v-model="filterCollectionId" class="w-full px-3 py-2 bg-surface-container-low rounded-lg text-sm">
-                  <option value="">All Collections</option>
+                  <option value="">{{ t('addPromptModal.allCollections') }}</option>
                   <option v-for="col in otherCollections" :key="col.id" :value="col.id">{{ col.name }}</option>
                 </select>
               </div>
@@ -73,13 +73,13 @@
           class="px-4 py-2 text-sm font-medium rounded-xl transition-colors"
           :class="isAllSelected ? 'bg-primary text-white' : 'bg-surface-container-low text-slate-600 hover:bg-surface-container'"
         >
-          {{ isAllSelected ? 'Deselect All' : 'Select All' }}
+          {{ isAllSelected ? t('addPromptModal.deselectAll') : t('addPromptModal.selectAll') }}
         </button>
       </div>
       <div class="flex-1 overflow-y-auto space-y-2 p-3" style="min-height: 300px;">
         <div v-if="selectablePrompts.length === 0" class="text-center py-10 text-slate-400">
           <span class="material-symbols-outlined text-4xl mb-2">folder_open</span>
-          <p>No prompts available to add</p>
+          <p>{{ t('addPromptModal.noPromptsAvailable') }}</p>
         </div>
         <div
           v-for="prompt in selectablePrompts"
@@ -103,20 +103,20 @@
             <span
               v-if="isInCurrentCollection(prompt)"
               class="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full"
-            >In collection</span>
+            >{{ t('addPromptModal.inCollection') }}</span>
             <span
               v-else-if="prompt.collection_id"
               class="text-xs px-2 py-1 bg-slate-100 text-slate-500 rounded-full"
-            >In other</span>
+            >{{ t('addPromptModal.inOther') }}</span>
           </div>
         </div>
       </div>
       <div class="flex gap-3 mt-4 pt-4 border-t">
-        <span class="text-sm text-slate-500">{{ selectedPromptIds.length }} selected</span>
+        <span class="text-sm text-slate-500">{{ t('addPromptModal.selectedCount', { count: selectedPromptIds.length }) }}</span>
         <div class="flex-1"></div>
-        <button @click="$emit('update:visible', false)" class="px-4 py-2 bg-surface-container-high rounded-xl font-medium">Cancel</button>
+        <button @click="$emit('update:visible', false)" class="px-4 py-2 bg-surface-container-high rounded-xl font-medium">{{ t('dialog.cancel') }}</button>
         <button @click="handleAdd" class="px-4 py-2 bg-primary text-white rounded-xl font-medium" :disabled="selectedPromptIds.length === 0">
-          Add {{ selectedPromptIds.length || '' }} Prompts
+          {{ t('addPromptModal.addPrompts', { count: selectedPromptIds.length }) }}
         </button>
       </div>
     </div>
@@ -125,6 +125,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { usePromptStore } from '@/stores/prompts'
 
 const props = defineProps<{
@@ -139,6 +140,7 @@ const emit = defineEmits<{
 }>()
 
 const store = usePromptStore()
+const { t } = useI18n()
 const searchQuery = ref('')
 const selectedPromptIds = ref<number[]>([])
 const showFilters = ref(false)

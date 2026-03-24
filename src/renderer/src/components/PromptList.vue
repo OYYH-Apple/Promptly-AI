@@ -3,56 +3,59 @@
     <table class="w-full text-left border-collapse">
       <thead>
         <tr class="bg-surface-container-low/50">
-          <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Name</th>
-          <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Category</th>
-          <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Date Edited</th>
-          <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80 text-right">Option</th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-on-surface-variant/80 text-left"
+            :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{
+              t('table.name') }}</th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-on-surface-variant/80 text-left"
+            :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{
+              t('table.category') }}</th>
+          <th
+            class="px-6 py-4 font-semibold uppercase tracking-wider text-on-surface-variant/80 text-left min-w-[140px]"
+            :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{
+              t('table.dateEdited') }}</th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-on-surface-variant/80 text-left"
+            :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{
+              t('table.option') }}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100">
-        <tr
-          v-for="prompt in prompts"
-          :key="prompt.id"
+        <tr v-for="prompt in prompts" :key="prompt.id"
           class="hover:bg-surface-container-low/30 transition-colors group cursor-pointer"
-          @click="$emit('click', prompt)"
-        >
+          @click="$emit('click', prompt)">
           <td class="px-6 py-3">
             <div class="flex items-center gap-3">
-              <Thumbnail
-                v-if="prompt.reference_images?.length"
-                :image-url="prompt.reference_images[0]"
-                :count="prompt.reference_images.length"
-                :rotation="getThumbnailRotation(prompt.id)"
-                @click="$emit('open-image', prompt.reference_images, 0)"
-              />
-              <div v-else class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" :class="getCategoryStyle(prompt.category).bg">
-                <span class="material-symbols-outlined text-lg" :class="getCategoryStyle(prompt.category).textColor">{{ getCategoryStyle(prompt.category).icon }}</span>
+              <Thumbnail v-if="prompt.reference_images?.length" :image-url="prompt.reference_images[0]"
+                :count="prompt.reference_images.length" :rotation="getThumbnailRotation(prompt.id)"
+                @click="$emit('open-image', prompt.reference_images, 0)" />
+              <div v-else class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                :class="getCategoryStyle(prompt.category).bg">
+                <span class="material-symbols-outlined text-lg" :class="getCategoryStyle(prompt.category).textColor">{{
+                  getCategoryStyle(prompt.category).icon }}</span>
               </div>
               <div>
                 <p class="font-medium text-on-surface">{{ prompt.title }}</p>
-                <p class="text-xs text-on-surface-variant line-clamp-1">{{ prompt.content_zh?.slice(0, 50) || prompt.content_en?.slice(0, 50) }}...</p>
+                <p class="text-xs text-on-surface-variant line-clamp-1">{{ prompt.content_zh?.slice(0, 50) ||
+                  prompt.content_en?.slice(0, 50) }}...</p>
               </div>
             </div>
           </td>
           <td class="px-6 py-3">
-            <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap text-center" :class="getCategoryStyle(prompt.category).badgeList" style="padding:10px;">
+            <span
+              class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap text-center"
+              :class="getCategoryStyle(prompt.category).badgeList" style="padding:10px;">
               {{ prompt.category }}
             </span>
           </td>
           <td class="px-6 py-3 text-sm text-on-surface-variant">
-            {{ formatDate(prompt.updated_at) }}
+            {{ formatRelativeTime(prompt.updated_at) }}
           </td>
           <td class="px-6 py-3 text-right">
             <div class="flex items-center justify-end gap-2">
-              <Tooltip :text="prompt.is_private ? 'Private - Click to make public' : 'Public - Click to make private'" placement="top">
-                <button
-                  @click.stop="$emit('toggle-private', prompt)"
-                  class="p-1 rounded-lg hover:bg-surface-container-high transition-colors"
-                >
-                  <span
-                    class="material-symbols-outlined text-base"
-                    :class="prompt.is_private ? 'text-slate-400' : 'text-primary'"
-                  >
+              <Tooltip :text="prompt.is_private ? t('tooltip.makePrivate') : t('tooltip.makePublic')" placement="top">
+                <button @click.stop="$emit('toggle-private', prompt)"
+                  class="p-1 rounded-lg hover:bg-surface-container-high transition-colors">
+                  <span class="material-symbols-outlined text-base"
+                    :class="prompt.is_private ? 'text-slate-400' : 'text-primary'">
                     {{ prompt.is_private ? 'lock' : 'public' }}
                   </span>
                 </button>
@@ -70,8 +73,13 @@
 
 <script setup lang="ts">
 import type { Prompt } from '@/stores/prompts'
+import { useI18n } from 'vue-i18n'
+import { useDateFormatter } from '@/utils/format'
 import Thumbnail from './Thumbnail.vue'
 import Tooltip from './Tooltip.vue'
+
+const { t, locale } = useI18n()
+const { formatRelativeTime } = useDateFormatter()
 
 defineProps<{
   prompts: Prompt[]
@@ -139,15 +147,5 @@ function getCategoryStyle(category: string) {
   return categoryStyles[category] || categoryStyles['General']
 }
 
-function formatDate(date?: string) {
-  if (!date) return ''
-  const d = new Date(date)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days} days ago`
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
+// 使用 useDateFormatter 中的 formatRelativeTime 替代
 </script>

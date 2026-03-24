@@ -91,7 +91,10 @@ const api = {
 
   importData: () => ipcRenderer.invoke('db:importData'),
 
-  checkForUpdates: (): Promise<UpdateInfo> => 
+  getAppVersion: (): Promise<string> =>
+    ipcRenderer.invoke('get-app-version'),
+
+  checkForUpdates: (): Promise<UpdateInfo> =>
     ipcRenderer.invoke('check-for-updates'),
 
   downloadUpdate: () => 

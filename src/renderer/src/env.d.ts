@@ -76,6 +76,7 @@ interface Window {
     purgeAllData: () => Promise<boolean>
     exportData: () => Promise<string | null>
     importData: () => Promise<{ prompts?: Prompt[]; collections?: Collection[] } | null>
+    getAppVersion: () => Promise<string>
     checkForUpdates: () => Promise<UpdateInfo>
     downloadUpdate: () => Promise<{ success: boolean; error?: string }>
     quitAndInstall: () => Promise<void>

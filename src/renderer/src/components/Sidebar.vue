@@ -4,7 +4,7 @@
       <img src="@/public/logo.png" alt="Promptly AI" class="w-12 h-12 rounded-xl" />
     </div>
 
-    <Tooltip text="New Prompt" placement="right" :delay="0">
+    <Tooltip :text="t('tooltip.newPrompt')" placement="right" :delay="0">
       <button
         @click="router.push('/create')"
         class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-xl active:scale-[0.98] transition-all shadow-md shadow-primary/10 mb-6"
@@ -34,12 +34,12 @@
     </div>
 
     <div class="mt-auto flex flex-col items-center gap-3">
-      <Tooltip :text="`Storage ${formatBytes(storageSize)}`" placement="right" :delay="0">
+      <Tooltip :text="t('tooltip.storage', { size: formatBytes(storageSize) })" placement="right" :delay="0">
         <div class="w-8 h-8 flex items-center justify-center text-slate-400 animate-breathe">
           <span class="material-symbols-outlined text-[20px]">database</span>
         </div>
       </Tooltip>
-      <Tooltip text="User" placement="right" :delay="0">
+      <Tooltip :text="t('tooltip.user')" placement="right" :delay="0">
         <div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-slate-100 animate-breathe" style="animation-delay: 0.5s;">
           <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500"></div>
         </div>
@@ -52,10 +52,12 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePromptStore } from '@/stores/prompts'
+import { useI18n } from 'vue-i18n'
 import Tooltip from './Tooltip.vue'
 
 const router = useRouter()
 const store = usePromptStore()
+const { t } = useI18n()
 
 const storageSize = computed(() => {
   let size = 0
@@ -70,13 +72,13 @@ const storageSize = computed(() => {
   return size
 })
 
-const navItems = [
-  { path: '/', label: 'Prompt Library', icon: 'folder_special' },
-  { path: '/favorites', label: 'Favorites', icon: 'grade' },
-  { path: '/collections', label: 'Collections', icon: 'folder_copy' },
-  { path: '/recent', label: 'Recent', icon: 'history' },
-  { path: '/settings', label: 'Settings', icon: 'settings' }
-]
+const navItems = computed(() => [
+  { path: '/', label: t('nav.library'), icon: 'folder_special' },
+  { path: '/favorites', label: t('nav.favorites'), icon: 'grade' },
+  { path: '/collections', label: t('nav.collections'), icon: 'folder_copy' },
+  { path: '/recent', label: t('nav.recent'), icon: 'history' },
+  { path: '/settings', label: t('nav.settings'), icon: 'settings' }
+])
 
 function formatBytes(bytes: number) {
   if (bytes === 0) return '0 B'

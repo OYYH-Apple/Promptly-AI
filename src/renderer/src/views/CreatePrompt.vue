@@ -3,18 +3,21 @@
     <div class="max-w-6xl mx-auto">
       <div class="mb-12 flex items-end justify-between">
         <div>
-          <h1 class="text-3xl font-semibold tracking-tight text-on-surface mb-2">{{ isEdit ? 'Edit Prompt' : 'Create New Prompt' }}</h1>
-          <p class="text-on-surface-variant font-medium">{{ isEdit ? 'Update your prompt details.' : 'Design your next masterpiece with precision.' }}</p>
+          <h1 class="text-3xl font-semibold tracking-tight text-on-surface mb-2">{{ isEdit ? t('prompt.editTitle') :
+            t('prompt.createTitle') }}</h1>
+          <p class="text-on-surface-variant font-medium">{{ isEdit ? t('prompt.editSubtitle') :
+            t('prompt.createSubtitle') }}</p>
         </div>
         <div class="flex items-center gap-3">
-          <Tooltip text="Cancel without saving" placement="bottom">
+          <Tooltip :text="t('tooltip.cancelWithoutSaving')" placement="bottom">
             <button @click="router.push('/')"
-              class="px-6 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-surface-container-high transition-colors">Cancel</button>
+              class="px-6 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-surface-container-high transition-colors">{{
+                t('common.cancel') }}</button>
           </Tooltip>
-          <Tooltip :text="isEdit ? 'Save changes' : 'Create new prompt'" placement="bottom">
+          <Tooltip :text="isEdit ? t('tooltip.saveChanges') : t('tooltip.createNewPrompt')" placement="bottom">
             <button @click="savePrompt"
               class="px-8 py-2.5 rounded-xl font-medium bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-              {{ isEdit ? 'Update Prompt' : 'Save Prompt' }}
+              {{ isEdit ? t('prompt.updatePrompt') : t('prompt.savePrompt') }}
             </button>
           </Tooltip>
         </div>
@@ -25,31 +28,31 @@
           <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/10">
             <div class="space-y-6">
               <div class="space-y-2">
-                <label class="text-xs font-bold uppercase tracking-wider text-outline px-1">Prompt Title <span
-                    class="text-error">*</span></label>
+                <label class="text-xs font-bold uppercase tracking-wider text-outline px-1">{{ t('prompt.titleLabel') }}
+                  <span class="text-error">*</span></label>
                 <input v-model="form.title"
                   :class="['w-full text-xl font-medium px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 transition-all placeholder:text-outline-variant/60', errors.title ? 'ring-2 ring-error/50' : 'focus:ring-primary/20']"
-                  placeholder="Enter a descriptive title..." />
-                <p v-if="errors.title" class="text-xs text-error px-1">{{ errors.title }}</p>
+                  :placeholder="t('prompt.titlePlaceholder')" />
+                <p v-if="errors.title" class="text-xs text-error px-1">{{ t('form.titleRequired') }}</p>
               </div>
               <div class="space-y-2">
                 <label class="text-xs font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2">
                   <span class="material-symbols-outlined text-base">translate</span>
-                  Chinese Prompt Content <span v-if="!form.content_en.trim()" class="text-error">*</span>
+                  {{ t('prompt.contentZhLabel') }} <span v-if="!form.content_en.trim()" class="text-error">*</span>
                 </label>
                 <textarea v-model="form.content_zh"
                   :class="['w-full text-base px-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 transition-all placeholder:text-outline-variant/60 resize-none', errors.content ? 'ring-2 ring-error/50' : 'focus:ring-primary/20']"
-                  placeholder="Enter Chinese prompt content..." rows="6"></textarea>
+                  :placeholder="t('prompt.contentZhPlaceholder')" rows="6"></textarea>
               </div>
               <div class="space-y-2">
                 <label class="text-xs font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2">
                   <span class="material-symbols-outlined text-base">language</span>
-                  English Prompt Content <span v-if="!form.content_zh.trim()" class="text-error">*</span>
+                  {{ t('prompt.contentEnLabel') }} <span v-if="!form.content_zh.trim()" class="text-error">*</span>
                 </label>
                 <textarea v-model="form.content_en"
                   :class="['w-full text-base px-4 py-4 bg-surface-container-low border-none rounded-xl focus:ring-2 transition-all placeholder:text-outline-variant/60 resize-none', errors.content ? 'ring-2 ring-error/50' : 'focus:ring-primary/20']"
-                  placeholder="Enter English prompt content..." rows="6"></textarea>
-                <p v-if="errors.content" class="text-xs text-error px-1">{{ errors.content }}</p>
+                  :placeholder="t('prompt.contentEnPlaceholder')" rows="6"></textarea>
+                <p v-if="errors.content" class="text-xs text-error px-1">{{ t('form.contentRequired') }}</p>
               </div>
             </div>
           </div>
@@ -57,12 +60,14 @@
           <div class="grid grid-cols-2 gap-6">
             <div class="col-span-2 bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/10">
               <div class="flex items-center justify-between mb-6">
-                <label class="text-xs font-bold uppercase tracking-wider text-outline">Reference Media</label>
+                <label class="text-xs font-bold uppercase tracking-wider text-outline">{{ t('prompt.referenceMedia')
+                }}</label>
                 <span class="text-xs text-outline-variant">{{ form.reference_images.length }}/{{ MAX_IMAGES }}
-                  images</span>
+                  {{ t('prompt.images') }}</span>
               </div>
               <div class="grid grid-cols-4 gap-4 min-h-[155px]">
-                <Tooltip :text="form.reference_images.length >= MAX_IMAGES ? 'Maximum images reached' : 'Upload images'"
+                <Tooltip
+                  :text="form.reference_images.length >= MAX_IMAGES ? t('tooltip.maximumImagesReached') : t('tooltip.uploadImages')"
                   placement="top">
                   <div @click="triggerFileInput" :class="[
                     'aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all group',
@@ -73,30 +78,37 @@
                     <span
                       class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">add_photo_alternate</span>
                     <span
-                      class="text-[10px] font-bold text-outline group-hover:text-primary uppercase tracking-widest">Upload</span>
+                      class="text-[10px] font-bold text-outline group-hover:text-primary uppercase tracking-widest">{{
+                        t('common.upload') }}</span>
                   </div>
                 </Tooltip>
                 <div v-for="(img, idx) in form.reference_images" :key="idx" draggable="true"
                   @dragstart="handleDragStart($event, idx)" @dragend="handleDragEnd"
                   @dragover.prevent="handleDragOver($event, idx)" @drop.prevent="handleDrop($event, idx)"
                   @dragleave="handleDragLeave($event)"
-                  :class="['aspect-square rounded-xl overflow-hidden relative group cursor-move transition-all', draggedIndex === idx ? 'opacity-50 scale-95' : '', dragOverIndex === idx ? 'ring-2 ring-primary ring-offset-2' : '']">
-                  <img :src="img" :alt="`Reference ${idx + 1}`" class="w-full h-full object-cover" />
-                  <!-- 删除按钮 - 右上角 -->
-                  <button
-                    @click.stop="removeImage(idx)"
-                    title="Delete"
-                    class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:rotate-90 z-10"
-                  >
-                    <span class="material-symbols-outlined text-sm">close</span>
-                  </button>
-                  <!-- 拖拽提示 - 底部中央 -->
+                  class="aspect-square rounded-xl overflow-hidden relative group cursor-move transition-all"
+                  :class="[draggedIndex === idx ? 'opacity-50 scale-95' : '', dragOverIndex === idx ? 'ring-2 ring-primary ring-offset-2' : '']">
+                  <img :src="img" :alt="t('prompt.referenceImage', { number: idx + 1 })"
+                    class="w-full h-full object-cover" />
+                  <!-- 操作按钮组 - 右上角 -->
+                  <div class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Tooltip :text="t('tooltip.dragToReorder')" placement="top">
+                      <div
+                        class="w-7 h-7 flex items-center justify-center rounded-full bg-black/60 text-white cursor-grab active:cursor-grabbing hover:bg-blue-500  transition-all hover:-rotate-90">
+                        <span class="material-symbols-outlined text-sm">drag_indicator</span>
+                      </div>
+                    </Tooltip>
+                    <Tooltip :text="t('tooltip.delete')" placement="top">
+                      <button @click.stop="removeImage(idx)"
+                        class="w-7 h-7 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-red-500 transition-all hover:rotate-90">
+                        <span class="material-symbols-outlined text-sm">close</span>
+                      </button>
+                    </Tooltip>
+                  </div>
+                  <!-- 序号 -->
                   <div
-                    title="Drag to reorder"
-                    class="absolute inset-x-0 bottom-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center py-2 cursor-grab active:cursor-grabbing">
-                    <div class="text-white">
-                      <span class="material-symbols-outlined">drag_indicator</span>
-                    </div>
+                    class="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-full bg-black/40 text-white text-xs font-medium">
+                    {{ idx + 1 }}
                   </div>
                 </div>
               </div>
@@ -107,27 +119,30 @@
 
         <div class="col-span-12 lg:col-span-4 space-y-6">
           <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
-            <label class="text-xs font-bold uppercase tracking-wider text-outline mb-4 block">Prompt Category</label>
+            <label class="text-xs font-bold uppercase tracking-wider text-outline mb-4 block">{{
+              t('prompt.categoryLabel') }}</label>
             <div class="grid grid-cols-2 gap-3">
               <button v-for="cat in categories" :key="cat" @click="form.category = cat"
                 :class="['flex flex-col items-center gap-2 p-4 rounded-xl transition-colors', form.category === cat ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high']">
                 <span class="material-symbols-outlined">{{ getCategoryIcon(cat) }}</span>
-                <span class="text-sm font-semibold">{{ cat }}</span>
+                <span class="text-sm font-semibold">{{ t(`categoryLabels.${cat.replace(' ', '')}`) }}</span>
               </button>
             </div>
           </div>
 
           <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 space-y-6">
             <div class="space-y-3">
-              <label class="text-xs font-bold uppercase tracking-wider text-outline block">Add to Collection</label>
+              <label class="text-xs font-bold uppercase tracking-wider text-outline block">{{
+                t('prompt.addToCollection') }}</label>
               <select v-model="form.collection_id"
                 class="w-full px-4 py-2.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20">
-                <option :value="null">No collection</option>
+                <option :value="null">{{ t('prompt.noCollection') }}</option>
                 <option v-for="col in store.collections" :key="col.id" :value="col.id">{{ col.name }}</option>
               </select>
             </div>
             <div class="space-y-3">
-              <label class="text-xs font-bold uppercase tracking-wider text-outline block">Tags</label>
+              <label class="text-xs font-bold uppercase tracking-wider text-outline block">{{ t('prompt.tags')
+              }}</label>
               <div class="flex flex-wrap gap-2">
                 <span v-for="(tag, idx) in form.tags" :key="idx"
                   class="px-3 py-1 rounded-full bg-surface-container-high text-xs font-medium text-on-surface-variant flex items-center gap-1">
@@ -140,7 +155,7 @@
                   <input ref="tagInputRef" v-model="newTag" @keydown.enter.prevent="addTag" @focus="handleTagInputFocus"
                     @blur="handleTagInputBlur"
                     class="px-3 py-1 rounded-full border border-dashed border-outline-variant text-xs font-medium text-outline flex items-center gap-1 focus:outline-none focus:border-primary"
-                    placeholder="Add tag..." />
+                    :placeholder="t('prompt.addTag')" />
                   <div v-if="showTagSuggestions && filteredTags.length > 0 && isTagInputFocused"
                     class="absolute top-full left-0 mt-2 w-48 max-h-40 overflow-y-auto bg-white rounded-xl shadow-lg border border-slate-100 z-10"
                     @mousedown.prevent>
@@ -157,7 +172,7 @@
               class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-outline">grade</span>
-                <span class="text-sm font-medium">Add to Favorites</span>
+                <span class="text-sm font-medium">{{ t('prompt.addToFavorites') }}</span>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input v-model="form.is_favorite" type="checkbox" class="sr-only peer" />
@@ -171,7 +186,7 @@
               class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-outline">lock</span>
-                <span class="text-sm font-medium">Private Prompt</span>
+                <span class="text-sm font-medium">{{ t('prompt.privatePrompt') }}</span>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input v-model="form.is_private" type="checkbox" class="sr-only peer" />
@@ -190,12 +205,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { usePromptStore } from '@/stores/prompts'
 import Tooltip from '@/components/Tooltip.vue'
 
 const route = useRoute()
 const router = useRouter()
 const store = usePromptStore()
+const { t } = useI18n()
 
 const isEdit = computed(() => !!route.params.id)
 const newTag = ref('')
@@ -272,7 +289,7 @@ function removeTag(index: number) {
 
 function triggerFileInput() {
   if (form.value.reference_images.length >= MAX_IMAGES) {
-    showToast(`Maximum ${MAX_IMAGES} images allowed`, 'warning')
+    showToast(t('toast.maximumImagesAllowed', { max: MAX_IMAGES }), 'warning')
     return
   }
   fileInput.value?.click()
@@ -306,7 +323,7 @@ function handleFileUpload(event: Event) {
 
   setTimeout(() => {
     if (duplicateCount > 0) {
-      showToast(`${duplicateCount} duplicate image(s) skipped`, 'warning')
+      showToast(t('toast.duplicateImagesSkipped', { count: duplicateCount }), 'warning')
     }
   }, 100)
 
@@ -361,11 +378,11 @@ async function savePrompt() {
   errors.value = {}
 
   if (!form.value.title.trim()) {
-    errors.value.title = 'Title is required'
+    errors.value.title = t('form.titleRequired')
   }
 
   if (!form.value.content_zh.trim() && !form.value.content_en.trim()) {
-    errors.value.content = 'Please fill in at least one prompt content'
+    errors.value.content = t('form.contentRequired')
   }
 
   if (Object.keys(errors.value).length > 0) {
