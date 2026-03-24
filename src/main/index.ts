@@ -505,6 +505,11 @@ function isNewerVersion(latest: string, current: string): boolean {
   return false
 }
 
+// 获取应用当前版本号
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion()
+})
+
 ipcMain.handle('check-for-updates', async () => {
   try {
     const result = await autoUpdater.checkForUpdates()

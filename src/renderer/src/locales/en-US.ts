@@ -8,6 +8,7 @@ export default {
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
+    move: 'Move',
     edit: 'Edit',
     copy: 'Copy',
     copied: 'Copied to clipboard',
@@ -663,6 +664,14 @@ export default {
     noCollection: 'No collection',
     addToFavorites: 'Add to Favorites',
     privatePrompt: 'Private Prompt'
+  },
+
+  // ==================== Table Headers ====================
+  table: {
+    name: 'Name',
+    category: 'Category',
+    dateEdited: 'Date Edited',
+    option: 'Option'
   }
 }
 

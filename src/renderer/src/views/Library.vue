@@ -8,18 +8,14 @@
         </div>
         <div class="flex gap-2 p-1 bg-surface-container-low rounded-xl">
           <Tooltip :text="t('tooltip.gridView')" placement="bottom">
-            <button
-              @click="viewMode = 'grid'"
-              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
-            >
+            <button @click="viewMode = 'grid'"
+              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']">
               {{ t('view.grid') }}
             </button>
           </Tooltip>
           <Tooltip :text="t('tooltip.listView')" placement="bottom">
-            <button
-              @click="viewMode = 'list'"
-              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
-            >
+            <button @click="viewMode = 'list'"
+              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']">
               {{ t('view.list') }}
             </button>
           </Tooltip>
@@ -41,84 +37,58 @@
       <template v-else>
         <!-- Grid View -->
         <template v-if="viewMode === 'grid'">
-          <PromptSection
-            :title="t('library.imagePrompts')"
-            icon="image"
-            icon-color="#005bc1"
-            :items="imagePrompts"
+          <PromptSection :title="t('library.imagePrompts')" icon="image" icon-color="#005bc1" :items="imagePrompts"
             :add-button-text="t('library.newTemplate')"
-            @add="router.push({ path: '/create', query: { category: 'Image Generation' } })"
-          >
+            @add="router.push({ path: '/create', query: { category: 'Image Generation' } })">
             <template #default="{ items }">
-              <PromptCard
-                v-for="(prompt, idx) in items"
-                :key="prompt.id"
-                :prompt="prompt"
-                :rotation-index="idx"
+              <PromptCard v-for="(prompt, idx) in items" :key="prompt.id" :prompt="prompt" :rotation-index="idx"
                 @click="router.push(`/prompt/${prompt.id}`)"
-                @toggle-favorite="store.toggleFavorite(prompt.id as number)"
-                @toggle-private="handleTogglePrivate"
-                @copy="copyPrompt"
-                @open-image="openImageViewer"
-                @edit="handleEdit"
-                @delete="handleDelete"
-              />
+                @toggle-favorite="store.toggleFavorite(prompt.id as number)" @toggle-private="handleTogglePrivate"
+                @copy="copyPrompt" @open-image="openImageViewer" @edit="handleEdit" @delete="handleDelete" />
             </template>
           </PromptSection>
 
-          <PromptSection
-            :title="t('library.videoPrompts')"
-            icon="movie"
-            icon-color="#5f5c78"
-            :items="videoPrompts"
+          <PromptSection :title="t('library.videoPrompts')" icon="movie" icon-color="#5f5c78" :items="videoPrompts"
             :add-button-text="t('library.newTemplate')"
-            @add="router.push({ path: '/create', query: { category: 'Video Prompt' } })"
-          >
+            @add="router.push({ path: '/create', query: { category: 'Video Prompt' } })">
             <template #default="{ items }">
-              <PromptCard
-                v-for="(prompt, idx) in items"
-                :key="prompt.id"
-                :prompt="prompt"
-                :rotation-index="idx"
+              <PromptCard v-for="(prompt, idx) in items" :key="prompt.id" :prompt="prompt" :rotation-index="idx"
                 @click="router.push(`/prompt/${prompt.id}`)"
-                @toggle-favorite="store.toggleFavorite(prompt.id as number)"
-                @toggle-private="handleTogglePrivate"
-                @copy="copyPrompt"
-                @open-image="openImageViewer"
-                @edit="handleEdit"
-                @delete="handleDelete"
-              />
+                @toggle-favorite="store.toggleFavorite(prompt.id as number)" @toggle-private="handleTogglePrivate"
+                @copy="copyPrompt" @open-image="openImageViewer" @edit="handleEdit" @delete="handleDelete" />
             </template>
           </PromptSection>
         </template>
 
         <!-- List View -->
-        <PromptList
-          v-else
-          :prompts="store.filteredPrompts"
-          @click="(prompt: Prompt) => router.push(`/prompt/${prompt.id}`)"
-          @open-image="openImageViewer"
-          @toggle-private="handleTogglePrivate"
-        >
+        <PromptList v-else :prompts="store.filteredPrompts"
+          @click="(prompt: Prompt) => router.push(`/prompt/${prompt.id}`)" @open-image="openImageViewer"
+          @toggle-private="handleTogglePrivate">
           <template #actions="{ prompt }">
-            <Tooltip :text="prompt.is_favorite ? t('tooltip.removeFromFavorites') : t('tooltip.addToFavorites')" placement="top">
-              <button @click.stop="store.toggleFavorite(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors text-primary">
-                <span class="material-symbols-outlined text-on-surface-variant" :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">grade</span>
+            <Tooltip :text="prompt.is_favorite ? t('tooltip.removeFromFavorites') : t('tooltip.addToFavorites')"
+              placement="top">
+              <button @click.stop="store.toggleFavorite(prompt.id!)"
+                class="p-2 rounded-full hover:bg-surface-container transition-colors text-primary">
+                <span class="material-symbols-outlined text-on-surface-variant"
+                  :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">grade</span>
               </button>
             </Tooltip>
             <Tooltip :text="t('tooltip.copy')" placement="top">
-              <button @click.stop="copyPrompt(prompt)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
+              <button @click.stop="copyPrompt(prompt)"
+                class="p-2 rounded-full hover:bg-surface-container transition-colors">
                 <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
               </button>
             </Tooltip>
             <Tooltip :text="t('tooltip.edit')" placement="top">
-              <button @click.stop="router.push(`/edit/${prompt.id}`)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
+              <button @click.stop="router.push(`/edit/${prompt.id}`)"
+                class="p-2 rounded-full hover:bg-surface-container transition-colors">
                 <span class="material-symbols-outlined text-on-surface-variant">edit</span>
               </button>
             </Tooltip>
             <Tooltip :text="t('tooltip.delete')" placement="top">
-              <button @click.stop="handleDelete(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                <span class="material-symbols-outlined text-on-surface-variant">delete</span>
+              <button @click.stop="handleDelete(prompt.id!)"
+                class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined " style="color: red;">delete</span>
               </button>
             </Tooltip>
           </template>
@@ -129,25 +99,16 @@
         </div>
       </template>
     </div>
-    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex" @close="viewerVisible = false" />
-    <ConfirmDialog
-      v-model:visible="showDeleteDialog"
-      type="danger"
-      :title="t('dialog.deletePromptTitle')"
-      :message="t('dialog.deletePromptMessage')"
-      :confirm-text="t('dialog.delete')"
-      :cancel-text="t('dialog.cancel')"
-      @confirm="confirmDelete"
-    />
-    <ConfirmDialog
-      v-model:visible="showPrivacyDialog"
-      type="warning"
+    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
+      @close="viewerVisible = false" />
+    <ConfirmDialog v-model:visible="showDeleteDialog" type="danger" :title="t('dialog.deletePromptTitle')"
+      :message="t('dialog.deletePromptMessage')" :confirm-text="t('dialog.delete')" :cancel-text="t('dialog.cancel')"
+      @confirm="confirmDelete" />
+    <ConfirmDialog v-model:visible="showPrivacyDialog" type="warning"
       :title="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
       :message="privacyPrompt?.is_private ? t('dialog.makePublicMessage') : t('dialog.makePrivateMessage')"
       :confirm-text="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
-      :cancel-text="t('dialog.cancel')"
-      @confirm="confirmTogglePrivate"
-    />
+      :cancel-text="t('dialog.cancel')" @confirm="confirmTogglePrivate" />
   </section>
 </template>
 

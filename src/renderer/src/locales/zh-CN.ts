@@ -8,6 +8,7 @@ export default {
     save: '保存',
     cancel: '取消',
     delete: '删除',
+    move: '移动',
     edit: '编辑',
     copy: '复制',
     copied: '已复制到剪贴板',
@@ -663,6 +664,14 @@ export default {
     noCollection: '无集合',
     addToFavorites: '添加到收藏夹',
     privatePrompt: '私密提示词'
+  },
+
+  // ==================== 表格表头 ====================
+  table: {
+    name: '名称',
+    category: '分类',
+    dateEdited: '编辑日期',
+    option: '操作'
   }
 }
 

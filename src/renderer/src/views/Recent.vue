@@ -3,21 +3,14 @@
     <div class="max-w-5xl mx-auto">
       <div class="mb-10 flex items-end justify-between">
         <div>
-          <p class="text-primary font-bold tracking-widest text-[10px] uppercase mb-1">{{ t('recent.activityLog') }}</p>
+          <p class="text-primary font-bold tracking-widest uppercase mb-1"
+            :class="locale === 'zh-CN' ? 'text-xs' : 'text-[10px]'">{{ t('recent.activityLog') }}</p>
           <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">{{ t('recent.title') }}</h2>
         </div>
         <div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-xl">
-          <Tooltip
-            v-for="cat in categories"
-            :key="cat.value"
-            :text="cat.tooltip"
-            placement="bottom"
-          >
-            <button
-              @click="selectedCategory = cat.value"
-              class="px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors"
-              :class="selectedCategory === cat.value ? 'bg-white shadow-sm text-primary' : 'text-secondary hover:text-on-surface'"
-            >
+          <Tooltip v-for="cat in categories" :key="cat.value" :text="cat.tooltip" placement="bottom">
+            <button @click="selectedCategory = cat.value" class="px-4 py-1.5 font-semibold rounded-lg transition-colors"
+              :class="[selectedCategory === cat.value ? 'bg-white shadow-sm text-primary' : 'text-secondary hover:text-on-surface', locale === 'zh-CN' ? 'text-sm' : 'text-xs']">
               {{ cat.label }}
             </button>
           </Tooltip>
@@ -26,29 +19,24 @@
 
       <section v-for="(group, label) in groupedPrompts" :key="label" class="mb-12">
         <div class="flex items-center gap-4 mb-6">
-          <span class="text-xs font-bold uppercase tracking-widest text-secondary/60">{{ label }}</span>
+          <span class="font-bold uppercase tracking-widest text-secondary/60"
+            :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{ label }}</span>
           <div class="h-[1px] flex-1 bg-slate-100"></div>
         </div>
-        <PromptList
-          :prompts="group"
-          @click="(prompt: Prompt) => router.push(`/prompt/${prompt.id}`)"
-          @open-image="openImageViewer"
-          @toggle-private="handleTogglePrivate"
-        >
+        <PromptList :prompts="group" @click="(prompt: Prompt) => router.push(`/prompt/${prompt.id}`)"
+          @open-image="openImageViewer" @toggle-private="handleTogglePrivate">
           <template #actions="{ prompt }">
-            <button
-              @click.stop="copyPrompt(prompt)"
-              class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors"
-            >
+            <button @click.stop="copyPrompt(prompt)"
+              class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold hover:bg-slate-200 transition-colors"
+              :class="locale === 'zh-CN' ? 'text-sm' : 'text-sm'">
               <span class="material-symbols-outlined text-[18px]">content_copy</span>
-              <span>{{ t('common.copy') }}</span>
+              <span class="min-w-[30px]">{{ t('common.copy') }}</span>
             </button>
-            <button
-              @click.stop="router.push(`/prompt/${prompt.id}`)"
-              class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:shadow-lg transition-all active:scale-95"
-            >
+            <button @click.stop="router.push(`/prompt/${prompt.id}`)"
+              class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold hover:shadow-lg transition-all active:scale-95"
+              :class="locale === 'zh-CN' ? 'text-sm' : 'text-sm'">
               <span class="material-symbols-outlined text-[18px]">open_in_new</span>
-              <span>{{ t('common.open') }}</span>
+              <span class="min-w-[30px]">{{ t('common.open') }}</span>
             </button>
           </template>
         </PromptList>
@@ -62,21 +50,13 @@
       <div class="h-24"></div>
     </div>
 
-    <ImageViewer
-      v-model:visible="viewerVisible"
-      :images="viewerImages"
-      :initial-index="viewerIndex"
-      @close="viewerVisible = false"
-    />
-    <ConfirmDialog
-      v-model:visible="showPrivacyDialog"
-      type="warning"
+    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
+      @close="viewerVisible = false" />
+    <ConfirmDialog v-model:visible="showPrivacyDialog" type="warning"
       :title="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
       :message="privacyPrompt?.is_private ? t('dialog.makePublicMessage') : t('dialog.makePrivateMessage')"
       :confirm-text="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
-      :cancel-text="t('dialog.cancel')"
-      @confirm="confirmTogglePrivate"
-    />
+      :cancel-text="t('dialog.cancel')" @confirm="confirmTogglePrivate" />
   </section>
 </template>
 
@@ -92,7 +72,7 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const router = useRouter()
 const store = usePromptStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const selectedCategory = ref('All')
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
