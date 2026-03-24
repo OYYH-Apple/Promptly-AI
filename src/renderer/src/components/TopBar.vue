@@ -10,7 +10,7 @@
           placeholder="Search prompts..."
           type="text"
         />
-        <Tooltip text="Clear search" placement="bottom">
+        <Tooltip :text="t('tooltip.clearSearch')" placement="bottom">
           <button
             v-if="store.searchQuery"
             @click="clearSearch"
@@ -23,7 +23,7 @@
     </div>
     <div class="flex items-center gap-6">
       <div class="flex items-center gap-4">
-        <Tooltip text="Notifications" placement="bottom">
+        <Tooltip :text="t('tooltip.notifications')" placement="bottom">
           <button
             @click="showNotifications = !showNotifications"
             class="text-slate-400 hover:text-slate-900 transition-colors relative"
@@ -32,7 +32,7 @@
             <span v-if="unreadCount > 0" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
         </Tooltip>
-        <Tooltip text="Help" placement="bottom">
+        <Tooltip :text="t('tooltip.help')" placement="bottom">
           <button
             @click="showHelpModal = true"
             class="text-slate-400 hover:text-slate-900 transition-colors"
@@ -41,8 +41,10 @@
           </button>
         </Tooltip>
       </div>
+      <!-- 语言切换 -->
+      <LanguageSwitch />
       <div class="h-8 w-px bg-slate-200"></div>
-      <Tooltip text="Feedback" placement="bottom">
+      <Tooltip :text="t('tooltip.feedback')" placement="bottom">
         <button
           @click="showFeedbackModal = true"
           class="text-slate-400 hover:text-slate-900 transition-colors"
@@ -384,7 +386,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { usePromptStore } from '@/stores/prompts'
+import { useI18n } from 'vue-i18n'
 import Tooltip from './Tooltip.vue'
+import LanguageSwitch from './LanguageSwitch.vue'
 
 const store = usePromptStore()
 const showNotifications = ref(false)
