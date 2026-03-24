@@ -181,67 +181,6 @@ const videoPrompts = computed(() => {
   return store.prompts.filter(p => p.category === 'Video Prompt')
 })
 
-const categoryStyles: Record<string, { icon: string; badge: string; bg: string; textColor: string; badgeList: string }> = {
-  'Image Generation': {
-    icon: 'image',
-    badge: 'bg-primary-container/30 text-primary-dim',
-    bg: 'bg-primary-container',
-    textColor: 'text-on-primary-container',
-    badgeList: 'bg-blue-50 text-blue-700'
-  },
-  'Video Prompt': {
-    icon: 'movie',
-    badge: 'bg-tertiary-container/30 text-tertiary-dim',
-    bg: 'bg-tertiary-container',
-    textColor: 'text-on-tertiary-container',
-    badgeList: 'bg-purple-50 text-purple-700'
-  },
-  'Coding': {
-    icon: 'code',
-    badge: 'bg-secondary-container/50 text-secondary-dim',
-    bg: 'bg-secondary-container',
-    textColor: 'text-on-secondary-container',
-    badgeList: 'bg-slate-100 text-slate-700'
-  },
-  'General': {
-    icon: 'text_snippet',
-    badge: 'bg-surface-container-high text-on-surface-variant',
-    bg: 'bg-surface-container-high',
-    textColor: 'text-on-surface-variant',
-    badgeList: 'bg-slate-100 text-slate-700'
-  },
-  'Concept Art': {
-    icon: 'brush',
-    badge: 'bg-surface-container-high text-on-surface-variant',
-    bg: 'bg-surface-container-high',
-    textColor: 'text-on-surface-variant',
-    badgeList: 'bg-amber-50 text-amber-700'
-  },
-  'Layout Design': {
-    icon: 'web',
-    badge: 'bg-surface-container-high text-on-surface-variant',
-    bg: 'bg-surface-container-high',
-    textColor: 'text-on-surface-variant',
-    badgeList: 'bg-emerald-50 text-emerald-700'
-  }
-}
-
-function getCategoryStyle(category: string) {
-  return categoryStyles[category] || categoryStyles['General']
-}
-
-function formatDate(date?: string) {
-  if (!date) return ''
-  const d = new Date(date)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days} days ago`
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
 async function copyPrompt(prompt: any) {
   const content = prompt.content_zh || prompt.content_en
   if (content) {

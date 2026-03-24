@@ -139,25 +139,6 @@ const groupedPrompts = computed(() => {
   return groups
 })
 
-function formatTime(date?: string, groupLabel?: string) {
-  if (!date) return ''
-  const d = new Date(date)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-
-  if (groupLabel === 'Today') {
-    if (hours < 1) return 'Just now'
-    return `${hours}h ago`
-  }
-
-  if (groupLabel === 'Yesterday') {
-    return `Yesterday at ${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
-  }
-
-  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-}
-
 async function copyPrompt(prompt: any) {
   const content = prompt.content_zh || prompt.content_en
   if (content) {
