@@ -276,9 +276,7 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
   }))
 }
 
-// 使用 useDateFormatter 替代 formatDate
-import { useDateFormatter } from '@/utils/format'
-const { formatRelativeTime } = useDateFormatter()
+// 日期格式化使用 useDateFormatter
 
 onMounted(() => {
   store.fetchPrompts()
