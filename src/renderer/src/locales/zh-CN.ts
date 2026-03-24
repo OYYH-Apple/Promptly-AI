@@ -4,6 +4,7 @@ export default {
   // ==================== 通用 ====================
   common: {
     search: '搜索提示词...',
+    searchPrompts: '搜索提示词...',
     save: '保存',
     cancel: '取消',
     delete: '删除',
@@ -15,7 +16,16 @@ export default {
     success: '成功',
     error: '错误',
     warning: '警告',
-    info: '提示'
+    info: '提示',
+    chinese: '中文',
+    english: '英文',
+    refresh: '刷新',
+    close: '关闭',
+    open: '打开',
+    create: '创建',
+    add: '添加',
+    remove: '移除',
+    clear: '清除'
   },
 
   // ==================== 导航 ====================
@@ -58,16 +68,23 @@ export default {
 
   // ==================== 集合 ====================
   collections: {
+    overview: '概览',
     title: '集合',
     subtitle: '管理你的提示词工作区',
     newCollection: '新建集合',
+    createWorkspace: '创建工作区',
     editCollection: '编辑集合',
     deleteCollection: '删除集合',
     collectionName: '集合名称',
     collectionDesc: '集合描述',
     prompts: '个提示词',
+    promptsLabel: '提示词',
+    updatedLabel: '更新',
+    collectionsLabel: '集合',
+    favoritesLabel: '收藏',
     noCollections: '暂无集合',
-    noCollectionsHint: '创建集合来组织你的提示词'
+    noCollectionsHint: '创建集合来组织你的提示词',
+    noDescription: '暂无描述'
   },
 
   // ==================== 提示词 ====================
@@ -499,7 +516,9 @@ export default {
   categoryLabels: {
     all: '全部',
     image: '图像',
-    video: '视频'
+    video: '视频',
+    ImageGeneration: '图像生成',
+    VideoPrompt: '视频提示词'
   },
 
   // ==================== 空状态 ====================

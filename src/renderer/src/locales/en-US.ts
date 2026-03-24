@@ -4,6 +4,7 @@ export default {
   // ==================== Common ====================
   common: {
     search: 'Search prompts...',
+    searchPrompts: 'Search prompts...',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
@@ -15,7 +16,16 @@ export default {
     success: 'Success',
     error: 'Error',
     warning: 'Warning',
-    info: 'Info'
+    info: 'Info',
+    chinese: 'Chinese',
+    english: 'English',
+    refresh: 'Refresh',
+    close: 'Close',
+    open: 'Open',
+    create: 'Create',
+    add: 'Add',
+    remove: 'Remove',
+    clear: 'Clear'
   },
 
   // ==================== Navigation ====================
@@ -58,16 +68,23 @@ export default {
 
   // ==================== Collections ====================
   collections: {
+    overview: 'Overview',
     title: 'Collections',
     subtitle: 'Manage your prompt workspaces',
     newCollection: 'New Collection',
+    createWorkspace: 'Create Workspace',
     editCollection: 'Edit Collection',
     deleteCollection: 'Delete Collection',
     collectionName: 'Collection Name',
     collectionDesc: 'Collection Description',
     prompts: 'prompts',
+    promptsLabel: 'Prompts',
+    updatedLabel: 'Updated',
+    collectionsLabel: 'Collections',
+    favoritesLabel: 'Favorites',
     noCollections: 'No collections yet',
-    noCollectionsHint: 'Create a collection to organize your prompts'
+    noCollectionsHint: 'Create a collection to organize your prompts',
+    noDescription: 'No description'
   },
 
   // ==================== Prompt ====================
@@ -499,7 +516,9 @@ export default {
   categoryLabels: {
     all: 'All',
     image: 'Image',
-    video: 'Video'
+    video: 'Video',
+    ImageGeneration: 'Image Generation',
+    VideoPrompt: 'Video Prompt'
   },
 
   // ==================== Empty States ====================
