@@ -80,10 +80,21 @@ interface Window {
     checkForUpdates: () => Promise<UpdateInfo>
     downloadUpdate: () => Promise<{ success: boolean; error?: string }>
     quitAndInstall: () => Promise<void>
+    getUpdateState: () => Promise<{
+      pendingUpdateVersion: string | null
+      pendingReleaseNotes: string | null
+      lastInstallAttemptFailed: boolean
+      lastInstallAttemptTime: string | null
+      ignoredVersion: string | null
+    }>
+    clearUpdateCache: () => Promise<{ success: boolean; error?: string }>
+    ignoreUpdateVersion: (version: string) => Promise<{ success: boolean }>
     onUpdateAvailable: (callback: (info: { version: string; releaseDate?: string; releaseNotes?: string | string[] }) => void) => void
     onUpdateDownloaded: (callback: () => void) => void
     onUpdateError: (callback: (error: string) => void) => void
     onDownloadProgress: (callback: (progress: DownloadProgress) => void) => void
+    onInstallFailed: (callback: (data: { error: string }) => void) => void
+    onInstallFailedRecovery: (callback: (data: { version: string; releaseNotes: string | null; lastAttemptTime: string | null }) => void) => void
     removeUpdateListeners: () => void
     sendFeedbackEmail: (feedback: { type: string; content: string; contact: string }) => Promise<{ success: boolean; messageId?: string; error?: string }>
   }

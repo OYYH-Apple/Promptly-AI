@@ -3,8 +3,8 @@
         <Tooltip :text="t('tooltip.language')" placement="bottom">
             <button @click="showDropdown = !showDropdown"
                 class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low hover:bg-surface-container-high transition-colors font-medium text-on-surface-variant"
-                :class="currentLocale === 'zh-CN' ? 'text-base' : 'text-sm'">
-                <span class="text-base">{{ currentLocale === 'zh-CN' ? '🇨🇳' : '🇺🇸' }}</span>
+                :class="currentLocale === 'zh-CN' ? 'text-sm' : 'text-sm'">
+                <span class="text-base">{{ currentLocale === 'zh-CN' ? 'CN' : 'US' }}</span>
                 <span class="material-symbols-outlined text-[18px]">expand_more</span>
             </button>
         </Tooltip>

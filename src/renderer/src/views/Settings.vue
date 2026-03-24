@@ -161,6 +161,28 @@
               </div>
             </label>
           </div>
+          <!-- Clear Update Cache -->
+          <div
+            class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors duration-200">
+            <div class="flex items-center gap-4">
+              <div
+                class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+                <span class="material-symbols-outlined">cleaning_services</span>
+              </div>
+              <div>
+                <h4 class="font-semibold text-on-surface">{{ t('settings.clearUpdateCache') }}</h4>
+                <p class="text-on-surface-variant mt-0.5" :class="locale === 'zh-CN' ? 'text-base' : 'text-sm'">
+                  {{ locale === 'zh-CN' ? '更新反复失败时，尝试清理缓存后重新下载' : 'Clear cache and re-download if updates keep failing'
+                  }}
+                </p>
+              </div>
+            </div>
+            <button @click="handleClearUpdateCache"
+              class="px-5 py-2 font-semibold text-on-surface bg-surface-container-high rounded-xl hover:bg-surface-container-highest transition-all active:scale-[0.97]"
+              :class="locale === 'zh-CN' ? 'text-base' : 'text-sm'">
+              {{ t('settings.clearUpdateCache') }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -297,6 +319,59 @@
               {{ t('dialog.downloadAndInstall') }}
             </button>
           </Tooltip>
+        </div>
+      </div>
+    </div>
+
+    <!-- Install Confirm Dialog - 下载完成后确认安装 -->
+    <div v-if="showInstallConfirmDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+            <span class="material-symbols-outlined text-2xl">download_done</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-on-surface">{{ t('dialog.installNow') }}</h3>
+            <p class="text-sm text-slate-500">{{ t('dialog.versionReadyToInstall', { version: latestVersion }) }}</p>
+          </div>
+        </div>
+        <p class="text-sm text-on-surface-variant mb-6">{{ t('dialog.restartToInstall') }}</p>
+        <div class="flex gap-3">
+          <button @click="showInstallConfirmDialog = false"
+            class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">
+            {{ t('dialog.later') }}
+          </button>
+          <button @click="executeInstallUpdate" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">
+            {{ t('dialog.installNow') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Retry Dialog - 上次安装失败的恢复提示 -->
+    <div v-if="showRetryDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+            <span class="material-symbols-outlined text-2xl">warning</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-on-surface">{{ t('dialog.updateRetryTitle') }}</h3>
+            <p class="text-sm text-slate-500">{{ t('dialog.updateRetryMessage', { version: retryVersion }) }}</p>
+          </div>
+        </div>
+        <div v-if="retryReleaseNotes" class="bg-surface-container-low rounded-xl p-4 mb-6 max-h-40 overflow-y-auto">
+          <h4 class="font-semibold text-sm text-on-surface mb-2">{{ t('dialog.whatsNew') }}</h4>
+          <div v-if="renderedReleaseNotes" class="prose prose-sm prose-slate max-w-none text-on-surface-variant"
+            v-html="renderedReleaseNotes"></div>
+        </div>
+        <div class="flex gap-3">
+          <button @click="ignoreRetryUpdate" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">
+            {{ t('dialog.ignoreUpdate') }}
+          </button>
+          <button @click="retryDownloadUpdate" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">
+            {{ t('dialog.retryDownload') }}
+          </button>
         </div>
       </div>
     </div>
@@ -535,6 +610,58 @@ function formatBytes(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
+// 执行安装（重启应用）
+async function executeInstallUpdate() {
+  showInstallConfirmDialog.value = false
+  try {
+    await window.api.quitAndInstall?.()
+  } catch (e) {
+    showToast(t('toast.updateInstallFailed'), 'error')
+  }
+}
+
+// 重试下载并安装更新（安装失败恢复流程）
+async function retryDownloadUpdate() {
+  showRetryDialog.value = false
+  isDownloading.value = true
+  downloadProgress.value = { percent: 0, transferred: 0, total: 0 }
+
+  try {
+    const result = await window.api.downloadUpdate?.()
+    if (result?.success) {
+      // 下载完成后 onUpdateDownloaded 监听器会弹出安装确认弹窗
+    } else {
+      showToast(result?.error || t('toast.failedToDownloadUpdate'), 'error')
+      isDownloading.value = false
+    }
+  } catch (e) {
+    showToast(t('toast.failedToDownloadUpdate'), 'error')
+    isDownloading.value = false
+  }
+}
+
+// 忽略待恢复的更新版本
+async function ignoreRetryUpdate() {
+  showRetryDialog.value = false
+  if (retryVersion.value) {
+    await window.api.ignoreUpdateVersion?.(retryVersion.value)
+  }
+}
+
+// 清理更新缓存
+async function handleClearUpdateCache() {
+  try {
+    const result = await window.api.clearUpdateCache?.()
+    if (result?.success) {
+      showToast(t('toast.updateCacheCleared'), 'success')
+    } else {
+      showToast(t('toast.clearCacheFailed'), 'error')
+    }
+  } catch (e) {
+    showToast(t('toast.clearCacheFailed'), 'error')
+  }
+}
+
 onMounted(async () => {
   stats.value = await window.api.getStats()
   try {
@@ -600,6 +727,23 @@ onMounted(async () => {
   window.api.onUpdateError?.((error) => {
     isDownloading.value = false
     showToast(t('toast.updateError', { error }), 'error')
+  })
+
+  // 监听安装失败事件（quitAndInstall 异常时触发）
+  window.api.onInstallFailed?.((_data) => {
+    isDownloading.value = false
+    showToast(t('toast.updateInstallFailed'), 'error')
+  })
+
+  // 监听启动时的安装失败恢复事件
+  window.api.onInstallFailedRecovery?.((data: { version: string, releaseNotes: string | null, lastAttemptTime: string | null }) => {
+    retryVersion.value = data.version
+    retryReleaseNotes.value = data.releaseNotes || ''
+    if (data.releaseNotes) {
+      releaseNotesMarkdown.value = data.releaseNotes
+      releaseNotes.value = data.releaseNotes.split('\n').filter((line: string) => line.trim())
+    }
+    showRetryDialog.value = true
   })
 })
 </script>

@@ -520,11 +520,12 @@ let lastUpdateInfo: any = null
 // ==================== 启动恢复检查 ====================
 
 // 启动时检查是否有待恢复的更新
-async function checkPendingUpdateOnStartup(): Promise<void> {
+// 返回 true 表示有待恢复的失败更新（已通知渲染进程），调用方应跳过后续自动检查
+async function checkPendingUpdateOnStartup(): Promise<boolean> {
   const updateState = readUpdateState()
 
   // 如果没有待处理的更新版本，直接返回
-  if (!updateState.pendingUpdateVersion) return
+  if (!updateState.pendingUpdateVersion) return false
 
   const currentVersion = app.getVersion()
 
@@ -532,13 +533,13 @@ async function checkPendingUpdateOnStartup(): Promise<void> {
   if (!isNewerVersion(updateState.pendingUpdateVersion, currentVersion)) {
     console.log('更新已成功安装，清理旧的更新状态')
     clearUpdateState()
-    return
+    return false
   }
 
   // 如果用户已忽略该版本，跳过
   if (updateState.ignoredVersion === updateState.pendingUpdateVersion) {
     console.log('用户已忽略版本:', updateState.ignoredVersion)
-    return
+    return false
   }
 
   // 如果上次安装失败，通知渲染进程显示恢复提示
@@ -559,12 +560,14 @@ async function checkPendingUpdateOnStartup(): Promise<void> {
       // 延迟一下确保渲染进程已完成初始化
       setTimeout(notifyRenderer, 2000)
     }
-    return
+    // 有待恢复的失败更新，返回 true 跳过后续自动检查，避免重复弹框
+    return true
   }
 
   // 存在已下载但未安装的更新（非失败状态），说明可能用户选择了"稍后"
   // 不做额外处理，让正常的自动检查流程接管
   console.log('存在已下载待安装的更新:', updateState.pendingUpdateVersion)
+  return false
 }
 
 // ==================== 核心更新逻辑 ====================
@@ -633,13 +636,19 @@ function setupAutoUpdater() {
   if (shouldAutoCheck) {
     setTimeout(async () => {
       // 先检查是否有上次安装失败的待恢复更新
-      await checkPendingUpdateOnStartup()
+      const hasPendingRecovery = await checkPendingUpdateOnStartup()
 
-      // 再执行常规的自动更新检查
+      // 有待恢复更新时，不再做普通自动检查，避免重复弹框
+      if (hasPendingRecovery) return
+
+      // 执行常规的自动更新检查（带竞态防护）
       if (!isUpdateOperationInProgress) {
+        isUpdateOperationInProgress = true
         console.log('执行自动更新检查...')
         autoUpdater.checkForUpdates().catch(err => {
           console.error('自动检查更新失败:', err)
+        }).finally(() => {
+          isUpdateOperationInProgress = false
         })
       }
     }, 5000) // 延迟5秒，避免启动时网络拥堵
