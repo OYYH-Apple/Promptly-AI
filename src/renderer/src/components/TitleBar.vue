@@ -1,9 +1,9 @@
 <template>
   <div class="titlebar flex items-center justify-between bg-white select-none" @dblclick="handleDoubleClick">
-    <div class="flex items-center gap-3 px-4 drag-region flex-1">
-      <div class="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+    <div class="flex items-center gap-3 px-4 drag-region flex-1 ml-20">
+      <!-- <div class="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
         <span class="material-symbols-outlined text-white text-lg">auto_awesome</span>
-      </div>
+      </div> -->
       <span class="text-sm font-semibold text-slate-700">Promptly AI</span>
     </div>
     <div class="flex items-center no-drag">

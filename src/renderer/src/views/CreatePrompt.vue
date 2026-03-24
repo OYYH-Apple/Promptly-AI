@@ -7,10 +7,14 @@
           <p class="text-on-surface-variant font-medium">{{ isEdit ? 'Update your prompt details.' : 'Design your next masterpiece with precision.' }}</p>
         </div>
         <div class="flex items-center gap-3">
-          <button @click="router.push('/')" class="px-6 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-surface-container-high transition-colors">Cancel</button>
-          <button @click="savePrompt" class="px-8 py-2.5 rounded-xl font-medium bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-            {{ isEdit ? 'Update Prompt' : 'Save Prompt' }}
-          </button>
+          <Tooltip text="Cancel without saving" placement="bottom">
+            <button @click="router.push('/')" class="px-6 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-surface-container-high transition-colors">Cancel</button>
+          </Tooltip>
+          <Tooltip :text="isEdit ? 'Save changes' : 'Create new prompt'" placement="bottom">
+            <button @click="savePrompt" class="px-8 py-2.5 rounded-xl font-medium bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+              {{ isEdit ? 'Update Prompt' : 'Save Prompt' }}
+            </button>
+          </Tooltip>
         </div>
       </div>
 
@@ -62,24 +66,39 @@
           <span class="text-xs text-outline-variant">Up to files(≤15)</span>
         </div>
 <div class="grid grid-cols-4 gap-4">
-      <div
-        v-if="form.reference_images.length < MAX_IMAGES"
-        @click="triggerFileInput"
-        class="aspect-square rounded-xl border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center gap-2 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group"
-      >
-        <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">add_photo_alternate</span>
-        <span class="text-[10px] font-bold text-outline group-hover:text-primary uppercase tracking-widest">Upload</span>
-      </div>
+      <Tooltip text="Upload images" placement="top">
+        <div
+          v-if="form.reference_images.length < MAX_IMAGES"
+          @click="triggerFileInput"
+          class="aspect-square rounded-xl border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center gap-2 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group"
+        >
+          <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">add_photo_alternate</span>
+          <span class="text-[10px] font-bold text-outline group-hover:text-primary uppercase tracking-widest">Upload</span>
+        </div>
+      </Tooltip>
       <div
         v-for="(img, idx) in form.reference_images"
         :key="idx"
-        class="aspect-square rounded-xl overflow-hidden relative group"
+        draggable="true"
+        @dragstart="handleDragStart($event, idx)"
+        @dragend="handleDragEnd"
+        @dragover.prevent="handleDragOver($event, idx)"
+        @drop.prevent="handleDrop($event, idx)"
+        @dragleave="handleDragLeave($event)"
+        :class="['aspect-square rounded-xl overflow-hidden relative group cursor-move transition-all', draggedIndex === idx ? 'opacity-50 scale-95' : '', dragOverIndex === idx ? 'ring-2 ring-primary ring-offset-2' : '']"
       >
         <img :src="img" :alt="`Reference ${idx + 1}`" class="w-full h-full object-cover" />
-        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <button @click="removeImage(idx)" class="text-white">
-            <span class="material-symbols-outlined">delete</span>
-          </button>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          <Tooltip text="Delete" placement="top">
+            <button @click.stop="removeImage(idx)" class="text-white p-1">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </Tooltip>
+          <Tooltip text="Drag to reorder" placement="top">
+            <div class="text-white p-1 cursor-grab active:cursor-grabbing">
+              <span class="material-symbols-outlined">drag_indicator</span>
+            </div>
+          </Tooltip>
         </div>
       </div>
     </div>
@@ -127,30 +146,31 @@
                   <span @click="removeTag(idx)" class="material-symbols-outlined cursor-pointer hover:text-red-500 hover:rotate-90 transition-all" style="font-size: 14px;">close</span>
                 </span>
                 <div class="relative">
-                  <input 
-                    v-model="newTag"
-                    @keydown.enter.prevent="addTag"
-                    @focus="showTagSuggestions = true"
-                    @blur="hideTagSuggestions"
-                    class="px-3 py-1 rounded-full border border-dashed border-outline-variant text-xs font-medium text-outline flex items-center gap-1 focus:outline-none focus:border-primary"
-                    placeholder="Add tag..."
-                  />
-                  <div 
-                    v-if="showTagSuggestions && filteredTags.length > 0"
-                    class="absolute top-full left-0 mt-2 w-48 max-h-40 overflow-y-auto bg-white rounded-xl shadow-lg border border-slate-100 z-10"
-                  >
-                    <button
-                      v-for="tag in filteredTags"
-                      :key="tag"
-                      @mousedown.prevent="selectTag(tag)"
-                      class="w-full px-4 py-2 text-left text-sm text-slate-600 hover:bg-primary/5 hover:text-primary transition-colors"
-                    >
-                      {{ tag }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+<input
+ref="tagInputRef"
+v-model="newTag"
+@keydown.enter.prevent="addTag"
+@focus="handleTagInputFocus"
+@blur="handleTagInputBlur"
+class="px-3 py-1 rounded-full border border-dashed border-outline-variant text-xs font-medium text-outline flex items-center gap-1 focus:outline-none focus:border-primary"
+placeholder="Add tag..."
+/>
+<div
+v-if="showTagSuggestions && filteredTags.length > 0 && isTagInputFocused"
+class="absolute top-full left-0 mt-2 w-48 max-h-40 overflow-y-auto bg-white rounded-xl shadow-lg border border-slate-100 z-10"
+@mousedown.prevent
+>
+<button
+v-for="tag in filteredTags"
+:key="tag"
+@mousedown.prevent="selectTag(tag)"
+class="w-full px-4 py-2 text-left text-sm text-slate-600 hover:bg-primary/5 hover:text-primary transition-colors"
+>
+{{ tag }}
+</button>
+</div>
+</div>
+</div>
           </div>
 
     <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 flex items-center justify-between">
@@ -174,16 +194,18 @@
         <div class="w-11 h-6 bg-secondary-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
       </label>
     </div>
-  </div>
-      </div>
-    </div>
-  </section>
+</div>
+</div>
+</div>
+</div>
+</section>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePromptStore } from '@/stores/prompts'
+import Tooltip from '@/components/Tooltip.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -193,10 +215,14 @@ const isEdit = computed(() => !!route.params.id)
 const newTag = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
 const showTagSuggestions = ref(false)
+const isTagInputFocused = ref(false)
+const tagInputRef = ref<HTMLInputElement | null>(null)
 const errors = ref<{ title?: string; content?: string }>({})
 
 const MAX_IMAGES = 15
 const categories = ['Image Generation', 'Video Prompt']
+const draggedIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
 
 const form = ref({
   title: '',
@@ -238,13 +264,15 @@ function selectTag(tag: string) {
     form.value.tags.push(tag)
   }
   newTag.value = ''
-  showTagSuggestions.value = false
 }
 
-function hideTagSuggestions() {
-  setTimeout(() => {
-    showTagSuggestions.value = false
-  }, 200)
+function handleTagInputFocus() {
+  showTagSuggestions.value = true
+  isTagInputFocused.value = true
+}
+
+function handleTagInputBlur() {
+  isTagInputFocused.value = false
 }
 
 function removeTag(index: number) {
@@ -278,6 +306,46 @@ function handleFileUpload(event: Event) {
 
 function removeImage(index: number) {
   form.value.reference_images.splice(index, 1)
+}
+
+function handleDragStart(event: DragEvent, index: number) {
+  draggedIndex.value = index
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', index.toString())
+  }
+}
+
+function handleDragEnd() {
+  draggedIndex.value = null
+  dragOverIndex.value = null
+}
+
+function handleDragOver(event: DragEvent, index: number) {
+  event.preventDefault()
+  if (draggedIndex.value !== null && draggedIndex.value !== index) {
+    dragOverIndex.value = index
+  }
+}
+
+function handleDragLeave(event: DragEvent) {
+  const relatedTarget = event.relatedTarget as HTMLElement
+  if (!event.currentTarget || !(event.currentTarget as HTMLElement).contains(relatedTarget)) {
+    dragOverIndex.value = null
+  }
+}
+
+function handleDrop(event: DragEvent, dropIndex: number) {
+  event.preventDefault()
+  if (draggedIndex.value === null || draggedIndex.value === dropIndex) return
+
+  const images = [...form.value.reference_images]
+  const [draggedItem] = images.splice(draggedIndex.value, 1)
+  images.splice(dropIndex, 0, draggedItem)
+  form.value.reference_images = images
+
+  draggedIndex.value = null
+  dragOverIndex.value = null
 }
 
 async function savePrompt() {

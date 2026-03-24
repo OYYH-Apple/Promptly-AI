@@ -16,22 +16,28 @@
           </p>
         </div>
         <div class="flex gap-2">
-          <button @click="handleToggleFavorite" class="p-2.5 text-primary hover:bg-primary/5 rounded-xl transition-all">
-            <span
-              class="material-symbols-outlined"
-              :style="{
-                fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0`
-              }"
-            >
-              grade
-            </span>
-          </button>
-          <button @click="router.push(`/edit/${prompt.id}`)" class="p-2.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
-            <span class="material-symbols-outlined">edit</span>
-          </button>
-          <button @click="showDeleteDialog = true" class="p-2.5 text-slate-400 hover:text-error hover:bg-error-container/20 rounded-xl transition-all">
-            <span class="material-symbols-outlined">delete</span>
-          </button>
+          <Tooltip :text="prompt.is_favorite ? 'Remove from favorites' : 'Add to favorites'" placement="bottom">
+            <button @click="handleToggleFavorite" class="p-2.5 text-primary hover:bg-primary/5 rounded-xl transition-all">
+              <span
+                class="material-symbols-outlined"
+                :style="{
+                  fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0`
+                }"
+              >
+                grade
+              </span>
+            </button>
+          </Tooltip>
+          <Tooltip text="Edit prompt" placement="bottom">
+            <button @click="router.push(`/edit/${prompt.id}`)" class="p-2.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+          </Tooltip>
+          <Tooltip text="Delete prompt" placement="bottom">
+            <button @click="showDeleteDialog = true" class="p-2.5 text-slate-400 hover:text-error hover:bg-error-container/20 rounded-xl transition-all">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </Tooltip>
         </div>
       </div>
 
@@ -58,13 +64,15 @@
                 </span>
               </button>
               <div class="flex-1 flex justify-end items-center px-4 py-3">
-                <button
-                  @click="copyPrompt(activeTab)"
-                  class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low text-slate-600 hover:text-primary hover:bg-primary-container/30 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all"
-                >
-                  <span class="material-symbols-outlined text-[14px]">content_copy</span>
-                  Copy
-                </button>
+                <Tooltip text="Copy to clipboard" placement="left">
+                  <button
+                    @click="copyPrompt(activeTab)"
+                    class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low text-slate-600 hover:text-primary hover:bg-primary-container/30 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all"
+                  >
+                    <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                    Copy
+                  </button>
+                </Tooltip>
               </div>
             </div>
 
@@ -85,20 +93,24 @@
             <div class="flex items-center justify-between mb-6">
               <h3 class="text-lg font-bold text-on-surface">Reference Output</h3>
               <div class="flex gap-2">
-                <button
-                  @click="prevImagePage"
-                  :disabled="currentImagePage === 0"
-                  :class="['w-8 h-8 flex items-center justify-center rounded-full transition-all', currentImagePage === 0 ? 'bg-slate-50 text-slate-300' : 'bg-slate-100 text-slate-400 hover:bg-slate-200']"
-                >
-                  <span class="material-symbols-outlined text-[16px]">arrow_back_ios_new</span>
-                </button>
-                <button
-                  @click="nextImagePage"
-                  :disabled="(currentImagePage + 1) * 3 >= prompt.reference_images.length"
-                  :class="['w-8 h-8 flex items-center justify-center rounded-full transition-all', (currentImagePage + 1) * 3 >= prompt.reference_images.length ? 'bg-slate-50 text-slate-300' : 'bg-slate-100 text-slate-400 hover:bg-slate-200']"
-                >
-                  <span class="material-symbols-outlined text-[16px]">arrow_forward_ios</span>
-                </button>
+                <Tooltip text="Previous page" placement="bottom">
+                  <button
+                    @click="prevImagePage"
+                    :disabled="currentImagePage === 0"
+                    :class="['w-8 h-8 flex items-center justify-center rounded-full transition-all', currentImagePage === 0 ? 'bg-slate-50 text-slate-300' : 'bg-slate-100 text-slate-400 hover:bg-slate-200']"
+                  >
+                    <span class="material-symbols-outlined text-[16px]">arrow_back_ios_new</span>
+                  </button>
+                </Tooltip>
+                <Tooltip text="Next page" placement="bottom">
+                  <button
+                    @click="nextImagePage"
+                    :disabled="(currentImagePage + 1) * 3 >= prompt.reference_images.length"
+                    :class="['w-8 h-8 flex items-center justify-center rounded-full transition-all', (currentImagePage + 1) * 3 >= prompt.reference_images.length ? 'bg-slate-50 text-slate-300' : 'bg-slate-100 text-slate-400 hover:bg-slate-200']"
+                  >
+                    <span class="material-symbols-outlined text-[16px]">arrow_forward_ios</span>
+                  </button>
+                </Tooltip>
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -183,6 +195,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePromptStore } from '@/stores/prompts'
 import ImageViewer from '@/components/ImageViewer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import Tooltip from '@/components/Tooltip.vue'
 
 const route = useRoute()
 const router = useRouter()

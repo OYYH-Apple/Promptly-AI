@@ -3,7 +3,7 @@
     <TitleBar />
     <div class="flex flex-1 overflow-hidden">
       <Sidebar />
-      <main class="flex-1 ml-72 flex flex-col overflow-hidden">
+      <main class="flex-1 ml-20 flex flex-col overflow-hidden">
         <TopBar />
         <router-view />
       </main>

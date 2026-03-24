@@ -129,13 +129,18 @@ const imageWrapperStyle = computed(() => ({
 
 watch(() => props.initialIndex, (val) => {
   if (val !== undefined) {
-    currentIndex.value = val
+    currentIndex.value = Math.min(val, props.images.length - 1)
     resetZoom()
   }
 })
 
+watch(() => props.images, () => {
+  currentIndex.value = Math.min(currentIndex.value, props.images.length - 1)
+}, { immediate: true })
+
 watch(() => props.visible, (val) => {
   if (val) {
+    currentIndex.value = Math.min(props.initialIndex || 0, props.images.length - 1)
     resetZoom()
   }
 })

@@ -10,30 +10,36 @@
           placeholder="Search prompts..."
           type="text"
         />
-        <button
-          v-if="store.searchQuery"
-          @click="clearSearch"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-        >
-          <span class="material-symbols-outlined text-lg">close</span>
-        </button>
+        <Tooltip text="Clear search" placement="bottom">
+          <button
+            v-if="store.searchQuery"
+            @click="clearSearch"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <span class="material-symbols-outlined text-lg">close</span>
+          </button>
+        </Tooltip>
       </div>
     </div>
     <div class="flex items-center gap-6">
       <div class="flex items-center gap-4">
-        <button
-          @click="showNotifications = !showNotifications"
-          class="text-slate-400 hover:text-slate-900 transition-colors relative"
-        >
-          <span class="material-symbols-outlined">notifications</span>
-          <span v-if="unreadCount > 0" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
-        <button
-          @click="showHelpModal = true"
-          class="text-slate-400 hover:text-slate-900 transition-colors"
-        >
-          <span class="material-symbols-outlined">help</span>
-        </button>
+        <Tooltip text="Notifications" placement="bottom">
+          <button
+            @click="showNotifications = !showNotifications"
+            class="text-slate-400 hover:text-slate-900 transition-colors relative"
+          >
+            <span class="material-symbols-outlined">notifications</span>
+            <span v-if="unreadCount > 0" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
+        </Tooltip>
+        <Tooltip text="Help" placement="bottom">
+          <button
+            @click="showHelpModal = true"
+            class="text-slate-400 hover:text-slate-900 transition-colors"
+          >
+            <span class="material-symbols-outlined">help</span>
+          </button>
+        </Tooltip>
       </div>
       <div class="h-8 w-px bg-slate-200"></div>
       <div class="flex items-center gap-2">
@@ -292,6 +298,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { usePromptStore } from '@/stores/prompts'
+import Tooltip from './Tooltip.vue'
 
 const store = usePromptStore()
 const showNotifications = ref(false)

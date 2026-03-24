@@ -1,52 +1,49 @@
 <template>
-  <aside class="fixed left-0 top-0 h-full w-72 border-r border-slate-200/15 bg-[#f9f9fe] flex flex-col p-6">
-    <div class="flex items-center gap-3 mb-10 px-2">
+  <aside class="fixed left-0 top-0 bottom-0 w-20 bg-[#f9f9fe] border-r border-slate-200/15 flex flex-col items-center py-6">
+    <div class="mb-8">
       <img src="@/public/logo.png" alt="Promptly AI" class="w-12 h-12 rounded-xl" />
-      <div>
-        <h1 class="text-xl font-bold tracking-tight text-slate-900">Promptly AI</h1>
-        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Personal Workspace</p>
-      </div>
     </div>
 
-    <button 
-      @click="router.push('/create')"
-      class="mb-8 w-full flex items-center justify-center gap-2 py-3 bg-primary text-white font-semibold rounded-xl active:scale-[0.98] transition-transform shadow-md shadow-primary/10"
-    >
-      <span class="material-symbols-outlined text-sm">add</span>
-      New Prompt
-    </button>
-
-    <nav class="flex-1 space-y-1">
-      <router-link 
-        v-for="item in navItems" 
-        :key="item.path"
-        :to="item.path"
-        class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200"
-        :class="[
-          $route.path === item.path || ($route.path === '/' && item.path === '/')
-            ? 'bg-[#007AFF]/8 text-[#007AFF] font-semibold'
-            : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-900'
-        ]"
+    <Tooltip text="New Prompt" placement="right" :delay="0">
+      <button
+        @click="router.push('/create')"
+        class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-xl active:scale-[0.98] transition-all shadow-md shadow-primary/10 mb-6"
       >
-        <span class="material-symbols-outlined">{{ item.icon }}</span>
-        {{ item.label }}
-      </router-link>
-    </nav>
+        <span class="material-symbols-outlined">add</span>
+      </button>
+    </Tooltip>
 
-    <div class="mt-auto space-y-4 pt-6 border-t border-slate-200/50">
-      <div class="flex items-center gap-3 px-4 py-2 text-slate-500">
-        <span class="material-symbols-outlined text-sm">database</span>
-        <span class="text-xs">Storage {{ formatBytes(storageSize) }}</span>
-      </div>
-      <div class="flex items-center gap-3 px-2">
+    <div class="flex flex-col gap-1 flex-1">
+      <Tooltip
+        v-for="item in navItems"
+        :key="item.path"
+        :text="item.label"
+        placement="right"
+        :delay="0"
+      >
+        <router-link
+          :to="item.path"
+          class="w-14 h-11 flex items-center justify-center rounded-xl transition-all duration-200"
+          :class="$route.path === item.path || ($route.path === '/' && item.path === '/')
+            ? 'bg-[#007AFF]/8 text-[#007AFF]'
+            : 'text-slate-500 hover:bg-slate-200/50 hover:text-slate-900'"
+        >
+          <span class="material-symbols-outlined text-[22px]">{{ item.icon }}</span>
+        </router-link>
+      </Tooltip>
+    </div>
+
+    <div class="mt-auto flex flex-col items-center gap-3">
+      <Tooltip :text="`Storage ${formatBytes(storageSize)}`" placement="right" :delay="0">
+        <div class="w-8 h-8 flex items-center justify-center text-slate-400">
+          <span class="material-symbols-outlined text-[20px]">database</span>
+        </div>
+      </Tooltip>
+      <Tooltip text="User" placement="right" :delay="0">
         <div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-slate-100">
           <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500"></div>
         </div>
-        <div class="flex-1">
-          <p class="text-xs font-bold text-slate-900 leading-none">User</p>
-          <p class="text-[10px] text-slate-400">Local Storage</p>
-        </div>
-      </div>
+      </Tooltip>
     </div>
   </aside>
 </template>
@@ -54,6 +51,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import Tooltip from './Tooltip.vue'
 
 const router = useRouter()
 const storageSize = ref(0)
