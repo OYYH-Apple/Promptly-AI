@@ -3,8 +3,8 @@
     <div class="max-w-5xl mx-auto">
       <div class="mb-10 flex items-end justify-between">
         <div>
-          <p class="text-primary font-bold tracking-widest text-[10px] uppercase mb-1">Activity Log</p>
-          <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Recent Prompts</h2>
+          <p class="text-primary font-bold tracking-widest text-[10px] uppercase mb-1">{{ t('recent.activityLog') }}</p>
+          <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">{{ t('recent.title') }}</h2>
         </div>
         <div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-xl">
           <Tooltip
@@ -41,14 +41,14 @@
               class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold text-sm hover:bg-slate-200 transition-colors"
             >
               <span class="material-symbols-outlined text-[18px]">content_copy</span>
-              <span>Copy</span>
+              <span>{{ t('common.copy') }}</span>
             </button>
             <button
               @click.stop="router.push(`/prompt/${prompt.id}`)"
               class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-semibold text-sm hover:shadow-lg transition-all active:scale-95"
             >
               <span class="material-symbols-outlined text-[18px]">open_in_new</span>
-              <span>Open</span>
+              <span>{{ t('common.open') }}</span>
             </button>
           </template>
         </PromptList>
@@ -56,7 +56,7 @@
 
       <div v-if="Object.keys(groupedPrompts).length === 0" class="text-center py-20">
         <span class="material-symbols-outlined text-6xl text-slate-300">history</span>
-        <p class="text-slate-500 mt-4">No recent activity.</p>
+        <p class="text-slate-500 mt-4">{{ t('recent.noRecentActivity') }}</p>
       </div>
 
       <div class="h-24"></div>
@@ -71,10 +71,10 @@
     <ConfirmDialog
       v-model:visible="showPrivacyDialog"
       type="warning"
-      :title="privacyPrompt?.is_private ? 'Make Public' : 'Make Private'"
-      :message="privacyPrompt?.is_private ? 'This prompt will be visible to others when sharing features are enabled. Are you sure?' : 'This prompt will be hidden from others. Are you sure?'"
-      :confirm-text="privacyPrompt?.is_private ? 'Make Public' : 'Make Private'"
-      cancel-text="Cancel"
+      :title="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
+      :message="privacyPrompt?.is_private ? t('dialog.makePublicMessage') : t('dialog.makePrivateMessage')"
+      :confirm-text="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
+      :cancel-text="t('dialog.cancel')"
       @confirm="confirmTogglePrivate"
     />
   </section>
@@ -83,6 +83,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { usePromptStore, type Prompt } from '@/stores/prompts'
 import ImageViewer from '@/components/ImageViewer.vue'
 import PromptList from '@/components/PromptList.vue'
@@ -91,6 +92,7 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const router = useRouter()
 const store = usePromptStore()
+const { t } = useI18n()
 const selectedCategory = ref('All')
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
@@ -98,11 +100,11 @@ const viewerIndex = ref(0)
 const showPrivacyDialog = ref(false)
 const privacyPrompt = ref<Prompt | null>(null)
 
-const categories = [
-  { value: 'All', label: 'All', tooltip: 'Show all prompts' },
-  { value: 'Image Generation', label: 'Image', tooltip: 'Show image prompts' },
-  { value: 'Video Prompt', label: 'Video', tooltip: 'Show video prompts' }
-]
+const categories = computed(() => [
+  { value: 'All', label: t('recent.all'), tooltip: t('recent.showAllPrompts') },
+  { value: 'Image Generation', label: t('recent.image'), tooltip: t('recent.showImagePrompts') },
+  { value: 'Video Prompt', label: t('recent.video'), tooltip: t('recent.showVideoPrompts') }
+])
 
 const filteredPrompts = computed(() => {
   if (selectedCategory.value === 'All') return store.prompts
@@ -125,9 +127,9 @@ const groupedPrompts = computed(() => {
 
     let label: string
     if (promptDate.getTime() === today.getTime()) {
-      label = 'Today'
+      label = t('time.today')
     } else if (promptDate.getTime() === yesterday.getTime()) {
-      label = 'Yesterday'
+      label = t('time.yesterday')
     } else {
       label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     }
@@ -143,7 +145,7 @@ async function copyPrompt(prompt: any) {
   const content = prompt.content_zh || prompt.content_en
   if (content) {
     await navigator.clipboard.writeText(content)
-    showToast('Copied to clipboard', 'success')
+    showToast(t('toast.copied'), 'success')
   }
 }
 
@@ -169,7 +171,7 @@ async function confirmTogglePrivate() {
     await store.updatePrompt(privacyPrompt.value.id!, {
       is_private: !privacyPrompt.value.is_private
     })
-    showToast(privacyPrompt.value.is_private ? 'Prompt is now public' : 'Prompt is now private', 'success')
+    showToast(privacyPrompt.value.is_private ? t('toast.promptNowPublic') : t('toast.promptNowPrivate'), 'success')
     privacyPrompt.value = null
   }
 }
