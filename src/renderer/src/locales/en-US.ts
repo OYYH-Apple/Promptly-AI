@@ -25,7 +25,8 @@ export default {
     create: 'Create',
     add: 'Add',
     remove: 'Remove',
-    clear: 'Clear'
+    clear: 'Clear',
+    searchCollections: 'Search collections...'
   },
 
   // ==================== Navigation ====================
@@ -477,6 +478,7 @@ export default {
 
   // ==================== Collection Modal ====================
   collectionModal: {
+    title: 'Create Collection',
     createTitle: 'Create Collection',
     editTitle: 'Edit Collection',
     name: 'Name',

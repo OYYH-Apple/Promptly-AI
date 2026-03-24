@@ -25,7 +25,8 @@ export default {
     create: '创建',
     add: '添加',
     remove: '移除',
-    clear: '清除'
+    clear: '清除',
+    searchCollections: '搜索集合...'
   },
 
   // ==================== 导航 ====================
@@ -477,6 +478,7 @@ export default {
 
   // ==================== 集合创建/编辑 ====================
   collectionModal: {
+    title: '创建集合',
     createTitle: '创建集合',
     editTitle: '编辑集合',
     name: '名称',
