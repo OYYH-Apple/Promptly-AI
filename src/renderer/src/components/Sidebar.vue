@@ -49,12 +49,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { usePromptStore } from '@/stores/prompts'
 import Tooltip from './Tooltip.vue'
 
 const router = useRouter()
-const storageSize = ref(0)
+const store = usePromptStore()
+
+const storageSize = computed(() => {
+  let size = 0
+  store.prompts.forEach(p => {
+    size += (p.content_zh?.length || 0) * 2
+    size += (p.content_en?.length || 0) * 2
+    size += p.title.length * 2
+    p.reference_images?.forEach(img => {
+      size += img.length * 0.75
+    })
+  })
+  return size
+})
 
 const navItems = [
   { path: '/', label: 'Prompt Library', icon: 'folder_special' },
@@ -71,9 +85,4 @@ function formatBytes(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
 }
-
-onMounted(async () => {
-  const stats = await window.api.getStats()
-  storageSize.value = stats.prompts * 1024
-})
 </script>

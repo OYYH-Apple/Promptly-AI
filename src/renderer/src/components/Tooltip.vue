@@ -6,6 +6,8 @@
     @mouseleave="hideTooltip"
   >
     <slot />
+  </div>
+  <Teleport to="body">
     <Transition name="tooltip">
       <div
         v-if="visible && text"
@@ -16,7 +18,7 @@
         {{ text }}
       </div>
     </Transition>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -60,22 +62,25 @@ function updatePosition() {
   let x = 0
   let y = 0
 
+  const scrollX = window.scrollX
+  const scrollY = window.scrollY
+
   switch (props.placement) {
     case 'top':
-      x = targetRect.left + (targetRect.width - tooltipRect.width) / 2
-      y = targetRect.top - tooltipRect.height - 8
+      x = targetRect.left + scrollX + (targetRect.width - tooltipRect.width) / 2
+      y = targetRect.top + scrollY - tooltipRect.height - 8
       break
     case 'bottom':
-      x = targetRect.left + (targetRect.width - tooltipRect.width) / 2
-      y = targetRect.bottom + 8
+      x = targetRect.left + scrollX + (targetRect.width - tooltipRect.width) / 2
+      y = targetRect.bottom + scrollY + 8
       break
     case 'left':
-      x = targetRect.left - tooltipRect.width - 8
-      y = targetRect.top + (targetRect.height - tooltipRect.height) / 2
+      x = targetRect.left + scrollX - tooltipRect.width - 8
+      y = targetRect.top + scrollY + (targetRect.height - tooltipRect.height) / 2
       break
     case 'right':
-      x = targetRect.right + 8
-      y = targetRect.top + (targetRect.height - tooltipRect.height) / 2
+      x = targetRect.right + scrollX + 8
+      y = targetRect.top + scrollY + (targetRect.height - tooltipRect.height) / 2
       break
   }
 
@@ -124,7 +129,7 @@ onBeforeUnmount(() => {
 }
 
 .tooltip {
-  position: fixed;
+  position: absolute;
   z-index: 9999;
   padding: 6px 12px;
   background-color: #1e293b;

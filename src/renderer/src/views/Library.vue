@@ -7,18 +7,22 @@
           <p class="text-on-surface-variant max-w-md">Organize and reuse your favorite AI generation commands with precision tags.</p>
         </div>
         <div class="flex gap-2 p-1 bg-surface-container-low rounded-xl">
-          <button
-            @click="viewMode = 'grid'"
-            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
-          >
-            Grid
-          </button>
-          <button
-            @click="viewMode = 'list'"
-            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
-          >
-            List
-          </button>
+          <Tooltip text="Grid view" placement="bottom">
+            <button
+              @click="viewMode = 'grid'"
+              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
+            >
+              Grid
+            </button>
+          </Tooltip>
+          <Tooltip text="List view" placement="bottom">
+            <button
+              @click="viewMode = 'list'"
+              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
+            >
+              List
+            </button>
+          </Tooltip>
         </div>
       </div>
 
@@ -125,18 +129,26 @@
                 </td>
                 <td class="px-6 py-5 text-right">
                   <div class="flex items-center justify-center gap-1 transition-opacity">
-                    <button @click.stop="store.toggleFavorite(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors text-primary">
-                      <span class="material-symbols-outlined text-on-surface-variant" :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">grade</span>
-                    </button>
-                    <button @click.stop="copyPrompt(prompt)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                      <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
-                    </button>
-                    <button @click.stop="router.push(`/edit/${prompt.id}`)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                      <span class="material-symbols-outlined text-on-surface-variant">edit</span>
-                    </button>
-                    <button @click.stop="handleDelete(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                      <span class="material-symbols-outlined text-on-surface-variant">delete</span>
-                    </button>
+                    <Tooltip :text="prompt.is_favorite ? 'Remove from favorites' : 'Add to favorites'" placement="top">
+                      <button @click.stop="store.toggleFavorite(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors text-primary">
+                        <span class="material-symbols-outlined text-on-surface-variant" :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">grade</span>
+                      </button>
+                    </Tooltip>
+                    <Tooltip text="Copy" placement="top">
+                      <button @click.stop="copyPrompt(prompt)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                        <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
+                      </button>
+                    </Tooltip>
+                    <Tooltip text="Edit" placement="top">
+                      <button @click.stop="router.push(`/edit/${prompt.id}`)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                        <span class="material-symbols-outlined text-on-surface-variant">edit</span>
+                      </button>
+                    </Tooltip>
+                    <Tooltip text="Delete" placement="top">
+                      <button @click.stop="handleDelete(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                        <span class="material-symbols-outlined text-on-surface-variant">delete</span>
+                      </button>
+                    </Tooltip>
                   </div>
                 </td>
               </tr>
@@ -170,6 +182,7 @@ import ImageViewer from '@/components/ImageViewer.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import Tooltip from '@/components/Tooltip.vue'
 
 const router = useRouter()
 const store = usePromptStore()

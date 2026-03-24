@@ -72,12 +72,16 @@
               @open-image="openImageViewer"
             >
               <template #actions="slotProps">
-                <button @click.stop="copyPrompt(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
-                  <span class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
-                </button>
-                <button @click.stop="removeFromCollection(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
-                  <span class="material-symbols-outlined text-slate-400 hover:text-red-500 hover:rotate-180 transition-all text-lg">remove_circle</span>
-                </button>
+                <Tooltip text="Copy" placement="top">
+                  <button @click.stop="copyPrompt(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
+                    <span class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
+                  </button>
+                </Tooltip>
+                <Tooltip text="Remove from collection" placement="top">
+                  <button @click.stop="removeFromCollection(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
+                    <span class="material-symbols-outlined text-slate-400 hover:text-red-500 hover:rotate-180 transition-all text-lg">remove_circle</span>
+                  </button>
+                </Tooltip>
               </template>
             </PromptCard>
           </template>
@@ -101,12 +105,16 @@
               @open-image="openImageViewer"
             >
               <template #actions="slotProps">
-                <button @click.stop="copyPrompt(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
-                  <span class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
-                </button>
-                <button @click.stop="removeFromCollection(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
-                  <span class="material-symbols-outlined text-slate-400 hover:text-red-500 text-lg">remove_circle</span>
-                </button>
+                <Tooltip text="Copy" placement="top">
+                  <button @click.stop="copyPrompt(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
+                    <span class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
+                  </button>
+                </Tooltip>
+                <Tooltip text="Remove from collection" placement="top">
+                  <button @click.stop="removeFromCollection(slotProps.prompt)" class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
+                    <span class="material-symbols-outlined text-slate-400 hover:text-red-500 text-lg">remove_circle</span>
+                  </button>
+                </Tooltip>
               </template>
             </PromptCard>
           </template>
@@ -183,6 +191,7 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
 import AddPromptModal from '@/components/AddPromptModal.vue'
+import Tooltip from '@/components/Tooltip.vue'
 
 const route = useRoute()
 const router = useRouter()

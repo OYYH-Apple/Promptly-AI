@@ -49,35 +49,43 @@
       <span class="text-[11px] font-medium text-slate-400">{{ formatDate(prompt.updated_at) }}</span>
       <div class="flex items-center gap-1">
         <slot name="actions" :prompt="prompt">
-          <button
-            @click.stop="$emit('toggle-favorite', prompt.id)"
-            class="text-x1 text-primary transition-colors p-1"
-          >
-            <span
-              class="material-symbols-outlined text-xl"
-              :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }"
+          <Tooltip :text="prompt.is_favorite ? 'Remove from favorites' : 'Add to favorites'" placement="top">
+            <button
+              @click.stop="$emit('toggle-favorite', prompt.id)"
+              class="text-x1 text-primary transition-colors p-1"
             >
-              grade
-            </span>
-          </button>
-          <button
-            @click.stop="$emit('copy', prompt)"
-            class="text-slate-300 hover:text-slate-600 transition-colors p-1"
-          >
-            <span class="material-symbols-outlined text-lg">content_copy</span>
-          </button>
-          <button
-            @click.stop="$emit('edit', prompt.id)"
-            class="text-slate-300 hover:text-blue-500 transition-colors p-1"
-          >
-            <span class="material-symbols-outlined text-lg">edit</span>
-          </button>
-          <button
-            @click.stop="$emit('delete', prompt.id)"
-            class="text-slate-300 hover:text-red-500 transition-colors p-1"
-          >
-            <span class="material-symbols-outlined text-lg">delete</span>
-          </button>
+              <span
+                class="material-symbols-outlined text-xl"
+                :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }"
+              >
+                grade
+              </span>
+            </button>
+          </Tooltip>
+          <Tooltip text="Copy" placement="top">
+            <button
+              @click.stop="$emit('copy', prompt)"
+              class="text-slate-300 hover:text-slate-600 transition-colors p-1"
+            >
+              <span class="material-symbols-outlined text-lg">content_copy</span>
+            </button>
+          </Tooltip>
+          <Tooltip text="Edit" placement="top">
+            <button
+              @click.stop="$emit('edit', prompt.id)"
+              class="text-slate-300 hover:text-blue-500 transition-colors p-1"
+            >
+              <span class="material-symbols-outlined text-lg">edit</span>
+            </button>
+          </Tooltip>
+          <Tooltip text="Delete" placement="top">
+            <button
+              @click.stop="$emit('delete', prompt.id)"
+              class="text-slate-300 hover:text-red-500 transition-colors p-1"
+            >
+              <span class="material-symbols-outlined text-lg">delete</span>
+            </button>
+          </Tooltip>
         </slot>
       </div>
     </div>
@@ -86,6 +94,7 @@
 
 <script setup lang="ts">
 import type { Prompt } from '@/stores/prompts'
+import Tooltip from './Tooltip.vue'
 
 withDefaults(defineProps<{
   prompt: Prompt

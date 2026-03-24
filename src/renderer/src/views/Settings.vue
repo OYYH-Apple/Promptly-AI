@@ -20,12 +20,14 @@
                 <p class="text-sm text-on-surface-variant font-mono mt-0.5">{{ storagePath }}</p>
               </div>
             </div>
-            <button
-              @click="changeStoragePath"
-              class="px-5 py-2 text-sm font-semibold text-primary bg-primary-container/40 rounded-xl hover:bg-primary-container transition-all active:scale-[0.97]"
-            >
-              Change
-            </button>
+            <Tooltip text="Change storage path" placement="top">
+              <button
+                @click="changeStoragePath"
+                class="px-5 py-2 text-sm font-semibold text-primary bg-primary-container/40 rounded-xl hover:bg-primary-container transition-all active:scale-[0.97]"
+              >
+                Change
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -44,13 +46,15 @@
                 <p class="text-sm text-on-surface-variant mt-0.5">Download a JSON archive of all your prompts and collections.</p>
               </div>
             </div>
-            <button
-              @click="handleExport"
-              :disabled="isExporting"
-              class="px-5 py-2 text-sm font-semibold text-on-surface bg-surface-container-high rounded-xl hover:bg-surface-container-highest transition-all active:scale-[0.97] disabled:opacity-50"
-            >
-              {{ isExporting ? 'Exporting...' : 'Export Data' }}
-            </button>
+            <Tooltip text="Export as JSON file" placement="top">
+              <button
+                @click="handleExport"
+                :disabled="isExporting"
+                class="px-5 py-2 text-sm font-semibold text-on-surface bg-surface-container-high rounded-xl hover:bg-surface-container-highest transition-all active:scale-[0.97] disabled:opacity-50"
+              >
+                {{ isExporting ? 'Exporting...' : 'Export Data' }}
+              </button>
+            </Tooltip>
           </div>
           <div class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors duration-200">
             <div class="flex items-center gap-4">
@@ -62,13 +66,15 @@
                 <p class="text-sm text-on-surface-variant mt-0.5">Merge existing archives into your current workspace.</p>
               </div>
             </div>
-            <button
-              @click="handleImport"
-              :disabled="isImporting"
-              class="px-5 py-2 text-sm font-semibold text-on-surface bg-surface-container-high rounded-xl hover:bg-surface-container-highest transition-all active:scale-[0.97] disabled:opacity-50"
-            >
-              {{ isImporting ? 'Importing...' : 'Import Data' }}
-            </button>
+            <Tooltip text="Import from JSON file" placement="top">
+              <button
+                @click="handleImport"
+                :disabled="isImporting"
+                class="px-5 py-2 text-sm font-semibold text-on-surface bg-surface-container-high rounded-xl hover:bg-surface-container-highest transition-all active:scale-[0.97] disabled:opacity-50"
+              >
+                {{ isImporting ? 'Importing...' : 'Import Data' }}
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -91,17 +97,19 @@
                 </p>
               </div>
             </div>
-            <button
-              @click="checkForUpdates"
-              :disabled="isChecking"
-              class="px-5 py-2 text-sm font-semibold text-primary bg-primary-container/40 rounded-xl hover:bg-primary-container transition-all active:scale-[0.97] disabled:opacity-50"
-            >
-              <span v-if="isChecking" class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-                Checking...
-              </span>
-              <span v-else>Check for Updates</span>
-            </button>
+            <Tooltip text="Check for new version" placement="top">
+              <button
+                @click="checkForUpdates"
+                :disabled="isChecking"
+                class="px-5 py-2 text-sm font-semibold text-primary bg-primary-container/40 rounded-xl hover:bg-primary-container transition-all active:scale-[0.97] disabled:opacity-50"
+              >
+                <span v-if="isChecking" class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                  Checking...
+                </span>
+                <span v-else>Check for Updates</span>
+              </button>
+            </Tooltip>
           </div>
           <!-- Automatic Updates Toggle -->
           <div class="flex items-center justify-between p-6 hover:bg-surface-container-low transition-colors duration-200">
@@ -166,9 +174,11 @@
             <div class="px-3 py-1 bg-white rounded-full border border-slate-200 text-[10px] font-bold tracking-widest uppercase text-on-surface-variant shadow-sm">
               {{ currentVersion }}
             </div>
-            <button @click="showLogsModal = true" class="text-xs text-primary font-medium hover:underline">
-              View detailed logs
-            </button>
+            <Tooltip text="View system logs" placement="top">
+              <button @click="showLogsModal = true" class="text-xs text-primary font-medium hover:underline">
+                View detailed logs
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -180,12 +190,14 @@
             <h4 class="font-bold text-on-error-container">Purge All Workspace Data</h4>
             <p class="text-sm text-on-error-container opacity-80">This action is irreversible. All local prompts and indexes will be permanently deleted.</p>
           </div>
-          <button
-            @click="showPurgeDialog = true"
-            class="px-5 py-2 text-sm font-bold text-on-error bg-error rounded-xl hover:shadow-lg hover:shadow-error/20 transition-all active:scale-[0.97]"
-          >
-            Purge Data
-          </button>
+          <Tooltip text="Permanently delete all data" placement="top">
+            <button
+              @click="showPurgeDialog = true"
+              class="px-5 py-2 text-sm font-bold text-on-error bg-error rounded-xl hover:shadow-lg hover:shadow-error/20 transition-all active:scale-[0.97]"
+            >
+              Purge Data
+            </button>
+          </Tooltip>
         </div>
       </div>
     </div>
@@ -223,10 +235,14 @@
           </ul>
         </div>
         <div class="flex gap-3">
-          <button @click="showUpdateDialog = false" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">Later</button>
-          <button @click="downloadUpdate" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">
-            Download & Install
-          </button>
+          <Tooltip text="Remind me later" placement="top">
+            <button @click="showUpdateDialog = false" class="flex-1 px-4 py-2 bg-surface-container-high rounded-xl font-medium">Later</button>
+          </Tooltip>
+          <Tooltip text="Download and install update" placement="top">
+            <button @click="downloadUpdate" class="flex-1 px-4 py-2 bg-primary text-white rounded-xl font-medium">
+              Download & Install
+            </button>
+          </Tooltip>
         </div>
       </div>
     </div>
@@ -264,19 +280,23 @@
         <div class="flex items-center justify-between p-4 border-t border-slate-100 bg-slate-50">
           <span class="text-xs text-slate-500">{{ logs.length }} log entries</span>
           <div class="flex gap-2">
-            <button
-              @click="refreshLogs"
-              class="px-4 py-2 text-sm font-medium text-slate-600 bg-white rounded-xl hover:bg-slate-100 transition-colors"
-            >
-              <span class="material-symbols-outlined text-sm align-middle mr-1">refresh</span>
-              Refresh
-            </button>
-            <button
-              @click="showLogsModal = false"
-              class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary-dim transition-colors"
-            >
-              Close
-            </button>
+            <Tooltip text="Reload logs" placement="top">
+              <button
+                @click="refreshLogs"
+                class="px-4 py-2 text-sm font-medium text-slate-600 bg-white rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <span class="material-symbols-outlined text-sm align-middle mr-1">refresh</span>
+                Refresh
+              </button>
+            </Tooltip>
+            <Tooltip text="Close logs" placement="top">
+              <button
+                @click="showLogsModal = false"
+                class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary-dim transition-colors"
+              >
+                Close
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -288,6 +308,7 @@
 import { ref, onMounted } from 'vue'
 import { usePromptStore } from '@/stores/prompts'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import Tooltip from '@/components/Tooltip.vue'
 
 const store = usePromptStore()
 const stats = ref({ prompts: 0, collections: 0, favorites: 0 })

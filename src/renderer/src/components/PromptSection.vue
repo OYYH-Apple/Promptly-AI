@@ -12,37 +12,42 @@
           </span>
         </h3>
         <div class="flex items-center gap-1 bg-surface-container-low rounded-lg p-0.5">
-          <button
-            @click="sortBy = 'newest'"
-            :class="[
-              'px-2 py-1 text-xs font-medium rounded-md transition-colors',
-              sortBy === 'newest' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            ]"
-          >
-            Newest
-          </button>
-          <button
-            @click="sortBy = 'oldest'"
-            :class="[
-              'px-2 py-1 text-xs font-medium rounded-md transition-colors',
-              sortBy === 'oldest' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'
-            ]"
-          >
-            Oldest
-          </button>
+          <Tooltip text="Sort by newest" placement="top">
+            <button
+              @click="sortBy = 'newest'"
+              :class="[
+                'px-2 py-1 text-xs font-medium rounded-md transition-colors',
+                sortBy === 'newest' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              ]"
+            >
+              Newest
+            </button>
+          </Tooltip>
+          <Tooltip text="Sort by oldest" placement="top">
+            <button
+              @click="sortBy = 'oldest'"
+              :class="[
+                'px-2 py-1 text-xs font-medium rounded-md transition-colors',
+                sortBy === 'oldest' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              ]"
+            >
+              Oldest
+            </button>
+          </Tooltip>
         </div>
       </div>
       <div class="flex items-center gap-3">
         <span v-if="!isExpanded && totalCount > maxVisible" class="text-xs text-slate-400">
           Showing {{ maxVisible }} of {{ totalCount }}
         </span>
-        <button
-          v-if="showViewAll && totalCount > maxVisible"
-          @click="toggleExpand"
-          class="text-primary text-xs font-semibold hover:underline"
-        >
-          {{ isExpanded ? 'Show Less' : `View all (${totalCount})` }}
-        </button>
+        <Tooltip v-if="showViewAll && totalCount > maxVisible" :text="isExpanded ? 'Collapse section' : 'Show all items'" placement="top">
+          <button
+            @click="toggleExpand"
+            class="text-primary text-xs font-semibold hover:underline"
+          >
+            {{ isExpanded ? 'Show Less' : `View all (${totalCount})` }}
+          </button>
+        </Tooltip>
       </div>
     </div>
     <div
@@ -68,6 +73,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import Tooltip from './Tooltip.vue'
 
 const props = withDefaults(defineProps<{
   title: string

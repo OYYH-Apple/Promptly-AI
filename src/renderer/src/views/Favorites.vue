@@ -7,14 +7,18 @@
           <p class="text-on-surface-variant max-w-md">Quick access to your most-used and starred prompts.</p>
         </div>
         <div class="flex gap-2 p-1 bg-surface-container-low rounded-xl">
-          <button
-            @click="viewMode = 'section'"
-            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'section' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
-          >Section</button>
-          <button
-            @click="viewMode = 'list'"
-            :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
-          >List</button>
+          <Tooltip text="Grid view" placement="bottom">
+            <button
+              @click="viewMode = 'grid'"
+              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
+            >Grid</button>
+          </Tooltip>
+          <Tooltip text="List view" placement="bottom">
+            <button
+              @click="viewMode = 'list'"
+              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']"
+            >List</button>
+          </Tooltip>
         </div>
       </div>
 
@@ -28,8 +32,8 @@
       </div>
 
       <template v-else>
-        <!-- Section View -->
-        <template v-if="viewMode === 'section'">
+        <!-- Grid View -->
+        <template v-if="viewMode === 'grid'">
           <PromptSection
             title="Image Generation"
             icon="image"
@@ -120,21 +124,25 @@
                 </td>
                 <td class="px-6 py-5 text-right">
                   <div class="flex items-center justify-center gap-1 transition-opacity">
-                    <button
-                      @click.stop="store.toggleFavorite(prompt.id!)"
-                      class="p-2 rounded-full hover:bg-surface-container transition-colors"
-                    >
-                      <span
-                        class="material-symbols-outlined text-primary"
-                        :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }"
-                      >grade</span>
-                    </button>
-                    <button
-                      @click.stop="copyPrompt(prompt)"
-                      class="p-2 rounded-full hover:bg-surface-container transition-colors"
-                    >
-                      <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
-                    </button>
+                    <Tooltip text="Remove from favorites" placement="top">
+                      <button
+                        @click.stop="store.toggleFavorite(prompt.id!)"
+                        class="p-2 rounded-full hover:bg-surface-container transition-colors"
+                      >
+                        <span
+                          class="material-symbols-outlined text-primary"
+                          :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }"
+                        >grade</span>
+                      </button>
+                    </Tooltip>
+                    <Tooltip text="Copy" placement="top">
+                      <button
+                        @click.stop="copyPrompt(prompt)"
+                        class="p-2 rounded-full hover:bg-surface-container transition-colors"
+                      >
+                        <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
+                      </button>
+                    </Tooltip>
                   </div>
                 </td>
               </tr>
@@ -164,11 +172,12 @@ import { usePromptStore } from '@/stores/prompts'
 import ImageViewer from '@/components/ImageViewer.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
+import Tooltip from '@/components/Tooltip.vue'
 
 const router = useRouter()
 const store = usePromptStore()
 
-const viewMode = ref<'section' | 'list'>('section')
+const viewMode = ref<'grid' | 'list'>('grid')
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)

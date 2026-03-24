@@ -7,15 +7,20 @@
           <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Recent Prompts</h2>
         </div>
         <div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-xl">
-          <button
+          <Tooltip
             v-for="cat in categories"
             :key="cat.value"
-            @click="selectedCategory = cat.value"
-            class="px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors"
-            :class="selectedCategory === cat.value ? 'bg-white shadow-sm text-primary' : 'text-secondary hover:text-on-surface'"
+            :text="cat.tooltip"
+            placement="bottom"
           >
-            {{ cat.label }}
-          </button>
+            <button
+              @click="selectedCategory = cat.value"
+              class="px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors"
+              :class="selectedCategory === cat.value ? 'bg-white shadow-sm text-primary' : 'text-secondary hover:text-on-surface'"
+            >
+              {{ cat.label }}
+            </button>
+          </Tooltip>
         </div>
       </div>
 
@@ -89,15 +94,16 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePromptStore } from '@/stores/prompts'
+import Tooltip from '@/components/Tooltip.vue'
 
 const router = useRouter()
 const store = usePromptStore()
 const selectedCategory = ref('All')
 
 const categories = [
-  { value: 'All', label: 'All' },
-  { value: 'Image Generation', label: 'Image' },
-  { value: 'Video Prompt', label: 'Video' }
+  { value: 'All', label: 'All', tooltip: 'Show all prompts' },
+  { value: 'Image Generation', label: 'Image', tooltip: 'Show image prompts' },
+  { value: 'Video Prompt', label: 'Video', tooltip: 'Show video prompts' }
 ]
 
 const filteredPrompts = computed(() => {
