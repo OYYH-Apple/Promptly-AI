@@ -5,6 +5,13 @@ import type { Database, SqlJsStatic } from 'sql.js'
 import { autoUpdater } from 'electron-updater'
 import nodemailer from 'nodemailer'
 
+// 加载 .env 文件（开发环境自动加载，生产环境需手动放置 .env 文件）
+import dotenv from 'dotenv'
+
+// 尝试从多个位置加载 .env 文件
+dotenv.config() // 默认加载当前工作目录
+dotenv.config({ path: join(process.resourcesPath || '', '.env') }) // 打包后从 resources 目录加载
+
 let mainWindow: BrowserWindow | null = null
 let db: Database | null = null
 
@@ -537,6 +544,15 @@ interface FeedbackData {
 }
 
 ipcMain.handle('send-feedback-email', async (_event, feedback: FeedbackData) => {
+  // 从环境变量读取邮件配置，避免硬编码敏感信息
+  const emailUser = process.env.EMAIL_USER
+  const emailPass = process.env.EMAIL_PASS
+
+  if (!emailUser || !emailPass) {
+    console.error('邮件配置缺失：请设置 EMAIL_USER 和 EMAIL_PASS 环境变量')
+    return { success: false, error: '邮件服务配置不完整' }
+  }
+
   try {
     // 创建 SMTP 传输器
     // 使用 QQ 邮箱 SMTP 服务 (SSL 465端口)
@@ -545,8 +561,8 @@ ipcMain.handle('send-feedback-email', async (_event, feedback: FeedbackData) => 
       port: 465,
       secure: true,
       auth: {
-        user: '1666418635@qq.com',
-        pass: 'hfxzqccwctwzddjh' // QQ邮箱授权码
+        user: emailUser,
+        pass: emailPass
       },
       connectionTimeout: 10000,
       greetingTimeout: 10000,
