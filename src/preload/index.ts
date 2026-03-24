@@ -121,7 +121,10 @@ const api = {
     ipcRenderer.removeAllListeners('update-downloaded')
     ipcRenderer.removeAllListeners('update-error')
     ipcRenderer.removeAllListeners('download-progress')
-  }
+  },
+
+  sendFeedbackEmail: (feedback: { type: string; content: string; contact: string }) =>
+    ipcRenderer.invoke('send-feedback-email', feedback)
 }
 
 contextBridge.exposeInMainWorld('api', api)

@@ -82,18 +82,21 @@
                   @dragleave="handleDragLeave($event)"
                   :class="['aspect-square rounded-xl overflow-hidden relative group cursor-move transition-all', draggedIndex === idx ? 'opacity-50 scale-95' : '', dragOverIndex === idx ? 'ring-2 ring-primary ring-offset-2' : '']">
                   <img :src="img" :alt="`Reference ${idx + 1}`" class="w-full h-full object-cover" />
+                  <!-- 删除按钮 - 右上角 -->
+                  <button
+                    @click.stop="removeImage(idx)"
+                    title="Delete"
+                    class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:rotate-90 z-10"
+                  >
+                    <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+                  <!-- 拖拽提示 - 底部中央 -->
                   <div
-                    class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <Tooltip text="Delete" placement="top">
-                      <button @click.stop="removeImage(idx)" class="text-white p-1">
-                        <span class="material-symbols-outlined">delete</span>
-                      </button>
-                    </Tooltip>
-                    <Tooltip text="Drag to reorder" placement="top">
-                      <div class="text-white p-1 cursor-grab active:cursor-grabbing">
-                        <span class="material-symbols-outlined">drag_indicator</span>
-                      </div>
-                    </Tooltip>
+                    title="Drag to reorder"
+                    class="absolute inset-x-0 bottom-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center py-2 cursor-grab active:cursor-grabbing">
+                    <div class="text-white">
+                      <span class="material-symbols-outlined">drag_indicator</span>
+                    </div>
                   </div>
                 </div>
               </div>

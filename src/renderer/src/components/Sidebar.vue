@@ -35,12 +35,12 @@
 
     <div class="mt-auto flex flex-col items-center gap-3">
       <Tooltip :text="`Storage ${formatBytes(storageSize)}`" placement="right" :delay="0">
-        <div class="w-8 h-8 flex items-center justify-center text-slate-400">
+        <div class="w-8 h-8 flex items-center justify-center text-slate-400 animate-breathe">
           <span class="material-symbols-outlined text-[20px]">database</span>
         </div>
       </Tooltip>
       <Tooltip text="User" placement="right" :delay="0">
-        <div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-slate-100">
+        <div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-slate-100 animate-breathe" style="animation-delay: 0.5s;">
           <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500"></div>
         </div>
       </Tooltip>

@@ -41,3 +41,6 @@ rustup-init.exe
 
 # 原型稿
 /assets/
+
+# 智能体文件
+/.qoder/

@@ -6,37 +6,38 @@
     <div
       v-if="prompt.reference_images?.length"
       class="absolute -top-2 -right-2 z-10"
-      @click.stop="$emit('open-image', prompt.reference_images, 0)"
-      :style="{
-        transform: `rotate(${thumbnailRotations[rotationIndex % thumbnailRotations.length]}deg)`
-      }"
     >
-      <div
-        class="thumb-peel shadow-lg border-2 border-white rounded-sm overflow-visible bg-white"
-        :style="{
-          height: '112px',
-          width: 'fit-content',
-          padding: '3px',
-          cursor: 'zoom-in'
-        }"
-      >
-        <img :src="prompt.reference_images[0]" alt="Thumbnail" class="w-full h-full object-contain" />
-        <span
-          class="material-symbols-outlined absolute -top-3 text-slate-400 rotate-[40deg] scale-x-[-1] z-20 font-light"
-          style="font-variation-settings: 'wght' 300; font-size: 28px; --tw-translate-x: 22px;"
-        >
-          attachment
-        </span>
-      </div>
+      <Thumbnail
+        :image-url="prompt.reference_images[0]"
+        :count="prompt.reference_images.length"
+        :rotation="thumbnailRotations[rotationIndex % thumbnailRotations.length]"
+        size="large"
+        @click="$emit('open-image', prompt.reference_images, 0)"
+      />
     </div>
 
     <div class="flex items-center justify-between">
-      <span
-        class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full"
-        :class="getCategoryStyle(prompt.category).badge"
-      >
-        {{ prompt.category }}
-      </span>
+      <div class="flex items-center gap-2">
+        <Tooltip :text="prompt.is_private ? 'Private - Click to make public' : 'Public - Click to make private'" placement="top">
+          <button
+            @click.stop="$emit('toggle-private', prompt)"
+            class="p-1 rounded-lg hover:bg-surface-container-high transition-colors"
+          >
+            <span
+              class="material-symbols-outlined text-base"
+              :class="prompt.is_private ? 'text-slate-400' : 'text-primary'"
+            >
+              {{ prompt.is_private ? 'lock' : 'public' }}
+            </span>
+          </button>
+        </Tooltip>
+        <span
+          class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full"
+          :class="getCategoryStyle(prompt.category).badge"
+        >
+          {{ getShortCategory(prompt.category) }}
+        </span>
+      </div>
       <span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors text-xl">
         {{ getCategoryStyle(prompt.category).icon }}
       </span>
@@ -95,6 +96,7 @@
 <script setup lang="ts">
 import type { Prompt } from '@/stores/prompts'
 import Tooltip from './Tooltip.vue'
+import Thumbnail from './Thumbnail.vue'
 
 withDefaults(defineProps<{
   prompt: Prompt
@@ -106,6 +108,7 @@ withDefaults(defineProps<{
 defineEmits<{
   (e: 'click'): void
   (e: 'toggle-favorite', id: number | undefined): void
+  (e: 'toggle-private', prompt: Prompt): void
   (e: 'copy', prompt: Prompt): void
   (e: 'open-image', images: string[], index: number): void
   (e: 'edit', id: number | undefined): void
@@ -163,6 +166,18 @@ function getCategoryStyle(category: string) {
   return categoryStyles[category] || categoryStyles['General']
 }
 
+function getShortCategory(category: string): string {
+  const shortNames: Record<string, string> = {
+    'Image Generation': 'IMAGE',
+    'Video Prompt': 'VIDEO',
+    'Coding': 'CODE',
+    'General': 'GENERAL',
+    'Concept Art': 'ART',
+    'Layout Design': 'LAYOUT'
+  }
+  return shortNames[category] || category.toUpperCase()
+}
+
 function formatDate(date?: string) {
   if (!date) return ''
   const d = new Date(date)
@@ -175,22 +190,3 @@ function formatDate(date?: string) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 </script>
-
-<style scoped>
-.thumb-peel {
-  position: relative;
-  transform-origin: 50% 0%;
-  transition:
-    transform 0.35s ease,
-    box-shadow 0.35s ease,
-    filter 0.35s ease;
-  transform: perspective(800px) rotateX(0deg) rotateY(0deg);
-  will-change: transform;
-}
-
-.thumb-peel:hover {
-  transform: perspective(800px) rotateX(14deg) rotateY(-16deg);
-  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.18);
-  filter: brightness(1.02);
-}
-</style>

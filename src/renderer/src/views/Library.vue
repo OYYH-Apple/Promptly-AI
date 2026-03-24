@@ -57,6 +57,7 @@
                 :rotation-index="idx"
                 @click="router.push(`/prompt/${prompt.id}`)"
                 @toggle-favorite="store.toggleFavorite(prompt.id as number)"
+                @toggle-private="handleTogglePrivate"
                 @copy="copyPrompt"
                 @open-image="openImageViewer"
                 @edit="handleEdit"
@@ -81,6 +82,7 @@
                 :rotation-index="idx"
                 @click="router.push(`/prompt/${prompt.id}`)"
                 @toggle-favorite="store.toggleFavorite(prompt.id as number)"
+                @toggle-private="handleTogglePrivate"
                 @copy="copyPrompt"
                 @open-image="openImageViewer"
                 @edit="handleEdit"
@@ -91,70 +93,36 @@
         </template>
 
         <!-- List View -->
-        <div v-else class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-surface-container-low/50">
-                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Name</th>
-                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Category</th>
-                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Date Edited</th>
-                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-on-surface-variant/80">Option</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              <tr
-                v-for="prompt in store.filteredPrompts"
-                :key="prompt.id"
-                class="hover:bg-surface-container-low/30 transition-colors group cursor-pointer"
-                @click="router.push(`/prompt/${prompt.id}`)"
-              >
-                <td class="px-6 py-5">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center" :class="getCategoryStyle(prompt.category).bg" style="min-width:40px;">
-                      <span class="material-symbols-outlined text-lg" :class="getCategoryStyle(prompt.category).textColor">{{ getCategoryStyle(prompt.category).icon }}</span>
-                    </div>
-                    <div>
-                      <p class="font-medium text-on-surface">{{ prompt.title }}</p>
-                      <p class="text-xs text-on-surface-variant line-clamp-1">{{ prompt.content_zh?.slice(0, 50) || prompt.content_en?.slice(0, 50) }}...</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-5">
-                  <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap text-center" :class="getCategoryStyle(prompt.category).badgeList" style="padding:10px;">
-                    {{ prompt.category }}
-                  </span>
-                </td>
-                <td class="px-6 py-5 text-sm text-on-surface-variant">
-                  {{ formatDate(prompt.updated_at) }}
-                </td>
-                <td class="px-6 py-5 text-right">
-                  <div class="flex items-center justify-center gap-1 transition-opacity">
-                    <Tooltip :text="prompt.is_favorite ? 'Remove from favorites' : 'Add to favorites'" placement="top">
-                      <button @click.stop="store.toggleFavorite(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors text-primary">
-                        <span class="material-symbols-outlined text-on-surface-variant" :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">grade</span>
-                      </button>
-                    </Tooltip>
-                    <Tooltip text="Copy" placement="top">
-                      <button @click.stop="copyPrompt(prompt)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                        <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
-                      </button>
-                    </Tooltip>
-                    <Tooltip text="Edit" placement="top">
-                      <button @click.stop="router.push(`/edit/${prompt.id}`)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                        <span class="material-symbols-outlined text-on-surface-variant">edit</span>
-                      </button>
-                    </Tooltip>
-                    <Tooltip text="Delete" placement="top">
-                      <button @click.stop="handleDelete(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                        <span class="material-symbols-outlined text-on-surface-variant">delete</span>
-                      </button>
-                    </Tooltip>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <PromptList
+          v-else
+          :prompts="store.filteredPrompts"
+          @click="(prompt: Prompt) => router.push(`/prompt/${prompt.id}`)"
+          @open-image="openImageViewer"
+          @toggle-private="handleTogglePrivate"
+        >
+          <template #actions="{ prompt }">
+            <Tooltip :text="prompt.is_favorite ? 'Remove from favorites' : 'Add to favorites'" placement="top">
+              <button @click.stop="store.toggleFavorite(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors text-primary">
+                <span class="material-symbols-outlined text-on-surface-variant" :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">grade</span>
+              </button>
+            </Tooltip>
+            <Tooltip text="Copy" placement="top">
+              <button @click.stop="copyPrompt(prompt)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
+              </button>
+            </Tooltip>
+            <Tooltip text="Edit" placement="top">
+              <button @click.stop="router.push(`/edit/${prompt.id}`)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-on-surface-variant">edit</span>
+              </button>
+            </Tooltip>
+            <Tooltip text="Delete" placement="top">
+              <button @click.stop="handleDelete(prompt.id!)" class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-on-surface-variant">delete</span>
+              </button>
+            </Tooltip>
+          </template>
+        </PromptList>
 
         <div class="flex items-center justify-between text-on-surface-variant text-sm px-2 mt-6">
           <p>Showing {{ store.filteredPrompts.length }} of {{ store.prompts.length }} prompts</p>
@@ -171,16 +139,26 @@
       cancel-text="Cancel"
       @confirm="confirmDelete"
     />
+    <ConfirmDialog
+      v-model:visible="showPrivacyDialog"
+      type="warning"
+      :title="privacyPrompt?.is_private ? 'Make Public' : 'Make Private'"
+      :message="privacyPrompt?.is_private ? 'This prompt will be visible to others when sharing features are enabled. Are you sure?' : 'This prompt will be hidden from others. Are you sure?'"
+      :confirm-text="privacyPrompt?.is_private ? 'Make Public' : 'Make Private'"
+      cancel-text="Cancel"
+      @confirm="confirmTogglePrivate"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { usePromptStore } from '@/stores/prompts'
+import { usePromptStore, type Prompt } from '@/stores/prompts'
 import ImageViewer from '@/components/ImageViewer.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
+import PromptList from '@/components/PromptList.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import Tooltip from '@/components/Tooltip.vue'
 
@@ -192,6 +170,8 @@ const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)
 const showDeleteDialog = ref(false)
 const deletePromptId = ref<number | null>(null)
+const showPrivacyDialog = ref(false)
+const privacyPrompt = ref<Prompt | null>(null)
 
 const imagePrompts = computed(() => {
   return store.prompts.filter(p => p.category === 'Image Generation')
@@ -298,6 +278,21 @@ async function confirmDelete() {
     await store.deletePrompt(deletePromptId.value)
     showToast('Prompt deleted', 'success')
     deletePromptId.value = null
+  }
+}
+
+function handleTogglePrivate(prompt: Prompt) {
+  privacyPrompt.value = prompt
+  showPrivacyDialog.value = true
+}
+
+async function confirmTogglePrivate() {
+  if (privacyPrompt.value) {
+    await store.updatePrompt(privacyPrompt.value.id!, {
+      is_private: !privacyPrompt.value.is_private
+    })
+    showToast(privacyPrompt.value.is_private ? 'Prompt is now public' : 'Prompt is now private', 'success')
+    privacyPrompt.value = null
   }
 }
 

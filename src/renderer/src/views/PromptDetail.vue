@@ -150,6 +150,15 @@
                 <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Date Created</label>
                 <p class="text-sm font-semibold text-slate-800">{{ formatFullDate(prompt.created_at) }}</p>
               </div>
+              <div>
+                <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Visibility</label>
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[14px]" :class="prompt.is_private ? 'text-slate-400' : 'text-primary'">
+                    {{ prompt.is_private ? 'lock' : 'public' }}
+                  </span>
+                  <span class="text-sm font-semibold text-slate-800">{{ prompt.is_private ? 'Private' : 'Public' }}</span>
+                </div>
+              </div>
             </div>
           </div>
 

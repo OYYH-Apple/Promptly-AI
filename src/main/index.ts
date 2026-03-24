@@ -3,6 +3,7 @@ import { join } from 'path'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import type { Database, SqlJsStatic } from 'sql.js'
 import { autoUpdater } from 'electron-updater'
+import nodemailer from 'nodemailer'
 
 let mainWindow: BrowserWindow | null = null
 let db: Database | null = null
@@ -525,4 +526,72 @@ ipcMain.handle('window:close', () => {
 
 ipcMain.handle('window:isMaximized', () => {
   return mainWindow?.isMaximized()
+})
+
+// ==================== SMTP 邮件发送 ====================
+
+interface FeedbackData {
+  type: string
+  content: string
+  contact: string
+}
+
+ipcMain.handle('send-feedback-email', async (_event, feedback: FeedbackData) => {
+  try {
+    // 创建 SMTP 传输器
+    // 使用 QQ 邮箱 SMTP 服务 (SSL 465端口)
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.qq.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: '1666418635@qq.com',
+        pass: 'hfxzqccwctwzddjh' // QQ邮箱授权码
+      },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000
+    })
+
+    const body = `[Promptly AI 用户反馈]
+
+反馈类型: ${feedback.type.toUpperCase()}
+
+反馈内容:
+----------------------------------------
+${feedback.content || '(未填写)'}
+----------------------------------------
+
+联系方式: ${feedback.contact || '未提供'}
+
+发送时间: ${new Date().toLocaleString()}
+
+---
+此邮件由 Promptly AI 应用自动生成`
+
+    const info = await transporter.sendMail({
+      from: '"Promptly AI Feedback" <1666418635@qq.com>',
+      to: '1666418635@qq.com',
+      subject: `[${feedback.type.toUpperCase()}] Promptly AI Feedback`,
+      text: body
+    })
+
+    return { success: true, messageId: info.messageId }
+  } catch (error: any) {
+    console.error('Failed to send feedback email:', error)
+
+    // 友好的错误提示
+    let errorMessage = '发送失败，请稍后重试'
+
+    if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' ||
+        error.message?.includes('socket') || error.message?.includes('network')) {
+      errorMessage = '网络连接失败，请检查网络或关闭 VPN 后重试（QQ 邮箱 SMTP 仅限中国大陆访问）'
+    } else if (error.code === 'EAUTH') {
+      errorMessage = '邮箱认证失败，请检查授权码配置'
+    } else if (error.responseCode === 535) {
+      errorMessage = '邮箱账号或授权码错误'
+    }
+
+    return { success: false, error: errorMessage }
+  }
 })

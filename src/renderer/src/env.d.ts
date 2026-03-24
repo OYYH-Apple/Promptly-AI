@@ -84,5 +84,6 @@ interface Window {
     onUpdateError: (callback: (error: string) => void) => void
     onDownloadProgress: (callback: (progress: DownloadProgress) => void) => void
     removeUpdateListeners: () => void
+    sendFeedbackEmail: (feedback: { type: string; content: string; contact: string }) => Promise<{ success: boolean; messageId?: string; error?: string }>
   }
 }
