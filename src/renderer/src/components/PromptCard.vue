@@ -18,7 +18,7 @@
 
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <Tooltip :text="prompt.is_private ? 'Private - Click to make public' : 'Public - Click to make private'" placement="top">
+        <Tooltip :text="prompt.is_private ? t('tooltip.makePrivate') : t('tooltip.makePublic')" placement="top">
           <button
             @click.stop="$emit('toggle-private', prompt)"
             class="p-1 rounded-lg hover:bg-surface-container-high transition-colors"
@@ -47,10 +47,10 @@
     <p class="text-sm text-slate-500 line-clamp-6" style="min-height: 120px;">{{ prompt.content_zh || prompt.content_en }}</p>
 
     <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
-      <span class="text-[11px] font-medium text-slate-400">{{ formatDate(prompt.updated_at) }}</span>
+      <span class="text-[11px] font-medium text-slate-400">{{ formatRelativeTime(prompt.updated_at) }}</span>
       <div class="flex items-center gap-1">
         <slot name="actions" :prompt="prompt">
-          <Tooltip :text="prompt.is_favorite ? 'Remove from favorites' : 'Add to favorites'" placement="top">
+          <Tooltip :text="prompt.is_favorite ? t('tooltip.removeFromFavorites') : t('tooltip.addToFavorites')" placement="top">
             <button
               @click.stop="$emit('toggle-favorite', prompt.id)"
               class="text-x1 text-primary transition-colors p-1"
@@ -63,7 +63,7 @@
               </span>
             </button>
           </Tooltip>
-          <Tooltip text="Copy" placement="top">
+          <Tooltip :text="t('tooltip.copy')" placement="top">
             <button
               @click.stop="$emit('copy', prompt)"
               class="text-slate-300 hover:text-slate-600 transition-colors p-1"
@@ -71,7 +71,7 @@
               <span class="material-symbols-outlined text-lg">content_copy</span>
             </button>
           </Tooltip>
-          <Tooltip text="Edit" placement="top">
+          <Tooltip :text="t('tooltip.edit')" placement="top">
             <button
               @click.stop="$emit('edit', prompt.id)"
               class="text-slate-300 hover:text-blue-500 transition-colors p-1"
@@ -79,7 +79,7 @@
               <span class="material-symbols-outlined text-lg">edit</span>
             </button>
           </Tooltip>
-          <Tooltip text="Delete" placement="top">
+          <Tooltip :text="t('tooltip.delete')" placement="top">
             <button
               @click.stop="$emit('delete', prompt.id)"
               class="text-slate-300 hover:text-red-500 transition-colors p-1"
@@ -95,8 +95,13 @@
 
 <script setup lang="ts">
 import type { Prompt } from '@/stores/prompts'
+import { useI18n } from 'vue-i18n'
+import { useDateFormatter } from '@/utils/format'
 import Tooltip from './Tooltip.vue'
 import Thumbnail from './Thumbnail.vue'
+
+const { t } = useI18n()
+const { formatRelativeTime } = useDateFormatter()
 
 withDefaults(defineProps<{
   prompt: Prompt
@@ -178,15 +183,5 @@ function getShortCategory(category: string): string {
   return shortNames[category] || category.toUpperCase()
 }
 
-function formatDate(date?: string) {
-  if (!date) return ''
-  const d = new Date(date)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days} days ago`
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
+// 使用 useDateFormatter 中的 formatRelativeTime 替代
 </script>

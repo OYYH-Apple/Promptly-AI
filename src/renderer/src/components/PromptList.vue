@@ -40,11 +40,11 @@
             </span>
           </td>
           <td class="px-6 py-3 text-sm text-on-surface-variant">
-            {{ formatDate(prompt.updated_at) }}
+            {{ formatRelativeTime(prompt.updated_at) }}
           </td>
           <td class="px-6 py-3 text-right">
             <div class="flex items-center justify-end gap-2">
-              <Tooltip :text="prompt.is_private ? 'Private - Click to make public' : 'Public - Click to make private'" placement="top">
+              <Tooltip :text="prompt.is_private ? t('tooltip.makePrivate') : t('tooltip.makePublic')" placement="top">
                 <button
                   @click.stop="$emit('toggle-private', prompt)"
                   class="p-1 rounded-lg hover:bg-surface-container-high transition-colors"
@@ -70,8 +70,13 @@
 
 <script setup lang="ts">
 import type { Prompt } from '@/stores/prompts'
+import { useI18n } from 'vue-i18n'
+import { useDateFormatter } from '@/utils/format'
 import Thumbnail from './Thumbnail.vue'
 import Tooltip from './Tooltip.vue'
+
+const { t } = useI18n()
+const { formatRelativeTime } = useDateFormatter()
 
 defineProps<{
   prompts: Prompt[]
@@ -139,15 +144,5 @@ function getCategoryStyle(category: string) {
   return categoryStyles[category] || categoryStyles['General']
 }
 
-function formatDate(date?: string) {
-  if (!date) return ''
-  const d = new Date(date)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days} days ago`
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
+// 使用 useDateFormatter 中的 formatRelativeTime 替代
 </script>
