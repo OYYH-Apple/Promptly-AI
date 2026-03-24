@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "electron:dev": "vite",
     "electron:build": "vite build && electron-builder",
-    "release": "npm run build && electron-builder --publish always"
+    "release": "electron-builder --publish always"
   },
   "dependencies": {
     "@vueuse/core": "^10.9.0",
