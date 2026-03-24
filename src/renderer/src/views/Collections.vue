@@ -91,7 +91,7 @@
           <div class="w-px h-8 bg-slate-200"></div>
           <div class="text-center">
             <span class="block text-2xl font-bold text-slate-900">{{ totalPrompts }}</span>
-            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">Active Prompts</span>
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-widest">{{ t('collections.activePrompts') }}</span>
           </div>
           <div class="w-px h-8 bg-slate-200"></div>
           <div class="text-center">

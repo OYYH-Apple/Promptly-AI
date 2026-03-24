@@ -26,7 +26,8 @@ export default {
     add: '添加',
     remove: '移除',
     clear: '清除',
-    searchCollections: '搜索集合...'
+    searchCollections: '搜索集合...',
+    upload: '上传'
   },
 
   // ==================== 导航 ====================
@@ -83,6 +84,7 @@ export default {
     updatedLabel: '更新',
     collectionsLabel: '集合',
     favoritesLabel: '收藏',
+    activePrompts: '活跃提示词',
     noCollections: '暂无集合',
     noCollectionsHint: '创建集合来组织你的提示词',
     noDescription: '暂无描述'
@@ -590,10 +592,17 @@ export default {
   recent: {
     activityLog: '活动日志',
     title: '最近提示词',
+    all: '全部',
+    image: '图像',
+    video: '视频',
     showAll: '显示全部',
     showImage: '显示图像',
     showVideo: '显示视频',
-    open: '打开'
+    showAllPrompts: '显示所有提示词',
+    showImagePrompts: '显示图像提示词',
+    showVideoPrompts: '显示视频提示词',
+    open: '打开',
+    noRecentActivity: '暂无最近活动'
   },
 
   // ==================== 表单标签 ====================

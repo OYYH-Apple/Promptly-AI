@@ -26,7 +26,8 @@ export default {
     add: 'Add',
     remove: 'Remove',
     clear: 'Clear',
-    searchCollections: 'Search collections...'
+    searchCollections: 'Search collections...',
+    upload: 'Upload'
   },
 
   // ==================== Navigation ====================
@@ -83,6 +84,7 @@ export default {
     updatedLabel: 'Updated',
     collectionsLabel: 'Collections',
     favoritesLabel: 'Favorites',
+    activePrompts: 'Active Prompts',
     noCollections: 'No collections yet',
     noCollectionsHint: 'Create a collection to organize your prompts',
     noDescription: 'No description'
@@ -590,10 +592,17 @@ export default {
   recent: {
     activityLog: 'Activity Log',
     title: 'Recent Prompts',
-    showAll: 'Show all',
-    showImage: 'Show image',
-    showVideo: 'Show video',
-    open: 'Open'
+    all: 'All',
+    image: 'Image',
+    video: 'Video',
+    showAll: 'Show All',
+    showImage: 'Show Image',
+    showVideo: 'Show Video',
+    showAllPrompts: 'Show all prompts',
+    showImagePrompts: 'Show image prompts',
+    showVideoPrompts: 'Show video prompts',
+    open: 'Open',
+    noRecentActivity: 'No recent activity'
   },
 
   // ==================== Form Labels ====================
