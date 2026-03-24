@@ -182,6 +182,7 @@ export default {
     viewLogs: 'View detailed logs',
     viewDetailedLogs: 'View detailed logs',
     purgeData: 'Purge All Workspace Data',
+    purgeDataDesc: 'Permanently delete all prompts and collections. This action is irreversible, please use with caution.',
     purgeDesc: 'This action is irreversible. All local prompts and indexes will be permanently deleted.',
     purgeAll: 'Purge Data',
     purgeConfirm: 'Purge All Data',

@@ -182,6 +182,7 @@ export default {
     viewLogs: '查看详细日志',
     viewDetailedLogs: '查看详细日志',
     purgeData: '清除所有工作区数据',
+    purgeDataDesc: '永久删除所有提示词和集合。此操作不可撤销，请谨慎使用。',
     purgeDesc: '此操作不可逆。所有本地提示词和索引将被永久删除。',
     purgeAll: '清除全部',
     purgeConfirm: '清除所有数据',
