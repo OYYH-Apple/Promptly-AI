@@ -132,6 +132,8 @@
                     class="text-sm lg:text-base text-slate-600 hover:text-slate-900 transition-colors">功能</a>
                 <a href="#screenshots"
                     class="text-sm lg:text-base text-slate-600 hover:text-slate-900 transition-colors">截图</a>
+                <a href="#changelog"
+                    class="text-sm lg:text-base text-slate-600 hover:text-slate-900 transition-colors">更新日志</a>
                 <a href="#download"
                     class="text-sm lg:text-base text-slate-600 hover:text-slate-900 transition-colors">下载</a>
                 <a href="https://github.com/OYYH-Apple/Promptly-AI" target="_blank"
@@ -158,6 +160,8 @@
                         class="text-lg text-slate-700 hover:text-slate-900 transition-colors py-2 border-b border-slate-100">功能</a>
                     <a href="#screenshots"
                         class="text-lg text-slate-700 hover:text-slate-900 transition-colors py-2 border-b border-slate-100">截图</a>
+                    <a href="#changelog"
+                        class="text-lg text-slate-700 hover:text-slate-900 transition-colors py-2 border-b border-slate-100">更新日志</a>
                     <a href="#download"
                         class="text-lg text-slate-700 hover:text-slate-900 transition-colors py-2 border-b border-slate-100">下载</a>
                     <a href="https://github.com/OYYH-Apple/Promptly-AI" target="_blank"
@@ -179,7 +183,7 @@
             <div
                 class="inline-flex items-center gap-2 bg-blue-50/80 backdrop-blur text-blue-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
                 <span class="material-symbols-outlined text-xs sm:text-sm">auto_awesome</span>
-                v1.0.0 全新发布
+                v1.1.1 全新发布
             </div>
             <h1
                 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 mb-4 sm:mb-6 leading-tight">
@@ -323,14 +327,105 @@
         </div>
     </section>
 
+    <!-- Changelog Section -->
+    <section id="changelog" class="py-16 sm:py-20 px-4 sm:px-6 bg-white border-b border-slate-200">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-8 sm:mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-3 sm:mb-4">v1.1.1 更新内容</h2>
+                <p class="text-sm sm:text-base text-slate-600">持续优化，为你带来更好的体验</p>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-6 sm:p-8">
+                <!-- BUG修复 -->
+                <div class="mb-6">
+                    <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-3">
+                        <span class="material-symbols-outlined text-red-500">bug_report</span>
+                        BUG修复
+                    </h3>
+                    <ul class="space-y-2 text-sm sm:text-base text-slate-600 ml-8">
+                        <li class="flex items-start gap-2">
+                            <span class="text-red-400 mt-1">•</span>
+                            <span>修复缩略图查看图片退出后的索引未重置问题</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-red-400 mt-1">•</span>
+                            <span>修复新建界面标签输入框标签历史显示问题</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- UI优化 -->
+                <div class="mb-6">
+                    <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-3">
+                        <span class="material-symbols-outlined text-blue-500">palette</span>
+                        UI优化
+                    </h3>
+                    <ul class="space-y-2 text-sm sm:text-base text-slate-600 ml-8">
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 mt-1">•</span>
+                            <span>固定菜单栏图标样式显示</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 mt-1">•</span>
+                            <span>列表展示增加图片缩略图，同时可点击查看预览</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 mt-1">•</span>
+                            <span>优化缩略图UI</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-400 mt-1">•</span>
+                            <span>优化新建界面和编辑界面图片操作按钮UI布局</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 功能优化 -->
+                <div>
+                    <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-3">
+                        <span class="material-symbols-outlined text-green-500">auto_awesome</span>
+                        功能优化
+                    </h3>
+                    <ul class="space-y-2 text-sm sm:text-base text-slate-600 ml-8">
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>新增支持新建界面和编辑界面对图片拖拽排序功能</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>新增支持左侧菜单栏宽度调整收缩功能</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>新增支持侧边实时查看存储数据大小</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>编辑和新建提示词界面图片上传功能增强</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>新增用户反馈窗口</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>新增提示词网络可见性（后期上线在线分享功能使用）</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>优化增强自动检测更新功能</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Download Section -->
-    <section id="download" class="py-16 sm:py-20 px-4 sm:px-6 bg-white">
+    <section id="download" class="py-16 sm:py-20 px-4 sm:px-6 bg-slate-50">
         <div class="max-w-4xl mx-auto text-center">
             <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-3 sm:mb-4">立即下载</h2>
             <p class="text-sm sm:text-base text-slate-600 mb-8 sm:mb-10">完全免费，无需注册，开箱即用</p>
 
             <div class="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-10">
-                <a href="https://github.com/OYYH-Apple/Promptly-AI/releases/download/v1.0.0/Promptly-AI-Setup-1.0.0.exe"
+                <a href="https://github.com/OYYH-Apple/Promptly-AI/releases/download/v1.1.1/Promptly.AI.Setup.1.1.1.exe"
                     class="card-hover bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl p-6 sm:p-8 text-left">
                     <div class="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                         <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 rounded-xl flex items-center justify-center">
@@ -343,10 +438,10 @@
                     </div>
                     <div class="flex items-center gap-2 text-blue-100">
                         <span class="material-symbols-outlined text-sm">download</span>
-                        <span class="text-xs sm:text-sm">Promptly-AI-Setup-1.0.0.exe</span>
+                        <span class="text-xs sm:text-sm">Promptly.AI.Setup.1.1.1.exe</span>
                     </div>
                 </a>
-                <a href="https://github.com/OYYH-Apple/Promptly-AI/releases/download/v1.0.0/Promptly-AI-1.0.0.exe"
+                <a href="https://github.com/OYYH-Apple/Promptly-AI/releases/download/v1.1.1/Promptly.AI.1.1.1.exe"
                     class="card-hover bg-slate-100 text-slate-800 rounded-2xl p-6 sm:p-8 text-left border border-slate-200">
                     <div class="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                         <div
@@ -360,7 +455,7 @@
                     </div>
                     <div class="flex items-center gap-2 text-slate-500">
                         <span class="material-symbols-outlined text-sm">download</span>
-                        <span class="text-xs sm:text-sm">Promptly-AI-1.0.0.exe</span>
+                        <span class="text-xs sm:text-sm">Promptly.AI.1.1.1.exe</span>
                     </div>
                 </a>
             </div>
