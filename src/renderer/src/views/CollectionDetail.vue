@@ -22,20 +22,59 @@
             </span>
           </div>
           <p class="text-on-surface-variant max-w-xl">{{ collection?.description || t('collectionDetail.noDescription')
-            }}</p>
+          }}</p>
         </div>
         <div class="flex items-center gap-3">
-          <button @click="showAddPromptModal = true"
-            class="bg-surface-container-lowest text-on-surface px-5 py-2.5 rounded-xl font-medium shadow-sm hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px] transition-all hover:rotate-90">add_circle</span>
-            {{ t('collectionDetail.addPrompts') }}
+          <!-- 批量选择入口按钮 - 与排序按钮样式一致 -->
+          <button v-if="!isBatchMode" @click="enterBatchMode"
+            class="px-4 py-1.5 bg-surface-container-low text-on-surface-variant rounded-lg text-sm font-medium hover:bg-surface-container-high transition-colors flex items-center gap-1">
+            <span class="material-symbols-outlined text-base">check_box</span>
+            {{ t('batch.select') }}
           </button>
-          <button @click="editCollection"
-            class="bg-primary text-on-primary px-5 py-2.5 rounded-xl font-medium shadow-sm hover:bg-primary-dim active:scale-95 transition-all flex items-center gap-2">
-            <span class="material-symbols-outlined text-[20px]">edit</span>
-            {{ t('collectionDetail.editCollection') }}
-          </button>
+          <template v-if="!isBatchMode">
+            <button @click="showAddPromptModal = true"
+              class="bg-surface-container-lowest text-on-surface px-5 py-2.5 rounded-xl font-medium shadow-sm hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-2">
+              <span class="material-symbols-outlined text-[20px] transition-all hover:rotate-90">add_circle</span>
+              {{ t('collectionDetail.addPrompts') }}
+            </button>
+            <button @click="editCollection"
+              class="bg-primary text-on-primary px-5 py-2.5 rounded-xl font-medium shadow-sm hover:bg-primary-dim active:scale-95 transition-all flex items-center gap-2">
+              <span class="material-symbols-outlined text-[20px]">edit</span>
+              {{ t('collectionDetail.editCollection') }}
+            </button>
+          </template>
         </div>
+      </div>
+
+      <!-- 批量操作工具栏 - 放到下一行 -->
+      <div v-if="isBatchMode" class="flex items-center gap-3 flex-wrap">
+        <!-- 全选/取消全选按钮 -->
+        <button @click="toggleSelectAll"
+          class="px-4 py-1.5 bg-surface-container-low text-on-surface-variant rounded-lg text-sm font-medium hover:bg-surface-container-high transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-base">
+            {{ isAllSelected ? 'deselect' : 'select_all' }}
+          </span>
+          {{ isAllSelected ? t('batch.deselectAll') : t('batch.selectAll') }}
+        </button>
+        <span class="text-sm text-on-surface-variant">
+          {{ t('batch.selectedCount', { count: selectedPrompts.length }) }}
+        </span>
+        <!-- 批量从集合移除 -->
+        <button @click="handleBatchRemoveFromCollection" :disabled="selectedPrompts.length === 0"
+          class="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined text-sm">remove_circle</span>
+          {{ t('batch.removeFromCollection') }}
+        </button>
+        <!-- 批量删除 -->
+        <button @click="handleBatchDelete" :disabled="selectedPrompts.length === 0"
+          class="px-4 py-1.5 bg-error text-white rounded-lg text-sm font-medium hover:bg-error/90 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined text-sm">delete</span>
+          {{ t('batch.delete') }}
+        </button>
+        <button @click="exitBatchMode"
+          class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant rounded-lg text-sm font-medium hover:bg-surface-container transition-colors">
+          {{ t('batch.cancel') }}
+        </button>
       </div>
 
       <div v-if="loading" class="flex items-center justify-center py-20">
@@ -52,64 +91,22 @@
 
       <template v-else>
         <PromptSection :title="t('library.imagePrompts')" icon="image" icon-color="#005bc1" :items="imagePrompts"
-          :show-add-button="false">
+          :show-add-button="false" :expanded="expandAllSections">
           <template #default="{ items }">
             <PromptCard v-for="(prompt, idx) in items" :key="prompt.id" :prompt="prompt" :rotation-index="idx"
-              @click="router.push(`/prompt/${prompt.id}`)" @copy="copyPrompt" @open-image="openImageViewer">
-              <template #actions="slotProps">
-                <Tooltip :text="t('tooltip.copy')" placement="top">
-                  <button @click.stop="copyPrompt(slotProps.prompt)"
-                    class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
-                    <span
-                      class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
-                  </button>
-                </Tooltip>
-                <Tooltip :text="t('tooltip.edit')" placement="top">
-                  <button @click.stop="router.push(`/edit/${slotProps.prompt.id}`)"
-                    class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
-                    <span class="material-symbols-outlined text-slate-400 hover:text-primary text-lg">edit</span>
-                  </button>
-                </Tooltip>
-                <Tooltip :text="t('tooltip.removeFromCollection')" placement="top">
-                  <button @click.stop="removeFromCollection(slotProps.prompt)"
-                    class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
-                    <span
-                      class="material-symbols-outlined text-slate-400 hover:text-red-500 hover:rotate-180 transition-all text-lg">remove_circle</span>
-                  </button>
-                </Tooltip>
-              </template>
-            </PromptCard>
+              :is-selected="isPromptSelected(prompt.id)" :is-batch-mode="isBatchMode"
+              @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
+              @copy="!isBatchMode && copyPrompt" @open-image="openImageViewer" />
           </template>
         </PromptSection>
 
         <PromptSection :title="t('library.videoPrompts')" icon="movie" icon-color="#5f5c78" :items="videoPrompts"
-          :show-add-button="false">
+          :show-add-button="false" :expanded="expandAllSections">
           <template #default="{ items }">
             <PromptCard v-for="(prompt, idx) in items" :key="prompt.id" :prompt="prompt" :rotation-index="idx"
-              @click="router.push(`/prompt/${prompt.id}`)" @copy="copyPrompt" @open-image="openImageViewer">
-              <template #actions="slotProps">
-                <Tooltip :text="t('tooltip.copy')" placement="top">
-                  <button @click.stop="copyPrompt(slotProps.prompt)"
-                    class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
-                    <span
-                      class="material-symbols-outlined text-primary-dim hover:text-primary text-lg">content_copy</span>
-                  </button>
-                </Tooltip>
-                <Tooltip :text="t('tooltip.edit')" placement="top">
-                  <button @click.stop="router.push(`/edit/${slotProps.prompt.id}`)"
-                    class="p-1.5 rounded-full hover:bg-primary/10 transition-colors">
-                    <span class="material-symbols-outlined text-slate-400 hover:text-primary text-lg">edit</span>
-                  </button>
-                </Tooltip>
-                <Tooltip :text="t('tooltip.removeFromCollection')" placement="top">
-                  <button @click.stop="removeFromCollection(slotProps.prompt)"
-                    class="p-1.5 rounded-full hover:bg-red-50 transition-colors">
-                    <span
-                      class="material-symbols-outlined text-slate-400 hover:text-red-500 text-lg">remove_circle</span>
-                  </button>
-                </Tooltip>
-              </template>
-            </PromptCard>
+              :is-selected="isPromptSelected(prompt.id)" :is-batch-mode="isBatchMode"
+              @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
+              @copy="!isBatchMode && copyPrompt" @open-image="openImageViewer" />
           </template>
         </PromptSection>
       </template>
@@ -170,6 +167,15 @@
     <ConfirmDialog v-model:visible="showRemoveDialog" type="warning" :title="t('dialog.removeFromCollectionTitle')"
       :message="t('dialog.removeFromCollectionMessage', { title: promptToRemove?.title })"
       :confirm-text="t('dialog.remove')" :cancel-text="t('dialog.cancel')" @confirm="handleRemove" />
+    <!-- 批量删除确认对话框 -->
+    <ConfirmDialog v-model:visible="showBatchDeleteDialog" type="danger" :title="t('dialog.batchDeleteTitle')"
+      :message="t('dialog.batchDeleteMessage', { count: selectedPrompts.length })" :confirm-text="t('dialog.delete')"
+      :cancel-text="t('dialog.cancel')" @confirm="confirmBatchDelete" />
+    <!-- 批量从集合移除确认对话框 -->
+    <ConfirmDialog v-model:visible="showBatchRemoveDialog" type="warning" :title="t('batch.removeFromCollection')"
+      :message="t('batch.confirmRemoveFromCollection', { count: selectedPrompts.length })"
+      :confirm-text="t('dialog.remove')" :cancel-text="t('dialog.cancel')"
+      @confirm="confirmBatchRemoveFromCollection" />
   </section>
 </template>
 
@@ -177,7 +183,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { usePromptStore } from '@/stores/prompts'
+import { usePromptStore, type Prompt } from '@/stores/prompts'
 import ImageViewer from '@/components/ImageViewer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PromptCard from '@/components/PromptCard.vue'
@@ -216,6 +222,98 @@ const availableIcons = [
   { value: 'web', label: 'Design' }
 ]
 
+// ==================== 批量操作功能 ====================
+const isBatchMode = ref(false)
+const selectedPrompts = ref<number[]>([])
+const showBatchDeleteDialog = ref(false)
+const showBatchRemoveDialog = ref(false)
+const expandAllSections = ref(false)
+
+// 进入批量模式
+function enterBatchMode() {
+  isBatchMode.value = true
+  selectedPrompts.value = []
+  // 进入批量模式时展开所有分区，方便选择
+  expandAllSections.value = true
+}
+
+// 退出批量模式
+function exitBatchMode() {
+  isBatchMode.value = false
+  selectedPrompts.value = []
+  expandAllSections.value = false
+}
+
+// 切换单个提示词的选中状态
+function togglePromptSelection(promptId: number | undefined) {
+  if (!promptId) return
+  const index = selectedPrompts.value.indexOf(promptId)
+  if (index === -1) {
+    selectedPrompts.value.push(promptId)
+  } else {
+    selectedPrompts.value.splice(index, 1)
+  }
+}
+
+// 判断提示词是否被选中
+function isPromptSelected(promptId: number | undefined): boolean {
+  if (!promptId) return false
+  return selectedPrompts.value.includes(promptId)
+}
+
+// 是否全选
+const isAllSelected = computed(() => {
+  const allIds = collectionPrompts.value.map(p => p.id).filter((id): id is number => id !== undefined)
+  return allIds.length > 0 && selectedPrompts.value.length === allIds.length
+})
+
+// 全选/取消全选
+function toggleSelectAll() {
+  const allIds = collectionPrompts.value.map(p => p.id).filter((id): id is number => id !== undefined)
+  if (isAllSelected.value) {
+    selectedPrompts.value = []
+    expandAllSections.value = false
+  } else {
+    selectedPrompts.value = [...allIds]
+    expandAllSections.value = true
+  }
+}
+
+// 批量删除处理
+function handleBatchDelete() {
+  if (selectedPrompts.value.length === 0) return
+  showBatchDeleteDialog.value = true
+}
+
+// 确认批量删除
+async function confirmBatchDelete() {
+  const count = selectedPrompts.value.length
+  for (const id of selectedPrompts.value) {
+    await store.deletePrompt(id)
+  }
+  showToast(t('toast.batchDeleteSuccess', { count }), 'success')
+  exitBatchMode()
+  showBatchDeleteDialog.value = false
+}
+
+// 批量从集合移除处理
+function handleBatchRemoveFromCollection() {
+  if (selectedPrompts.value.length === 0) return
+  showBatchRemoveDialog.value = true
+}
+
+// 确认批量从集合移除
+async function confirmBatchRemoveFromCollection() {
+  const count = selectedPrompts.value.length
+  for (const promptId of selectedPrompts.value) {
+    await store.updatePrompt(promptId, { collection_id: null })
+  }
+  showToast(t('toast.batchRemoveFromCollectionSuccess', { count }), 'success')
+  exitBatchMode()
+  showBatchRemoveDialog.value = false
+}
+
+// ==================== 数据计算 ====================
 const collectionPrompts = computed(() => {
   return store.prompts.filter(p => p.collection_id === collectionId.value)
 })
@@ -228,7 +326,8 @@ const videoPrompts = computed(() => {
   return collectionPrompts.value.filter(p => p.category === 'Video Prompt')
 })
 
-async function copyPrompt(prompt: any) {
+// ==================== 通用操作 ====================
+async function copyPrompt(prompt: Prompt) {
   const content = prompt.content_zh || prompt.content_en
   if (content) {
     await navigator.clipboard.writeText(content)
@@ -246,7 +345,7 @@ function handlePromptsAdded() {
   showToast(t('toast.promptsAddedToCollection'), 'success')
 }
 
-function removeFromCollection(prompt: any) {
+function removeFromCollection(prompt: Prompt) {
   promptToRemove.value = prompt
   showRemoveDialog.value = true
 }

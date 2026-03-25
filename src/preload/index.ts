@@ -9,6 +9,7 @@ export interface Prompt {
   collection_id?: number | null
   is_favorite?: boolean
   reference_images?: string[]
+  reference_videos?: string[]
   created_at?: string
   updated_at?: string
 }
@@ -57,6 +58,8 @@ const api = {
     collectionId?: number
     limit?: number
     offset?: number
+    sortBy?: string    // 排序字段：updated_at | created_at | title
+    sortOrder?: string // 排序顺序：ASC | DESC
   }) => ipcRenderer.invoke('db:getPrompts', params),
 
   getPrompt: (id: number) => ipcRenderer.invoke('db:getPrompt', id),
@@ -86,6 +89,12 @@ const api = {
   changeStoragePath: () => ipcRenderer.invoke('db:changeStoragePath'),
 
   purgeAllData: () => ipcRenderer.invoke('db:purgeAllData'),
+
+  // 设置项读写
+  getSetting: (key: string): Promise<string | null> =>
+    ipcRenderer.invoke('db:getSetting', key),
+  setSetting: (key: string, value: string): Promise<boolean> =>
+    ipcRenderer.invoke('db:setSetting', key, value),
 
   exportData: () => ipcRenderer.invoke('db:exportData'),
 
@@ -149,6 +158,12 @@ const api = {
     ipcRenderer.removeAllListeners('update-install-failed')
     ipcRenderer.removeAllListeners('update-install-failed-recovery')
   },
+
+  // 视频文件操作
+  saveVideo: (data: { fileName: string; filePath: string }) =>
+    ipcRenderer.invoke('file:saveVideo', data),
+  deleteVideo: (filePath: string) =>
+    ipcRenderer.invoke('file:deleteVideo', filePath),
 
   sendFeedbackEmail: (feedback: { type: string; content: string; contact: string }) =>
     ipcRenderer.invoke('send-feedback-email', feedback)

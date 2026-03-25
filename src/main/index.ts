@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'fs'
+import { randomUUID } from 'crypto'
+import { promises as fsPromises } from 'fs'
 import type { Database, SqlJsStatic } from 'sql.js'
 import { autoUpdater, type GenericServerOptions } from 'electron-updater'
 import nodemailer from 'nodemailer'
@@ -17,6 +19,7 @@ let db: Database | null = null
 
 const userDataPath = app.getPath('userData')
 const dbPath = join(userDataPath, 'prompts.db')
+const videosDir = join(userDataPath, 'videos')
 
 async function initDatabase() {
 	if (!existsSync(userDataPath)) {
@@ -61,6 +64,7 @@ async function initDatabase() {
           is_favorite INTEGER DEFAULT 0,
           is_private INTEGER DEFAULT 1,
           reference_images TEXT DEFAULT '[]',
+          reference_videos TEXT DEFAULT '[]',
           created_at TEXT DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
@@ -69,7 +73,7 @@ async function initDatabase() {
       // Migrate data from old table
       const hasIsPrivate = columns.includes('is_private')
       db.run(`
-        INSERT INTO prompts_new (id, title, content_zh, content_en, category, tags, collection_id, is_favorite, is_private, reference_images, created_at, updated_at)
+        INSERT INTO prompts_new (id, title, content_zh, content_en, category, tags, collection_id, is_favorite, is_private, reference_images, reference_videos, created_at, updated_at)
         SELECT 
           id, 
           title, 
@@ -81,6 +85,7 @@ async function initDatabase() {
           is_favorite, 
           ${hasIsPrivate ? 'is_private' : '1'}, 
           COALESCE(reference_images, '[]'), 
+          COALESCE(reference_videos, '[]'),
           created_at, 
           updated_at 
         FROM prompts
@@ -104,10 +109,21 @@ async function initDatabase() {
         is_favorite INTEGER DEFAULT 0,
         is_private INTEGER DEFAULT 1,
         reference_images TEXT DEFAULT '[]',
+        reference_videos TEXT DEFAULT '[]',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP
       )
     `)
+  }
+
+  // 增量迁移：为已有新 schema 但缺少 reference_videos 列的数据库补充该列
+  const columnsAfterMigration = db.exec("PRAGMA table_info(prompts)")
+  if (columnsAfterMigration.length > 0) {
+    const existingColumnNames = columnsAfterMigration[0].values.map((col: any) => col[1])
+    if (!existingColumnNames.includes('reference_videos')) {
+      db.run('ALTER TABLE prompts ADD COLUMN reference_videos TEXT DEFAULT "[]"')
+      console.log('增量迁移：已添加 reference_videos 列')
+    }
   }
 
   db.run(`
@@ -170,6 +186,12 @@ function createWindow() {
 
 app.whenReady().then(async () => {
   await initDatabase()
+
+  // 确保视频存储目录存在
+  if (!existsSync(videosDir)) {
+    mkdirSync(videosDir, { recursive: true })
+  }
+
   createWindow()
 
   app.on('activate', () => {
@@ -211,7 +233,7 @@ function runQuery(sql: string, params: any[] = []) {
   return { lastInsertRowid: lastId?.id || 0 }
 }
 
-ipcMain.handle('db:getPrompts', (_, { category, search, favorites, collectionId, limit, offset }) => {
+ipcMain.handle('db:getPrompts', (_, { category, search, favorites, collectionId, limit, offset, sortBy, sortOrder }) => {
   let sql = 'SELECT * FROM prompts WHERE 1=1'
   const params: any[] = []
 
@@ -231,7 +253,12 @@ ipcMain.handle('db:getPrompts', (_, { category, search, favorites, collectionId,
     params.push(collectionId)
   }
 
-  sql += ' ORDER BY updated_at DESC'
+  // 排序：支持按更新时间、创建时间、标题排序（白名单校验防止 SQL 注入）
+  const validSortColumns = ['updated_at', 'created_at', 'title']
+  const validSortOrders = ['ASC', 'DESC']
+  const safeSortBy = validSortColumns.includes(sortBy) ? sortBy : 'updated_at'
+  const safeSortOrder = validSortOrders.includes(sortOrder?.toUpperCase()) ? sortOrder.toUpperCase() : 'DESC'
+  sql += ` ORDER BY ${safeSortBy} ${safeSortOrder}`
 
   if (limit) {
     sql += ' LIMIT ?'
@@ -251,8 +278,8 @@ ipcMain.handle('db:getPrompt', (_, id) => {
 
 ipcMain.handle('db:createPrompt', (_, prompt) => {
   return runQuery(`
-    INSERT INTO prompts (title, content_zh, content_en, category, tags, collection_id, is_favorite, is_private, reference_images)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO prompts (title, content_zh, content_en, category, tags, collection_id, is_favorite, is_private, reference_images, reference_videos)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `, [
     prompt.title,
     prompt.content_zh || '',
@@ -262,7 +289,8 @@ ipcMain.handle('db:createPrompt', (_, prompt) => {
     prompt.collection_id || null,
     prompt.is_favorite ? 1 : 0,
     prompt.is_private ? 1 : 0,
-    JSON.stringify(prompt.reference_images || [])
+    JSON.stringify(prompt.reference_images || []),
+    JSON.stringify(prompt.reference_videos || [])
   ]).lastInsertRowid
 })
 
@@ -279,14 +307,15 @@ ipcMain.handle('db:updatePrompt', (_, id, prompt) => {
   const is_favorite = prompt.is_favorite !== undefined ? (prompt.is_favorite ? 1 : 0) : existing.is_favorite
   const is_private = prompt.is_private !== undefined ? (prompt.is_private ? 1 : 0) : existing.is_private
   const reference_images = prompt.reference_images !== undefined ? JSON.stringify(prompt.reference_images) : existing.reference_images ?? '[]'
+  const reference_videos = prompt.reference_videos !== undefined ? JSON.stringify(prompt.reference_videos) : existing.reference_videos ?? '[]'
 
   runQuery(`
     UPDATE prompts SET title = ?, content_zh = ?, content_en = ?, category = ?, tags = ?,
-    collection_id = ?, is_favorite = ?, is_private = ?, reference_images = ?, updated_at = datetime('now')
+    collection_id = ?, is_favorite = ?, is_private = ?, reference_images = ?, reference_videos = ?, updated_at = datetime('now')
     WHERE id = ?
   `, [
     title, content_zh, content_en, category, tags,
-    collection_id, is_favorite, is_private, reference_images, id
+    collection_id, is_favorite, is_private, reference_images, reference_videos, id
   ])
   return true
 })
@@ -294,6 +323,39 @@ ipcMain.handle('db:updatePrompt', (_, id, prompt) => {
 ipcMain.handle('db:deletePrompt', (_, id) => {
   runQuery('DELETE FROM prompts WHERE id = ?', [id])
   return true
+})
+
+// ==================== 视频文件操作 ====================
+
+ipcMain.handle('file:saveVideo', async (_, { fileName, filePath: sourcePath }: { fileName: string; filePath: string }) => {
+  // 使用 UUID 生成唯一文件名，避免同名碰撞
+  const fileExtension = fileName.includes('.') ? fileName.substring(fileName.lastIndexOf('.')) : '.mp4'
+  const uniqueName = `${randomUUID()}${fileExtension}`
+  const destPath = join(videosDir, uniqueName)
+
+  // 直接复制文件，避免将整个视频加载到内存
+  await fsPromises.copyFile(sourcePath, destPath)
+  return destPath
+})
+
+ipcMain.handle('file:deleteVideo', async (_, filePath: string) => {
+  try {
+    // 安全校验：仅允许删除 videosDir 内的文件，防止路径穿越攻击
+    const normalizedPath = join(filePath)
+    if (!normalizedPath.startsWith(videosDir)) {
+      console.error('视频删除被拒绝：路径不在允许范围内', normalizedPath)
+      return false
+    }
+
+    if (existsSync(normalizedPath)) {
+      await fsPromises.unlink(normalizedPath)
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error('删除视频文件失败:', error)
+    return false
+  }
 })
 
 ipcMain.handle('db:toggleFavorite', (_, id) => {
@@ -328,6 +390,18 @@ ipcMain.handle('db:deleteCollection', (_, id) => {
 
 ipcMain.handle('db:getCategories', () => {
   return queryAll('SELECT DISTINCT category FROM prompts ORDER BY category')
+})
+
+// ==================== 设置项读写 ====================
+
+ipcMain.handle('db:getSetting', (_, key: string) => {
+  const row = queryOne('SELECT value FROM settings WHERE key = ?', [key])
+  return row?.value ?? null
+})
+
+ipcMain.handle('db:setSetting', (_, key: string, value: string) => {
+  runQuery('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [key, value])
+  return true
 })
 
 ipcMain.handle('db:getStats', () => {
@@ -386,8 +460,49 @@ ipcMain.handle('db:exportData', async () => {
   const prompts = queryAll('SELECT * FROM prompts')
   const collections = queryAll('SELECT * FROM collections')
 
-  const data = { prompts, collections, exportedAt: new Date().toISOString() }
+  // 收集并导出视频文件
+  const exportDir = join(result.filePath, '..')
+  const exportVideosDir = join(exportDir, 'videos')
+  let hasVideos = false
 
+  const exportPrompts = prompts.map((p: any) => {
+    const videoPathList: string[] = (() => {
+      try {
+        return JSON.parse(p.reference_videos || '[]')
+      } catch {
+        return []
+      }
+    })()
+
+    if (videoPathList.length === 0) return p
+
+    // 确保导出视频目录存在
+    if (!hasVideos) {
+      if (!existsSync(exportVideosDir)) {
+        mkdirSync(exportVideosDir, { recursive: true })
+      }
+      hasVideos = true
+    }
+
+    // 复制视频文件并替换为相对路径
+    const exportedVideoPaths = videoPathList.map((videoPath: string) => {
+      try {
+        if (existsSync(videoPath)) {
+          const videoFileName = videoPath.split(/[\\/]/).pop() || ''
+          const destPath = join(exportVideosDir, videoFileName)
+          copyFileSync(videoPath, destPath)
+          return `./videos/${videoFileName}`
+        }
+      } catch (err) {
+        console.error('导出视频文件失败:', videoPath, err)
+      }
+      return videoPath
+    })
+
+    return { ...p, reference_videos: JSON.stringify(exportedVideoPaths) }
+  })
+
+  const data = { prompts: exportPrompts, collections, exportedAt: new Date().toISOString() }
   writeFileSync(result.filePath, JSON.stringify(data, null, 2))
 
   return result.filePath
@@ -403,6 +518,11 @@ ipcMain.handle('db:importData', async () => {
 
   const content = readFileSync(result.filePaths[0], 'utf-8')
   const data = JSON.parse(content)
+
+  // 检查导入文件同目录是否存在 videos 文件夹
+  const importDir = join(result.filePaths[0], '..')
+  const importVideosDir = join(importDir, 'videos')
+  const hasImportVideos = existsSync(importVideosDir)
 
   if (data.collections) {
     for (const col of data.collections) {
@@ -422,13 +542,48 @@ ipcMain.handle('db:importData', async () => {
       const reference_images = typeof prompt.reference_images === 'string' ? prompt.reference_images : JSON.stringify(prompt.reference_images ?? [])
       const is_private = prompt.is_private ?? 1
 
+      // 处理视频文件的导入：将相对路径的视频复制到本地 videosDir 并更新路径
+      let reference_videos: string
+      const rawVideos: string[] = (() => {
+        try {
+          const parsed = typeof prompt.reference_videos === 'string'
+            ? JSON.parse(prompt.reference_videos || '[]')
+            : (prompt.reference_videos ?? [])
+          return Array.isArray(parsed) ? parsed : []
+        } catch {
+          return []
+        }
+      })()
+
+      if (hasImportVideos && rawVideos.length > 0) {
+        const restoredPaths = rawVideos.map((videoPath: string) => {
+          // 检查是否为相对路径（导出格式）
+          if (videoPath.startsWith('./videos/')) {
+            const videoFileName = videoPath.replace('./videos/', '')
+            const sourcePath = join(importVideosDir, videoFileName)
+            if (existsSync(sourcePath)) {
+              // 使用 UUID 重命名避免碰撞
+              const ext = videoFileName.includes('.') ? videoFileName.substring(videoFileName.lastIndexOf('.')) : '.mp4'
+              const newFileName = `${randomUUID()}${ext}`
+              const destPath = join(videosDir, newFileName)
+              copyFileSync(sourcePath, destPath)
+              return destPath
+            }
+          }
+          return videoPath
+        })
+        reference_videos = JSON.stringify(restoredPaths)
+      } else {
+        reference_videos = JSON.stringify(rawVideos)
+      }
+
       runQuery(`
-        INSERT OR REPLACE INTO prompts (id, title, content_zh, content_en, category, tags, collection_id, is_favorite, is_private, reference_images, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT OR REPLACE INTO prompts (id, title, content_zh, content_en, category, tags, collection_id, is_favorite, is_private, reference_images, reference_videos, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         prompt.id, prompt.title, content_zh, content_en, category,
         tags, prompt.collection_id, prompt.is_favorite ? 1 : 0, is_private,
-        reference_images, prompt.created_at, prompt.updated_at
+        reference_images, reference_videos, prompt.created_at, prompt.updated_at
       ])
     }
   }

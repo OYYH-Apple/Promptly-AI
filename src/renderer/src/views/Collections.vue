@@ -434,6 +434,7 @@ onMounted(() => {
 <style scoped>
 /* ==================== 缩略图堆叠动画样式 ==================== */
 
+/* 缩略图容器 - 用于整体定位 */
 .collection-thumbnails {
   perspective: 600px;
 }

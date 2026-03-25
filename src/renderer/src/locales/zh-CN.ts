@@ -118,9 +118,12 @@ export default {
     addToFavorites: '添加到收藏夹',
     private: '私密提示词',
     privatePrompt: '私密提示词',
-    referenceMedia: '参考媒体',
+    referenceMedia: '参考图片',
     images: '图片',
     referenceImage: '参考图片 {number}',
+    referenceVideos: '参考视频',
+    videos: '视频',
+    referenceVideo: '参考视频 {number}',
     uploadImage: '上传图片',
     uploadLimit: '最多 {count} 个文件',
     savePrompt: '保存提示词',
@@ -240,6 +243,7 @@ export default {
     createPrompt: '创建提示词',
     createNewPrompt: '创建新提示词',
     uploadImages: '上传图片',
+    uploadVideo: '上传视频',
     maxImagesReached: '已达到最大图片数量',
     maximumImagesReached: '已达到最大图片数量',
     dragToReorder: '拖拽以重新排序',
@@ -272,7 +276,10 @@ export default {
     deletePrompt: '删除提示词',
     copyToClipboard: '复制到剪贴板',
     previousPage: '上一页',
-    nextPage: '下一页'
+    nextPage: '下一页',
+    // 分区展开/收起
+    collapseSection: '收起',
+    showAllItems: '查看全部'
   },
 
   // ==================== Toast 消息 ====================
@@ -318,7 +325,16 @@ export default {
     // 创建/编辑
     maxImagesAllowed: '最多允许 {count} 张图片',
     maximumImagesAllowed: '最多允许 {count} 张图片',
+    maximumVideosAllowed: '最多允许 {max} 个视频',
+    videoSaveFailed: '视频保存失败',
     duplicateImagesSkipped: '已跳过 {count} 张重复图片',
+    // 批量操作
+    batchDeleteSuccess: '已成功删除 {count} 个提示词',
+    batchUnfavoriteSuccess: '已成功取消收藏 {count} 个提示词',
+    batchFavoriteSuccess: '已成功收藏 {count} 个提示词',
+    allSelectedAlreadyFavorited: '所选提示词均已收藏',
+    batchMoveToCollectionSuccess: '已成功移动 {count} 个提示词到集合',
+    batchRemoveFromCollectionSuccess: '已成功从集合移除 {count} 个提示词',
     // 表单验证
     titleRequired: '标题不能为空',
     contentRequired: '请至少填写一种语言的提示词内容',
@@ -343,6 +359,8 @@ export default {
     // 删除确认
     deletePromptTitle: '删除提示词',
     deletePromptMessage: '确定要删除此提示词吗？此操作无法撤销。',
+    batchDeleteTitle: '批量删除提示词',
+    batchDeleteMessage: '确定要删除选中的 {count} 个提示词吗？此操作无法撤销。',
     // 隐私确认
     makePublicTitle: '设为公开',
     makePublicMessage: '此提示词将对其他人可见（当分享功能启用时）。确定吗？',
@@ -614,7 +632,8 @@ export default {
     viewAll: '查看全部 ({count})',
     showLess: '收起',
     sortByNewest: '按最新排序',
-    sortByOldest: '按最旧排序'
+    sortByOldest: '按最旧排序',
+    showingOf: '显示 {visible} / {total}'
   },
 
   // ==================== 集合列表页 ====================
@@ -638,7 +657,8 @@ export default {
     promptsCount: '{count} 个提示词',
     noDescription: '暂无描述',
     addPrompts: '添加提示词',
-    editCollection: '编辑集合'
+    editCollection: '编辑集合',
+    noPromptsInCollection: '该集合暂无提示词'
   },
 
   // ==================== 最近使用 ====================
@@ -663,10 +683,11 @@ export default {
     promptTitle: '提示词标题',
     required: '必填',
     titleRequired: '标题不能为空',
+    titleExists: '该标题已存在，请使用其他标题',
     contentRequired: '请至少填写一种语言的提示词内容',
     chineseContent: '中文提示词内容',
     englishContent: '英文提示词内容',
-    referenceMedia: '参考媒体',
+    referenceMedia: '参考图片',
     imagesCount: '{current}/{max} 张图片',
     upload: '上传',
     promptCategory: '提示词分类',
@@ -682,6 +703,41 @@ export default {
     category: '分类',
     dateEdited: '编辑日期',
     option: '操作'
+  },
+
+  // ==================== 分页 ====================
+  pagination: {
+    showing: '显示第 {start} - {end} 条，共 {total} 条'
+  },
+
+  // ==================== 批量操作 ====================
+  batch: {
+    select: '批量选择',
+    selectedCount: '已选择 {count} 个',
+    delete: '删除',
+    cancel: '取消',
+    selectAll: '全选',
+    deselectAll: '取消全选',
+    favorite: '批量收藏',
+    unfavorite: '批量取消收藏',
+    moveToCollection: '移动到集合',
+    removeFromCollection: '从集合移除',
+    confirmDelete: '确定要删除选中的 {count} 个提示词吗？此操作无法撤销。',
+    confirmUnfavorite: '确定要取消收藏选中的 {count} 个提示词吗？',
+    confirmRemoveFromCollection: '确定要将选中的 {count} 个提示词从集合移除吗？',
+    selectCollection: '选择目标集合',
+    noCollection: '无可用集合'
+  },
+
+  // ==================== 排序 ====================
+  sort: {
+    title: '排序',
+    updatedNewest: '最近更新',
+    updatedOldest: '最早更新',
+    createdNewest: '最近创建',
+    createdOldest: '最早创建',
+    titleAZ: '标题 A-Z',
+    titleZA: '标题 Z-A'
   }
 }
 

@@ -13,8 +13,17 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
 import TopBar from '@/components/TopBar.vue'
 import Toast from '@/components/Toast.vue'
 import TitleBar from '@/components/TitleBar.vue'
+import { usePromptStore } from '@/stores/prompts'
+
+const store = usePromptStore()
+
+// 应用启动时恢复用户的视图模式偏好
+onMounted(() => {
+  store.loadViewMode()
+})
 </script>

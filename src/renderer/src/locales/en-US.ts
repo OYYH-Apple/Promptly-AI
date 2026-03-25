@@ -121,6 +121,9 @@ export default {
     referenceMedia: 'Reference Media',
     images: 'Images',
     referenceImage: 'Reference image {number}',
+    referenceVideos: 'Reference Videos',
+    videos: 'Videos',
+    referenceVideo: 'Reference video {number}',
     uploadImage: 'Upload',
     uploadLimit: 'Up to {count} files',
     savePrompt: 'Save Prompt',
@@ -240,6 +243,7 @@ export default {
     createPrompt: 'Create prompt',
     createNewPrompt: 'Create new prompt',
     uploadImages: 'Upload images',
+    uploadVideo: 'Upload videos',
     maxImagesReached: 'Maximum images reached',
     maximumImagesReached: 'Maximum images reached',
     dragToReorder: 'Drag to reorder',
@@ -272,7 +276,10 @@ export default {
     deletePrompt: 'Delete prompt',
     copyToClipboard: 'Copy to clipboard',
     previousPage: 'Previous page',
-    nextPage: 'Next page'
+    nextPage: 'Next page',
+    // Section expand/collapse
+    collapseSection: 'Collapse',
+    showAllItems: 'Show all'
   },
 
   // ==================== Toast Messages ====================
@@ -318,7 +325,16 @@ export default {
     // Create/Edit
     maxImagesAllowed: 'Maximum {count} images allowed',
     maximumImagesAllowed: 'Maximum {count} images allowed',
+    maximumVideosAllowed: 'Maximum {max} videos allowed',
+    videoSaveFailed: 'Failed to save video',
     duplicateImagesSkipped: '{count} duplicate image(s) skipped',
+    // Batch Operations
+    batchDeleteSuccess: 'Successfully deleted {count} prompts',
+    batchUnfavoriteSuccess: 'Successfully unfavorited {count} prompts',
+    batchFavoriteSuccess: 'Successfully favorited {count} prompts',
+    allSelectedAlreadyFavorited: 'All selected prompts are already favorited',
+    batchMoveToCollectionSuccess: 'Successfully moved {count} prompts to collection',
+    batchRemoveFromCollectionSuccess: 'Successfully removed {count} prompts from collection',
     // Form Validation
     titleRequired: 'Title is required',
     contentRequired: 'Please fill in at least one prompt content',
@@ -343,6 +359,8 @@ export default {
     // Delete confirmation
     deletePromptTitle: 'Delete Prompt',
     deletePromptMessage: 'Are you sure you want to delete this prompt? This action cannot be undone.',
+    batchDeleteTitle: 'Batch Delete Prompts',
+    batchDeleteMessage: 'Are you sure you want to delete {count} selected prompts? This action cannot be undone.',
     // Privacy confirmation
     makePublicTitle: 'Make Public',
     makePublicMessage: 'This prompt will be visible to others when sharing features are enabled. Are you sure?',
@@ -614,7 +632,8 @@ export default {
     viewAll: 'View all ({count})',
     showLess: 'Show less',
     sortByNewest: 'Sort by newest',
-    sortByOldest: 'Sort by oldest'
+    sortByOldest: 'Sort by oldest',
+    showingOf: 'Showing {visible} / {total}'
   },
 
   // ==================== Collections List ====================
@@ -638,7 +657,8 @@ export default {
     promptsCount: '{count} PROMPTS',
     noDescription: 'No description available',
     addPrompts: 'Add Prompts',
-    editCollection: 'Edit Collection'
+    editCollection: 'Edit Collection',
+    noPromptsInCollection: 'No prompts in this collection'
   },
 
   // ==================== Recent ====================
@@ -663,6 +683,7 @@ export default {
     promptTitle: 'Prompt Title',
     required: 'Required',
     titleRequired: 'Title is required',
+    titleExists: 'This title already exists, please use a different title',
     contentRequired: 'Please enter content in at least one language',
     chineseContent: 'Chinese Prompt Content',
     englishContent: 'English Prompt Content',
@@ -682,6 +703,41 @@ export default {
     category: 'Category',
     dateEdited: 'Date Edited',
     option: 'Option'
+  },
+
+  // ==================== Pagination ====================
+  pagination: {
+    showing: 'Showing {start} - {end} of {total}'
+  },
+
+  // ==================== Batch Operations ====================
+  batch: {
+    select: 'Batch Select',
+    selectedCount: '{count} selected',
+    delete: 'Delete',
+    cancel: 'Cancel',
+    selectAll: 'Select All',
+    deselectAll: 'Deselect All',
+    favorite: 'Batch Favorite',
+    unfavorite: 'Batch Unfavorite',
+    moveToCollection: 'Move to Collection',
+    removeFromCollection: 'Remove from Collection',
+    confirmDelete: 'Are you sure you want to delete {count} selected prompts? This action cannot be undone.',
+    confirmUnfavorite: 'Are you sure you want to unfavorite {count} selected prompts?',
+    confirmRemoveFromCollection: 'Are you sure you want to remove {count} selected prompts from this collection?',
+    selectCollection: 'Select Target Collection',
+    noCollection: 'No available collection'
+  },
+
+  // ==================== Sort ====================
+  sort: {
+    title: 'Sort',
+    updatedNewest: 'Recently Updated',
+    updatedOldest: 'Oldest Updated',
+    createdNewest: 'Recently Created',
+    createdOldest: 'Oldest Created',
+    titleAZ: 'Title A-Z',
+    titleZA: 'Title Z-A'
   }
 }
 

@@ -17,6 +17,7 @@ interface Prompt {
   is_favorite?: boolean
   is_private?: boolean
   reference_images?: string | string[]
+  reference_videos?: string | string[]
   created_at?: string
   updated_at?: string
 }
@@ -59,7 +60,7 @@ interface Window {
     closeWindow: () => Promise<void>
     isMaximized: () => Promise<boolean>
 
-    getPrompts: (params?: { category?: string; search?: string; favorites?: boolean; collectionId?: number; limit?: number; offset?: number }) => Promise<Prompt[]>
+    getPrompts: (params?: { category?: string; search?: string; favorites?: boolean; collectionId?: number; limit?: number; offset?: number; sortBy?: string; sortOrder?: string }) => Promise<Prompt[]>
     getPrompt: (id: number) => Promise<Prompt | null>
     createPrompt: (prompt: Partial<Prompt>) => Promise<number>
     updatePrompt: (id: number, prompt: Partial<Prompt>) => Promise<void>
@@ -74,6 +75,8 @@ interface Window {
     getStoragePath: () => Promise<string>
     changeStoragePath: () => Promise<{ oldPath: string; newPath: string } | null>
     purgeAllData: () => Promise<boolean>
+    getSetting: (key: string) => Promise<string | null>
+    setSetting: (key: string, value: string) => Promise<boolean>
     exportData: () => Promise<string | null>
     importData: () => Promise<{ prompts?: Prompt[]; collections?: Collection[] } | null>
     getAppVersion: () => Promise<string>
@@ -96,6 +99,8 @@ interface Window {
     onInstallFailed: (callback: (data: { error: string }) => void) => void
     onInstallFailedRecovery: (callback: (data: { version: string; releaseNotes: string | null; lastAttemptTime: string | null }) => void) => void
     removeUpdateListeners: () => void
+    saveVideo: (data: { fileName: string; filePath: string }) => Promise<string>
+    deleteVideo: (filePath: string) => Promise<boolean>
     sendFeedbackEmail: (feedback: { type: string; content: string; contact: string }) => Promise<{ success: boolean; messageId?: string; error?: string }>
   }
 }

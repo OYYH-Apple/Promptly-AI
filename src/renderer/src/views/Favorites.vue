@@ -6,18 +6,79 @@
           <h2 class="text-3xl font-bold tracking-tight text-on-surface mb-2">{{ t('favorites.title') }}</h2>
           <p class="text-on-surface-variant max-w-md">{{ t('favorites.subtitle') }}</p>
         </div>
-        <div class="flex gap-2 p-1 bg-surface-container-low rounded-xl">
-          <Tooltip :text="t('tooltip.gridView')" placement="bottom">
-            <button @click="viewMode = 'grid'"
-              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']">{{
-                t('view.grid') }}</button>
-          </Tooltip>
-          <Tooltip :text="t('tooltip.listView')" placement="bottom">
-            <button @click="viewMode = 'list'"
-              :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']">{{
-                t('view.list') }}</button>
-          </Tooltip>
+        <div class="flex items-center gap-3">
+          <!-- 批量选择入口按钮 - 与排序按钮样式一致 -->
+          <button v-if="!isBatchMode" @click="enterBatchMode"
+            class="px-4 py-1.5 bg-surface-container-low text-on-surface-variant rounded-lg text-sm font-medium hover:bg-surface-container-high transition-colors flex items-center gap-1">
+            <span class="material-symbols-outlined text-base">check_box</span>
+            {{ t('batch.select') }}
+          </button>
+
+          <!-- 排序下拉菜单 -->
+          <div class="relative" ref="sortDropdownRef">
+            <button @click="showSortMenu = !showSortMenu"
+              class="px-4 py-1.5 bg-surface-container-low text-on-surface-variant rounded-lg text-sm font-medium hover:bg-surface-container-high transition-colors flex items-center gap-1">
+              <span class="material-symbols-outlined text-base">sort</span>
+              <span>{{ currentSortLabel }}</span>
+              <span class="material-symbols-outlined text-sm">{{ showSortMenu ? 'expand_less' : 'expand_more' }}</span>
+            </button>
+            <div v-if="showSortMenu"
+              class="absolute right-0 mt-2 w-44 bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant z-50 py-1 overflow-hidden">
+              <button v-for="option in sortOptions" :key="option.value" @click="selectSort(option)" :class="['w-full px-4 py-2 text-sm text-left transition-colors flex items-center gap-2',
+                currentSortValue === option.value
+                  ? 'bg-primary/10 text-primary font-medium'
+                  : 'text-on-surface hover:bg-surface-container-high']">
+                <span class="material-symbols-outlined text-sm" v-if="currentSortValue === option.value">check</span>
+                <span v-else class="w-5"></span>
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
+
+          <div class="flex gap-2 p-1 bg-surface-container-low rounded-xl">
+            <Tooltip :text="t('tooltip.gridView')" placement="bottom">
+              <button @click="store.setViewMode('grid')"
+                :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', store.viewMode === 'grid' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']">{{
+                  t('view.grid') }}</button>
+            </Tooltip>
+            <Tooltip :text="t('tooltip.listView')" placement="bottom">
+              <button @click="store.setViewMode('list')"
+                :class="['px-4 py-1.5 font-medium rounded-lg text-sm transition-colors', store.viewMode === 'list' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high']">{{
+                  t('view.list') }}</button>
+            </Tooltip>
+          </div>
         </div>
+      </div>
+
+      <!-- 批量操作工具栏 - 放到下一行 -->
+      <div v-if="isBatchMode" class="flex items-center gap-3 flex-wrap">
+        <!-- 全选/取消全选按钮 -->
+        <button @click="toggleSelectAll"
+          class="px-4 py-1.5 bg-surface-container-low text-on-surface-variant rounded-lg text-sm font-medium hover:bg-surface-container-high transition-colors flex items-center gap-1">
+          <span class="material-symbols-outlined text-base">
+            {{ isAllSelected ? 'deselect' : 'select_all' }}
+          </span>
+          {{ isAllSelected ? t('batch.deselectAll') : t('batch.selectAll') }}
+        </button>
+        <span class="text-sm text-on-surface-variant">
+          {{ t('batch.selectedCount', { count: selectedPrompts.length }) }}
+        </span>
+        <!-- 批量取消收藏 -->
+        <button @click="handleBatchUnfavorite" :disabled="selectedPrompts.length === 0"
+          class="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined text-sm">star_border</span>
+          {{ t('batch.unfavorite') }}
+        </button>
+        <!-- 批量删除 -->
+        <button @click="handleBatchDelete" :disabled="selectedPrompts.length === 0"
+          class="px-4 py-1.5 bg-error text-white rounded-lg text-sm font-medium hover:bg-error/90 transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined text-sm">delete</span>
+          {{ t('batch.delete') }}
+        </button>
+        <button @click="exitBatchMode"
+          class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant rounded-lg text-sm font-medium hover:bg-surface-container transition-colors">
+          {{ t('batch.cancel') }}
+        </button>
       </div>
 
       <div v-if="store.loading" class="flex items-center justify-center py-20">
@@ -31,57 +92,67 @@
 
       <template v-else>
         <!-- Grid View -->
-        <template v-if="viewMode === 'grid'">
+        <template v-if="store.viewMode === 'grid'">
           <PromptSection :title="t('library.imagePrompts')" icon="image" icon-color="#005bc1" :items="imageFavorites"
-            :show-add-button="false">
+            :show-add-button="false" :expanded="expandAllSections">
             <template #default="{ items }">
               <PromptCard v-for="(prompt, idx) in items" :key="prompt.id" :prompt="prompt" :rotation-index="idx"
-                @click="router.push(`/prompt/${prompt.id}`)"
-                @toggle-favorite="prompt.id && store.toggleFavorite(prompt.id)" @toggle-private="handleTogglePrivate"
-                @copy="copyPrompt" @open-image="openImageViewer" />
+                :is-selected="isPromptSelected(prompt.id)" :is-batch-mode="isBatchMode"
+                @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
+                @toggle-favorite="!isBatchMode && prompt.id && store.toggleFavorite(prompt.id)"
+                @toggle-private="!isBatchMode && handleTogglePrivate" @copy="!isBatchMode && copyPrompt"
+                @open-image="openImageViewer" @edit="!isBatchMode && handleEdit"
+                @delete="!isBatchMode && handleDelete" />
             </template>
           </PromptSection>
 
           <PromptSection :title="t('library.videoPrompts')" icon="movie" icon-color="#5f5c78" :items="videoFavorites"
-            :show-add-button="false">
+            :show-add-button="false" :expanded="expandAllSections">
             <template #default="{ items }">
               <PromptCard v-for="(prompt, idx) in items" :key="prompt.id" :prompt="prompt" :rotation-index="idx"
-                @click="router.push(`/prompt/${prompt.id}`)"
-                @toggle-favorite="prompt.id && store.toggleFavorite(prompt.id)" @toggle-private="handleTogglePrivate"
-                @copy="copyPrompt" @open-image="openImageViewer" />
+                :is-selected="isPromptSelected(prompt.id)" :is-batch-mode="isBatchMode"
+                @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
+                @toggle-favorite="!isBatchMode && prompt.id && store.toggleFavorite(prompt.id)"
+                @toggle-private="!isBatchMode && handleTogglePrivate" @copy="!isBatchMode && copyPrompt"
+                @open-image="openImageViewer" @edit="!isBatchMode && handleEdit"
+                @delete="!isBatchMode && handleDelete" />
             </template>
           </PromptSection>
         </template>
 
         <!-- List View -->
-        <PromptList v-else :prompts="favorites" @click="(prompt: Prompt) => router.push(`/prompt/${prompt.id}`)"
-          @open-image="openImageViewer" @toggle-private="handleTogglePrivate">
+        <PromptList v-else :prompts="favorites" :is-batch-mode="isBatchMode" :selected-ids="selectedPrompts"
+          :expanded="expandAllSections" @click="(prompt: Prompt) => !isBatchMode && router.push(`/prompt/${prompt.id}`)"
+          @open-image="openImageViewer" @toggle-private="!isBatchMode && handleTogglePrivate"
+          @select="togglePromptSelection">
           <template #actions="{ prompt }">
-            <Tooltip :text="t('tooltip.edit')" placement="top">
-              <button @click.stop="router.push(`/prompt/${prompt.id}/edit`)"
-                class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                <span class="material-symbols-outlined text-on-surface-variant">edit</span>
-              </button>
-            </Tooltip>
-            <Tooltip :text="t('tooltip.copy')" placement="top">
-              <button @click.stop="copyPrompt(prompt)"
-                class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
-              </button>
-            </Tooltip>
-            <Tooltip :text="t('tooltip.removeFromFavorites')" placement="top">
-              <button @click.stop="store.toggleFavorite(prompt.id!)"
-                class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                <span class="material-symbols-outlined text-primary"
-                  :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">grade</span>
-              </button>
-            </Tooltip>
-            <Tooltip :text="t('tooltip.delete')" placement="top">
-              <button @click.stop="handleDelete(prompt)"
-                class="p-2 rounded-full hover:bg-surface-container transition-colors">
-                <span class="material-symbols-outlined" style="color: red;">delete</span>
-              </button>
-            </Tooltip>
+            <template v-if="!isBatchMode">
+              <Tooltip :text="t('tooltip.edit')" placement="top">
+                <button @click.stop="router.push(`/edit/${prompt.id}`)"
+                  class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                  <span class="material-symbols-outlined text-on-surface-variant">edit</span>
+                </button>
+              </Tooltip>
+              <Tooltip :text="t('tooltip.copy')" placement="top">
+                <button @click.stop="copyPrompt(prompt)"
+                  class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                  <span class="material-symbols-outlined text-on-surface-variant">content_copy</span>
+                </button>
+              </Tooltip>
+              <Tooltip :text="t('tooltip.removeFromFavorites')" placement="top">
+                <button @click.stop="store.toggleFavorite(prompt.id!)"
+                  class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                  <span class="material-symbols-outlined text-primary"
+                    :style="{ fontVariationSettings: prompt.is_favorite ? `'FILL' 1` : `'FILL' 0` }">grade</span>
+                </button>
+              </Tooltip>
+              <Tooltip :text="t('tooltip.delete')" placement="top">
+                <button @click.stop="handleDelete(prompt)"
+                  class="p-2 rounded-full hover:bg-surface-container transition-colors">
+                  <span class="material-symbols-outlined" style="color: red;">delete</span>
+                </button>
+              </Tooltip>
+            </template>
           </template>
         </PromptList>
 
@@ -101,11 +172,19 @@
     <ConfirmDialog v-model:visible="showDeleteDialog" type="danger" :title="t('dialog.deletePromptTitle')"
       :message="t('dialog.deletePromptMessage')" :confirm-text="t('dialog.delete')" :cancel-text="t('dialog.cancel')"
       @confirm="confirmDelete" />
+    <!-- 批量删除确认对话框 -->
+    <ConfirmDialog v-model:visible="showBatchDeleteDialog" type="danger" :title="t('dialog.batchDeleteTitle')"
+      :message="t('dialog.batchDeleteMessage', { count: selectedPrompts.length })" :confirm-text="t('dialog.delete')"
+      :cancel-text="t('dialog.cancel')" @confirm="confirmBatchDelete" />
+    <!-- 批量取消收藏确认对话框 -->
+    <ConfirmDialog v-model:visible="showBatchUnfavoriteDialog" type="warning" :title="t('batch.unfavorite')"
+      :message="t('batch.confirmUnfavorite', { count: selectedPrompts.length })" :confirm-text="t('dialog.confirm')"
+      :cancel-text="t('dialog.cancel')" @confirm="confirmBatchUnfavorite" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePromptStore, type Prompt } from '@/stores/prompts'
@@ -120,7 +199,6 @@ const router = useRouter()
 const store = usePromptStore()
 const { t } = useI18n()
 
-const viewMode = ref<'grid' | 'list'>('grid')
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)
@@ -129,6 +207,144 @@ const privacyPrompt = ref<Prompt | null>(null)
 const showDeleteDialog = ref(false)
 const promptToDelete = ref<Prompt | null>(null)
 
+// ==================== 排序功能 ====================
+const showSortMenu = ref(false)
+const sortDropdownRef = ref<HTMLElement | null>(null)
+
+// 排序选项定义
+interface SortOption {
+  value: string
+  sortBy: string
+  sortOrder: string
+  label: string
+}
+
+const sortOptions = computed<SortOption[]>(() => [
+  { value: 'updated_at_desc', sortBy: 'updated_at', sortOrder: 'DESC', label: t('sort.updatedNewest') },
+  { value: 'updated_at_asc', sortBy: 'updated_at', sortOrder: 'ASC', label: t('sort.updatedOldest') },
+  { value: 'created_at_desc', sortBy: 'created_at', sortOrder: 'DESC', label: t('sort.createdNewest') },
+  { value: 'created_at_asc', sortBy: 'created_at', sortOrder: 'ASC', label: t('sort.createdOldest') },
+  { value: 'title_asc', sortBy: 'title', sortOrder: 'ASC', label: t('sort.titleAZ') },
+  { value: 'title_desc', sortBy: 'title', sortOrder: 'DESC', label: t('sort.titleZA') }
+])
+
+// 当前排序值（用于匹配选中状态）
+const currentSortValue = computed(() => `${store.sortBy}_${store.sortOrder.toLowerCase()}`)
+
+// 当前排序显示标签
+const currentSortLabel = computed(() => {
+  const option = sortOptions.value.find(o => o.value === currentSortValue.value)
+  return option?.label || t('sort.updatedNewest')
+})
+
+// 选择排序选项
+function selectSort(option: SortOption) {
+  store.setSortOption(option.sortBy, option.sortOrder)
+  showSortMenu.value = false
+}
+
+// 点击外部关闭下拉菜单
+function handleClickOutside(event: MouseEvent) {
+  if (sortDropdownRef.value && !sortDropdownRef.value.contains(event.target as Node)) {
+    showSortMenu.value = false
+  }
+}
+
+// ==================== 批量操作功能 ====================
+const isBatchMode = ref(false)
+const selectedPrompts = ref<number[]>([])
+const showBatchDeleteDialog = ref(false)
+const showBatchUnfavoriteDialog = ref(false)
+const expandAllSections = ref(false)
+
+// 进入批量模式
+function enterBatchMode() {
+  isBatchMode.value = true
+  selectedPrompts.value = []
+  // 进入批量模式时展开所有分区，方便选择
+  expandAllSections.value = true
+}
+
+// 退出批量模式
+function exitBatchMode() {
+  isBatchMode.value = false
+  selectedPrompts.value = []
+  expandAllSections.value = false
+}
+
+// 切换单个提示词的选中状态
+function togglePromptSelection(promptId: number | undefined) {
+  if (!promptId) return
+  const index = selectedPrompts.value.indexOf(promptId)
+  if (index === -1) {
+    selectedPrompts.value.push(promptId)
+  } else {
+    selectedPrompts.value.splice(index, 1)
+  }
+}
+
+// 判断提示词是否被选中
+function isPromptSelected(promptId: number | undefined): boolean {
+  if (!promptId) return false
+  return selectedPrompts.value.includes(promptId)
+}
+
+// 是否全选
+const isAllSelected = computed(() => {
+  const allFavoriteIds = favorites.value.map(p => p.id).filter((id): id is number => id !== undefined)
+  return allFavoriteIds.length > 0 && selectedPrompts.value.length === allFavoriteIds.length
+})
+
+// 全选/取消全选
+function toggleSelectAll() {
+  const allFavoriteIds = favorites.value.map(p => p.id).filter((id): id is number => id !== undefined)
+  if (isAllSelected.value) {
+    selectedPrompts.value = []
+    expandAllSections.value = false
+  } else {
+    selectedPrompts.value = [...allFavoriteIds]
+    // 网格模式下全选时展开所有卡片
+    if (store.viewMode === 'grid') {
+      expandAllSections.value = true
+    }
+  }
+}
+
+// 批量删除处理
+function handleBatchDelete() {
+  if (selectedPrompts.value.length === 0) return
+  showBatchDeleteDialog.value = true
+}
+
+// 确认批量删除
+async function confirmBatchDelete() {
+  const count = selectedPrompts.value.length
+  for (const id of selectedPrompts.value) {
+    await store.deletePrompt(id)
+  }
+  showToast(t('toast.batchDeleteSuccess', { count }), 'success')
+  exitBatchMode()
+  showBatchDeleteDialog.value = false
+}
+
+// 批量取消收藏处理
+function handleBatchUnfavorite() {
+  if (selectedPrompts.value.length === 0) return
+  showBatchUnfavoriteDialog.value = true
+}
+
+// 确认批量取消收藏
+async function confirmBatchUnfavorite() {
+  const count = selectedPrompts.value.length
+  for (const promptId of selectedPrompts.value) {
+    await store.toggleFavorite(promptId)
+  }
+  showToast(t('toast.batchUnfavoriteSuccess', { count }), 'success')
+  exitBatchMode()
+  showBatchUnfavoriteDialog.value = false
+}
+
+// ==================== 数据计算 ====================
 const favorites = computed(() => store.prompts.filter(p => p.is_favorite))
 
 const imageFavorites = computed(() => {
@@ -139,7 +355,8 @@ const videoFavorites = computed(() => {
   return favorites.value.filter(p => p.category === 'Video Prompt')
 })
 
-async function copyPrompt(prompt: any) {
+// ==================== 通用操作 ====================
+async function copyPrompt(prompt: Prompt) {
   const content = prompt.content_zh || prompt.content_en
   if (content) {
     await navigator.clipboard.writeText(content)
@@ -174,9 +391,19 @@ async function confirmTogglePrivate() {
   }
 }
 
-function handleDelete(prompt: Prompt) {
-  promptToDelete.value = prompt
-  showDeleteDialog.value = true
+function handleEdit(promptId: number | undefined) {
+  if (promptId) router.push(`/edit/${promptId}`)
+}
+
+function handleDelete(prompt: Prompt | number | undefined) {
+  if (typeof prompt === 'number') {
+    promptToDelete.value = favorites.value.find(p => p.id === prompt) || null
+  } else if (prompt) {
+    promptToDelete.value = prompt
+  }
+  if (promptToDelete.value) {
+    showDeleteDialog.value = true
+  }
 }
 
 async function confirmDelete() {
@@ -189,5 +416,11 @@ async function confirmDelete() {
 
 onMounted(() => {
   store.fetchPrompts({ favorites: true })
+  // 监听点击事件用于关闭排序下拉菜单
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>

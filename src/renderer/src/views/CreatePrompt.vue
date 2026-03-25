@@ -120,6 +120,52 @@
               <input ref="fileInput" type="file" accept="image/*" multiple class="hidden" @change="handleFileUpload" />
             </div>
           </div>
+
+          <!-- 视频上传区域 - 仅在视频提示词分类时显示 -->
+          <div v-if="form.category === 'Video Prompt'"
+            class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/10">
+            <div class="flex items-center justify-between mb-6">
+              <label :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'"
+                class="font-bold uppercase tracking-wider text-outline">{{ t('prompt.referenceVideos')
+                }}</label>
+              <span :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'" class="text-outline-variant">{{
+                form.reference_videos.length }}/{{ MAX_VIDEOS }} {{
+                  t('prompt.videos') }}</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4 min-h-[155px]">
+              <Tooltip
+                :text="form.reference_videos.length >= MAX_VIDEOS ? t('toast.maximumVideosAllowed', { max: MAX_VIDEOS }) : t('tooltip.uploadVideo')"
+                placement="top">
+                <div @click="triggerVideoInput" :class="[
+                  'aspect-video rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all group',
+                  form.reference_videos.length >= MAX_VIDEOS
+                    ? 'border-outline-variant/20 opacity-50 cursor-not-allowed'
+                    : 'border-outline-variant/30 hover:border-primary/40 hover:bg-primary/5 cursor-pointer'
+                ]">
+                  <span
+                    class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">videocam</span>
+                  <span :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'"
+                    class="font-bold text-outline group-hover:text-primary uppercase tracking-widest">{{
+                      t('common.upload') }}</span>
+                </div>
+              </Tooltip>
+              <div v-for="(video, idx) in form.reference_videos" :key="idx"
+                class="aspect-video rounded-xl overflow-hidden relative group bg-black">
+                <video :src="'file:///' + video.replace(/\\\\/g, '/')" class="w-full h-full object-contain" controls />
+                <button @click="removeVideo(idx)"
+                  class="absolute top-2 right-2 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500">
+                  <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+                <!-- 序号 -->
+                <div
+                  class="absolute top-2 left-2 w-6 h-6 flex items-center justify-center rounded-full bg-black/40 text-white text-xs font-medium">
+                  {{ idx + 1 }}
+                </div>
+              </div>
+            </div>
+            <input ref="videoFileInput" type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
+              multiple class="hidden" @change="handleVideoUpload" />
+          </div>
         </div>
 
         <div class="col-span-12 lg:col-span-4 space-y-6">
@@ -234,6 +280,8 @@ const isTagInputFocused = ref(false)
 const errors = ref<{ title?: string; content?: string }>({})
 
 const MAX_IMAGES = 15
+const MAX_VIDEOS = 5
+const videoFileInput = ref<HTMLInputElement | null>(null)
 const categories = ['Image Generation', 'Video Prompt']
 const draggedIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
@@ -253,7 +301,8 @@ const form = ref({
   collection_id: null as number | null,
   is_favorite: false,
   is_private: true,
-  reference_images: [] as string[]
+  reference_images: [] as string[],
+  reference_videos: [] as string[]
 })
 
 function getCategoryIcon(category: string) {
@@ -346,6 +395,50 @@ function removeImage(index: number) {
   form.value.reference_images.splice(index, 1)
 }
 
+// ==================== 视频上传相关 ====================
+
+function triggerVideoInput() {
+  if (form.value.reference_videos.length >= MAX_VIDEOS) {
+    showToast(t('toast.maximumVideosAllowed', { max: MAX_VIDEOS }), 'warning')
+    return
+  }
+  videoFileInput.value?.click()
+}
+
+async function handleVideoUpload(event: Event) {
+  const target = event.target as HTMLInputElement
+  const files = target.files
+  if (!files) return
+
+  const remaining = MAX_VIDEOS - form.value.reference_videos.length
+  const filesToProcess = Array.from(files).slice(0, remaining)
+
+  for (const file of filesToProcess) {
+    try {
+      // Electron 环境下 File 对象包含 path 属性，直接传递路径让主进程复制文件
+      const electronFile = file as File & { path: string }
+      const filePath = await window.api.saveVideo({
+        fileName: file.name,
+        filePath: electronFile.path
+      })
+      form.value.reference_videos.push(filePath)
+    } catch (error) {
+      console.error('视频保存失败:', error)
+      showToast(t('toast.videoSaveFailed'), 'error')
+    }
+  }
+
+  target.value = ''
+}
+
+async function removeVideo(index: number) {
+  const filePath = form.value.reference_videos[index]
+  if (filePath) {
+    await window.api.deleteVideo(filePath)
+  }
+  form.value.reference_videos.splice(index, 1)
+}
+
 function handleDragStart(event: DragEvent, index: number) {
   draggedIndex.value = index
   if (event.dataTransfer) {
@@ -391,6 +484,15 @@ async function savePrompt() {
 
   if (!form.value.title.trim()) {
     errors.value.title = t('form.titleRequired')
+  } else {
+    // 检查标题唯一性（排除当前编辑的提示词）
+    const existingPrompt = store.prompts.find(p =>
+      p.title.trim().toLowerCase() === form.value.title.trim().toLowerCase() &&
+      p.id !== Number(route.params.id)
+    )
+    if (existingPrompt) {
+      errors.value.title = t('form.titleExists')
+    }
   }
 
   if (!form.value.content_zh.trim() && !form.value.content_en.trim()) {
@@ -430,7 +532,8 @@ onMounted(async () => {
         collection_id: prompt.collection_id ?? null,
         is_favorite: prompt.is_favorite,
         is_private: prompt.is_private ?? true,
-        reference_images: [...prompt.reference_images]
+        reference_images: [...prompt.reference_images],
+        reference_videos: [...(prompt.reference_videos || [])]
       }
     }
   }

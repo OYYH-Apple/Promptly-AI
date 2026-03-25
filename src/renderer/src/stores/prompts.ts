@@ -12,6 +12,7 @@ export interface Prompt {
   is_favorite: boolean
   is_private: boolean
   reference_images: string[]
+  reference_videos: string[]
   created_at?: string
   updated_at?: string
 }
@@ -34,6 +35,31 @@ export const usePromptStore = defineStore('prompts', () => {
   const searchQuery = ref('')
   const selectedCategory = ref('')
   const viewMode = ref<'grid' | 'list'>('grid')
+
+  // ==================== 排序状态 ====================
+  const sortBy = ref<string>('updated_at')
+  const sortOrder = ref<string>('DESC')
+
+  // 从 settings 恢复 viewMode 偏好
+  async function loadViewMode() {
+    const savedMode = await window.api.getSetting('viewMode')
+    if (savedMode === 'grid' || savedMode === 'list') {
+      viewMode.value = savedMode
+    }
+  }
+
+  // 设置并持久化视图模式
+  async function setViewMode(mode: 'grid' | 'list') {
+    viewMode.value = mode
+    await window.api.setSetting('viewMode', mode)
+  }
+
+  // 设置排序方式并重新获取数据
+  function setSortOption(newSortBy: string, newSortOrder: string) {
+    sortBy.value = newSortBy
+    sortOrder.value = newSortOrder
+    fetchPrompts()
+  }
 
   const categories = computed(() => {
     const cats = new Set(prompts.value.map(p => p.category))
@@ -69,12 +95,15 @@ async function fetchPrompts(params?: { favorites?: boolean; collectionId?: numbe
   try {
     const data = await window.api.getPrompts({
       ...params,
-      search: searchQuery.value || undefined
+      search: searchQuery.value || undefined,
+      sortBy: sortBy.value,
+      sortOrder: sortOrder.value
     })
     prompts.value = data.map((p: any) => ({
       ...p,
       tags: JSON.parse(p.tags || '[]'),
       reference_images: JSON.parse(p.reference_images || '[]'),
+      reference_videos: JSON.parse(p.reference_videos || '[]'),
       is_favorite: Boolean(p.is_favorite),
       is_private: Boolean(p.is_private),
       content_zh: p.content_zh || '',
@@ -104,6 +133,7 @@ async function fetchPrompt(id: number) {
       content_en: data.content_en || '',
       tags: typeof data.tags === 'string' ? JSON.parse(data.tags || '[]') : (data.tags || []),
       reference_images: typeof data.reference_images === 'string' ? JSON.parse(data.reference_images || '[]') : (data.reference_images || []),
+      reference_videos: typeof data.reference_videos === 'string' ? JSON.parse(data.reference_videos || '[]') : (data.reference_videos || []),
       is_favorite: Boolean(data.is_favorite),
       is_private: Boolean(data.is_private)
     }
@@ -124,7 +154,28 @@ async function updatePrompt(id: number, prompt: Partial<Prompt>) {
   await fetchPrompts()
 }
 
+/**
+ * 批量更新多个提示词
+ * 用于批量移出集合等操作，避免 IPC 序列化问题
+ */
+async function batchUpdatePrompts(ids: number[], updates: Partial<Prompt>) {
+  // 序列化更新数据，避免 Vue 响应式代理导致的 IPC 序列化问题
+  const serializableUpdates = JSON.parse(JSON.stringify(updates))
+  for (const id of ids) {
+    await window.api.updatePrompt(id, serializableUpdates)
+  }
+  await fetchPrompts()
+}
+
   async function deletePrompt(id: number) {
+    // 先获取提示词信息，清理关联的视频文件
+    const targetPrompt = prompts.value.find(p => p.id === id)
+    if (targetPrompt?.reference_videos?.length) {
+      for (const videoPath of targetPrompt.reference_videos) {
+        await window.api.deleteVideo(videoPath)
+      }
+    }
+
     await window.api.deletePrompt(id)
     await fetchPrompts()
   }
@@ -172,6 +223,8 @@ async function deleteCollection(id: number) {
     searchQuery,
     selectedCategory,
     viewMode,
+    sortBy,
+    sortOrder,
     categories,
     allTags,
     filteredPrompts,
@@ -180,12 +233,16 @@ async function deleteCollection(id: number) {
     fetchPrompt,
     createPrompt,
     updatePrompt,
+    batchUpdatePrompts,
     deletePrompt,
     toggleFavorite,
     createCollection,
     updateCollection,
     deleteCollection,
     exportData,
-    importData
+    importData,
+    loadViewMode,
+    setViewMode,
+    setSortOption
   }
 })
