@@ -120,7 +120,7 @@
 
 <body class="bg-slate-50">
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-b border-slate-200/50 z-50">
+    <nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-b border-slate-200/50 z-30">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
             <div class="flex items-center gap-2 sm:gap-3">
                 <img src="https://raw.githubusercontent.com/OYYH-Apple/Promptly-AI/master/src/renderer/src/public/logo.png"
@@ -149,13 +149,15 @@
                 <span class="material-symbols-outlined">menu</span>
             </button>
         </div>
+        <!-- Mobile Menu Overlay -->
+        <div id="mobileMenuOverlay" class="mobile-menu-overlay fixed inset-0 bg-black/50 backdrop-blur-sm md:hidden opacity-0 pointer-events-none transition-opacity duration-300 z-40"></div>
         <!-- Mobile Menu Panel -->
-        <div id="mobileMenu" class="mobile-menu fixed top-0 right-0 w-64 h-full bg-white shadow-2xl md:hidden">
-            <div class="p-6">
+        <div id="mobileMenu" class="mobile-menu fixed top-0 right-0 w-64 h-full bg-white shadow-2xl md:hidden z-50">
+            <div class="p-6" style="background-color: #ffffff;">
                 <button id="closeMenuBtn" class="absolute top-4 right-4 p-2 text-slate-600 hover:text-slate-900">
                     <span class="material-symbols-outlined">close</span>
                 </button>
-                <div class="mt-12 flex flex-col gap-4">
+                <div class="mt-12 flex flex-col gap-4"  style="background-color: #ffffff;">
                     <a href="#features"
                         class="text-lg text-slate-700 hover:text-slate-900 transition-colors py-2 border-b border-slate-100">功能</a>
                     <a href="#screenshots"
@@ -519,20 +521,34 @@
         const menuBtn = document.getElementById('menuBtn');
         const closeMenuBtn = document.getElementById('closeMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
 
-        menuBtn.addEventListener('click', () => {
+        // 打开移动端菜单
+        function openMobileMenu() {
             mobileMenu.classList.add('open');
-        });
+            mobileMenuOverlay.classList.remove('opacity-0', 'pointer-events-none');
+            mobileMenuOverlay.classList.add('opacity-100', 'pointer-events-auto');
+            document.body.style.overflow = 'hidden';
+        }
 
-        closeMenuBtn.addEventListener('click', () => {
+        // 关闭移动端菜单
+        function closeMobileMenu() {
             mobileMenu.classList.remove('open');
-        });
+            mobileMenuOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+            mobileMenuOverlay.classList.add('opacity-0', 'pointer-events-none');
+            document.body.style.overflow = '';
+        }
+
+        menuBtn.addEventListener('click', openMobileMenu);
+
+        closeMenuBtn.addEventListener('click', closeMobileMenu);
+
+        // 点击遮罩层关闭菜单
+        mobileMenuOverlay.addEventListener('click', closeMobileMenu);
 
         // Close mobile menu when clicking a link
         mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.remove('open');
-            });
+            link.addEventListener('click', closeMobileMenu);
         });
 
 
