@@ -28,7 +28,8 @@
           <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/10">
             <div class="space-y-6">
               <div class="space-y-2">
-                <label class="text-xs font-bold uppercase tracking-wider text-outline px-1">{{ t('prompt.titleLabel') }}
+                <label class="font-bold uppercase tracking-wider text-outline px-1"
+                  :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{ t('prompt.titleLabel') }}
                   <span class="text-error">*</span></label>
                 <input v-model="form.title"
                   :class="['w-full text-xl font-medium px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 transition-all placeholder:text-outline-variant/60', errors.title ? 'ring-2 ring-error/50' : 'focus:ring-primary/20']"
@@ -36,7 +37,8 @@
                 <p v-if="errors.title" class="text-xs text-error px-1">{{ t('form.titleRequired') }}</p>
               </div>
               <div class="space-y-2">
-                <label class="text-xs font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2">
+                <label class="font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2"
+                  :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">
                   <span class="material-symbols-outlined text-base">translate</span>
                   {{ t('prompt.contentZhLabel') }} <span v-if="!form.content_en.trim()" class="text-error">*</span>
                 </label>
@@ -45,7 +47,8 @@
                   :placeholder="t('prompt.contentZhPlaceholder')" rows="6"></textarea>
               </div>
               <div class="space-y-2">
-                <label class="text-xs font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2">
+                <label class="font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2"
+                  :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">
                   <span class="material-symbols-outlined text-base">language</span>
                   {{ t('prompt.contentEnLabel') }} <span v-if="!form.content_zh.trim()" class="text-error">*</span>
                 </label>
@@ -60,9 +63,11 @@
           <div class="grid grid-cols-2 gap-6">
             <div class="col-span-2 bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/10">
               <div class="flex items-center justify-between mb-6">
-                <label class="text-xs font-bold uppercase tracking-wider text-outline">{{ t('prompt.referenceMedia')
-                }}</label>
-                <span class="text-xs text-outline-variant">{{ form.reference_images.length }}/{{ MAX_IMAGES }}
+                <label class="font-bold uppercase tracking-wider text-outline"
+                  :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{ t('prompt.referenceMedia')
+                  }}</label>
+                <span class="text-outline-variant" :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs]'">{{
+                  form.reference_images.length }}/{{ MAX_IMAGES }}
                   {{ t('prompt.images') }}</span>
               </div>
               <div class="grid grid-cols-4 gap-4 min-h-[155px]">
@@ -77,7 +82,7 @@
                   ]">
                     <span
                       class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">add_photo_alternate</span>
-                    <span
+                    <span :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'"
                       class="text-[10px] font-bold text-outline group-hover:text-primary uppercase tracking-widest">{{
                         t('common.upload') }}</span>
                   </div>
@@ -119,21 +124,25 @@
 
         <div class="col-span-12 lg:col-span-4 space-y-6">
           <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
-            <label class="text-xs font-bold uppercase tracking-wider text-outline mb-4 block">{{
-              t('prompt.categoryLabel') }}</label>
+            <label class="font-bold uppercase tracking-wider text-outline mb-4 block"
+              :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{
+                t('prompt.categoryLabel') }}</label>
             <div class="grid grid-cols-2 gap-3">
               <button v-for="cat in categories" :key="cat" @click="form.category = cat"
-                :class="['flex flex-col items-center gap-2 p-4 rounded-xl transition-colors', form.category === cat ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high']">
+                :class="['flex flex-col items-center gap-2 p-4 rounded-xl transition-colors h-[88px] justify-center', form.category === cat ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high']">
                 <span class="material-symbols-outlined">{{ getCategoryIcon(cat) }}</span>
-                <span class="text-sm font-semibold">{{ t(`categoryLabels.${cat.replace(' ', '')}`) }}</span>
+                <span class="font-semibold text-center leading-tight line-clamp-2"
+                  :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{
+                    t(`categoryLabels.${cat.replace(' ', '')}`) }}</span>
               </button>
             </div>
           </div>
 
           <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 space-y-6">
             <div class="space-y-3">
-              <label class="text-xs font-bold uppercase tracking-wider text-outline block">{{
-                t('prompt.addToCollection') }}</label>
+              <label class="font-bold uppercase tracking-wider text-outline block"
+                :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs]'">{{
+                  t('prompt.addToCollection') }}</label>
               <select v-model="form.collection_id"
                 class="w-full px-4 py-2.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20">
                 <option :value="null">{{ t('prompt.noCollection') }}</option>
@@ -141,8 +150,9 @@
               </select>
             </div>
             <div class="space-y-3">
-              <label class="text-xs font-bold uppercase tracking-wider text-outline block">{{ t('prompt.tags')
-              }}</label>
+              <label class="font-bold uppercase tracking-wider text-outline block"
+                :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{ t('prompt.tags')
+                }}</label>
               <div class="flex flex-wrap gap-2">
                 <span v-for="(tag, idx) in form.tags" :key="idx"
                   class="px-3 py-1 rounded-full bg-surface-container-high text-xs font-medium text-on-surface-variant flex items-center gap-1">
@@ -172,7 +182,8 @@
               class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-outline">grade</span>
-                <span class="text-sm font-medium">{{ t('prompt.addToFavorites') }}</span>
+                <span class="font-medium" :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{
+                  t('prompt.addToFavorites') }}</span>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input v-model="form.is_favorite" type="checkbox" class="sr-only peer" />
@@ -186,7 +197,8 @@
               class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <span class="material-symbols-outlined text-outline">lock</span>
-                <span class="text-sm font-medium">{{ t('prompt.privatePrompt') }}</span>
+                <span class="font-medium" :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">{{
+                  t('prompt.privatePrompt') }}</span>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input v-model="form.is_private" type="checkbox" class="sr-only peer" />
@@ -212,7 +224,7 @@ import Tooltip from '@/components/Tooltip.vue'
 const route = useRoute()
 const router = useRouter()
 const store = usePromptStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const isEdit = computed(() => !!route.params.id)
 const newTag = ref('')
