@@ -100,9 +100,10 @@
                 :is-selected="isPromptSelected(prompt.id)" :is-batch-mode="isBatchMode"
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && prompt.id && store.toggleFavorite(prompt.id)"
-                @toggle-private="!isBatchMode && handleTogglePrivate" @copy="!isBatchMode && copyPrompt"
-                @open-image="openImageViewer" @edit="!isBatchMode && handleEdit"
-                @delete="!isBatchMode && handleDelete" />
+                @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
+                @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
           </PromptSection>
 
@@ -113,9 +114,10 @@
                 :is-selected="isPromptSelected(prompt.id)" :is-batch-mode="isBatchMode"
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && prompt.id && store.toggleFavorite(prompt.id)"
-                @toggle-private="!isBatchMode && handleTogglePrivate" @copy="!isBatchMode && copyPrompt"
-                @open-image="openImageViewer" @edit="!isBatchMode && handleEdit"
-                @delete="!isBatchMode && handleDelete" />
+                @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
+                @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
           </PromptSection>
         </template>
@@ -123,7 +125,7 @@
         <!-- List View -->
         <PromptList v-else :prompts="favorites" :is-batch-mode="isBatchMode" :selected-ids="selectedPrompts"
           :expanded="expandAllSections" @click="(prompt: Prompt) => !isBatchMode && router.push(`/prompt/${prompt.id}`)"
-          @open-image="openImageViewer" @toggle-private="!isBatchMode && handleTogglePrivate"
+          @open-image="openImageViewer" @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
           @select="togglePromptSelection">
           <template #actions="{ prompt }">
             <template v-if="!isBatchMode">
@@ -319,9 +321,9 @@ function handleBatchDelete() {
 // 确认批量删除
 async function confirmBatchDelete() {
   const count = selectedPrompts.value.length
-  for (const id of selectedPrompts.value) {
-    await store.deletePrompt(id)
-  }
+  // 使用批量删除 API，避免逐条 IPC 调用
+  // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
+  await store.batchDeletePrompts(selectedPrompts.value.slice())
   showToast(t('toast.batchDeleteSuccess', { count }), 'success')
   exitBatchMode()
   showBatchDeleteDialog.value = false
@@ -336,9 +338,9 @@ function handleBatchUnfavorite() {
 // 确认批量取消收藏
 async function confirmBatchUnfavorite() {
   const count = selectedPrompts.value.length
-  for (const promptId of selectedPrompts.value) {
-    await store.toggleFavorite(promptId)
-  }
+  // 使用批量更新 API 一次性取消收藏，避免逐条 IPC 调用
+  // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
+  await store.batchUpdatePrompts(selectedPrompts.value.slice(), { is_favorite: false })
   showToast(t('toast.batchUnfavoriteSuccess', { count }), 'success')
   exitBatchMode()
   showBatchUnfavoriteDialog.value = false

@@ -130,9 +130,10 @@
                 :is-selected="isPromptSelected(prompt.id!)" :is-batch-mode="isBatchMode"
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
-                @toggle-private="!isBatchMode && handleTogglePrivate" @copy="!isBatchMode && copyPrompt"
-                @open-image="openImageViewer" @edit="!isBatchMode && handleEdit"
-                @delete="!isBatchMode && handleDelete" />
+                @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
+                @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
           </PromptSection>
 
@@ -144,9 +145,10 @@
                 :is-selected="isPromptSelected(prompt.id!)" :is-batch-mode="isBatchMode"
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
-                @toggle-private="!isBatchMode && handleTogglePrivate" @copy="!isBatchMode && copyPrompt"
-                @open-image="openImageViewer" @edit="!isBatchMode && handleEdit"
-                @delete="!isBatchMode && handleDelete" />
+                @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
+                @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
           </PromptSection>
         </template>
@@ -154,7 +156,7 @@
         <!-- List View -->
         <PromptList v-else :prompts="store.filteredPrompts" :is-batch-mode="isBatchMode" :selected-ids="selectedPrompts"
           :expanded="expandAllSections" @click="(prompt: Prompt) => !isBatchMode && router.push(`/prompt/${prompt.id}`)"
-          @open-image="openImageViewer" @toggle-private="!isBatchMode && handleTogglePrivate"
+          @open-image="openImageViewer" @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
           @select="togglePromptSelection">
           <template #actions="{ prompt }">
             <template v-if="!isBatchMode">
@@ -341,10 +343,11 @@ function handleBatchDelete() {
 }
 
 async function confirmBatchDelete() {
-  for (const id of selectedPrompts.value) {
-    await store.deletePrompt(id)
-  }
-  showToast(t('toast.batchDeleteSuccess', { count: selectedPrompts.value.length }), 'success')
+  const count = selectedPrompts.value.length
+  // 使用批量删除 API，避免逐条 IPC 调用
+  // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
+  await store.batchDeletePrompts(selectedPrompts.value.slice())
+  showToast(t('toast.batchDeleteSuccess', { count }), 'success')
   exitBatchMode()
   showBatchDeleteDialog.value = false
 }
@@ -353,9 +356,13 @@ async function confirmBatchDelete() {
 async function handleBatchFavorite() {
   if (selectedPrompts.value.length === 0) return
   const count = selectedPrompts.value.length
-  for (const promptId of selectedPrompts.value) {
-    await store.toggleFavorite(promptId)
-  }
+  // 使用批量更新 API 一次性切换所有选中提示词的收藏状态
+  // 先获取当前选中提示词的收藏状态，统一设置
+  const promptsToUpdate = store.prompts.filter(p => selectedPrompts.value.includes(p.id!))
+  const allFavorited = promptsToUpdate.every(p => p.is_favorite)
+  // 如果全部已收藏，则取消收藏；否则设为收藏
+  // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
+  await store.batchUpdatePrompts(selectedPrompts.value.slice(), { is_favorite: !allFavorited })
   showToast(t('toast.batchFavoriteSuccess', { count }), 'success')
   exitBatchMode()
 }
@@ -369,9 +376,9 @@ function toggleCollectionDropdown() {
 // 批量移动到收集集
 async function handleBatchMoveToCollection(collectionId: number) {
   const count = selectedPrompts.value.length
-  for (const promptId of selectedPrompts.value) {
-    await store.updatePrompt(promptId, { collection_id: collectionId })
-  }
+  // 使用批量更新 API 一次性移动所有选中的提示词，避免逐条 IPC 调用
+  // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
+  await store.batchUpdatePrompts(selectedPrompts.value.slice(), { collection_id: collectionId })
   showToast(t('toast.batchMoveToCollectionSuccess', { count }), 'success')
   showCollectionDropdown.value = false
   exitBatchMode()

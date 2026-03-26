@@ -65,6 +65,16 @@ interface Window {
     createPrompt: (prompt: Partial<Prompt>) => Promise<number>
     updatePrompt: (id: number, prompt: Partial<Prompt>) => Promise<void>
     deletePrompt: (id: number) => Promise<void>
+    /**
+     * 批量更新多个提示词
+     * 用于批量添加到集合、批量移出集合、批量收藏等操作
+     */
+    batchUpdatePrompts: (ids: number[], updates: Partial<Prompt>) => Promise<boolean>
+    /**
+     * 批量删除多个提示词
+     * 包含关联视频文件的清理
+     */
+    batchDeletePrompts: (ids: number[]) => Promise<boolean>
     toggleFavorite: (id: number) => Promise<void>
     getCollections: () => Promise<Collection[]>
     createCollection: (collection: Partial<Collection>) => Promise<number>

@@ -34,7 +34,7 @@
                 <input v-model="form.title"
                   :class="['w-full text-xl font-medium px-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 transition-all placeholder:text-outline-variant/60', errors.title ? 'ring-2 ring-error/50' : 'focus:ring-primary/20']"
                   :placeholder="t('prompt.titlePlaceholder')" />
-                <p v-if="errors.title" class="text-xs text-error px-1">{{ t('form.titleRequired') }}</p>
+                <p v-if="errors.title" class="text-xs text-error px-1">{{ errors.title }}</p>
               </div>
               <div class="space-y-2">
                 <label class="font-bold uppercase tracking-wider text-outline px-1 flex items-center gap-2"

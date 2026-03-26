@@ -52,14 +52,26 @@
             <div class="collection-thumbnails absolute top-[70px] left-1/2 h-[125px] min-w-[100px] p-[3px] z-10"
               @mouseenter="handleThumbnailsEnter(collection.id!)" @mouseleave="handleThumbnailsLeave(collection.id!)">
               <div class="thumbnails-stack flex items-center justify-center h-full relative">
-                <div v-for="(imageUrl, index) in getCollectionThumbnails(collection.id!)" :key="index"
-                  class="thumbnail-card absolute h-[125px] min-w-[100px] w-auto rounded-lg border-2 border-white shadow-lg overflow-hidden bg-white transition-all duration-500 ease-out"
+                <div v-for="(promptInfo, index) in getVisiblePrompts(collection.id!)" :key="promptInfo.id"
+                  class="thumbnail-card absolute h-[125px] min-w-[100px] w-auto rounded-lg border-2 border-white shadow-lg overflow-hidden bg-white transition-all duration-500 ease-out group"
                   :class="{ 'is-expanded': expandedCollectionId === collection.id }"
-                  :style="getThumbnailStyle(index, getCollectionThumbnails(collection.id!).length)">
-                  <img :src="imageUrl" alt="thumbnail" class="w-full h-full object-contain" />
+                  :style="getThumbnailStyle(index, getVisiblePrompts(collection.id!).length)">
+                  <!-- 有图片时显示图片 -->
+                  <img v-if="promptInfo.imageUrl" :src="promptInfo.imageUrl" alt="thumbnail"
+                    class="w-full h-full object-contain" />
+                  <!-- 无图片时显示默认图标 -->
+                  <div v-else class="w-full h-full flex items-center justify-center bg-slate-100">
+                    <span class="material-symbols-outlined text-slate-300 text-3xl">{{
+                      getCategoryIcon(promptInfo.category) }}</span>
+                  </div>
+                  <!-- 移出按钮 - 鼠标移入显示并旋转 -->
+                  <button @click.stop="removePromptFromCollection(promptInfo.id)"
+                    class="absolute top-1 right-1 w-5 h-5 rounded-full bg-error text-white opacity-0 group-hover:opacity-100 transition-all duration-200 hover:rotate-180 flex items-center justify-center shadow-md z-50">
+                    <span class="text-xs font-bold material-symbols-outlined">remove</span>
+                  </button>
                 </div>
-                <!-- 无缩略图时的占位 -->
-                <div v-if="getCollectionThumbnails(collection.id!).length === 0"
+                <!-- 无提示词时的占位 -->
+                <div v-if="getVisiblePrompts(collection.id!).length === 0"
                   class="h-[125px] w-[100px] rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 shadow-sm">
                   <span class="material-symbols-outlined text-slate-300 text-2xl">image</span>
                 </div>
@@ -233,27 +245,62 @@ const availableIcons = [
 // 当前展开缩略图的集合ID
 const expandedCollectionId = ref<number | null>(null)
 
+// ==================== 缩略图与提示词管理 ====================
+
 /**
- * 获取指定集合下所有提示词的第一张缩略图
- * 最多返回5张，用于堆叠展示
+ * 提示词信息接口
  */
-function getCollectionThumbnails(collectionId: number): string[] {
+interface PromptInfo {
+  id: number
+  imageUrl: string | null
+  category: string
+}
+
+/**
+ * 获取指定集合下可见的提示词信息（最多3张）
+ * 移出后自动从集合中补齐下一张
+ */
+function getVisiblePrompts(collectionId: number): PromptInfo[] {
   const collectionPrompts = store.prompts.filter(p => p.collection_id === collectionId)
-  const thumbnails: string[] = []
+  const result: PromptInfo[] = []
 
   for (const prompt of collectionPrompts) {
-    if (prompt.reference_images && prompt.reference_images.length > 0) {
-      thumbnails.push(prompt.reference_images[0])
-    }
-    if (thumbnails.length >= 5) break
+    result.push({
+      id: prompt.id!,
+      imageUrl: prompt.reference_images && prompt.reference_images.length > 0
+        ? prompt.reference_images[0]
+        : null,
+      category: prompt.category
+    })
+    if (result.length >= 3) break // 限制只显示3张
   }
 
-  return thumbnails
+  return result
+}
+
+/**
+ * 根据分类获取默认图标
+ */
+function getCategoryIcon(category: string): string {
+  const icons: Record<string, string> = {
+    'Image Generation': 'image',
+    'Video Prompt': 'movie'
+  }
+  return icons[category] || 'text_snippet'
+}
+
+/**
+ * 从集合中移出提示词
+ */
+async function removePromptFromCollection(promptId: number) {
+  await store.updatePrompt(promptId, { collection_id: null })
+  showToast(t('toast.removedFromCollection'), 'success')
 }
 
 /**
  * 计算每张缩略图的堆叠样式
  * 未展开时呈扇形堆叠，展开时像扑克牌一样扇形展开
+ * z-index 从左到右递减：第1张(最左)在最上层(z-index: 3)，第3张(最右)在最下层(z-index: 1)
  */
 function getThumbnailStyle(index: number, total: number): Record<string, string> {
   const centerIndex = (total - 1) / 2
@@ -275,8 +322,9 @@ function getThumbnailStyle(index: number, total: number): Record<string, string>
   const translateX = isExpanded ? expandedTranslateX : stackedTranslateX
   const translateY = isExpanded ? -expandedTranslateY : stackedTranslateY
 
-  // z-index 确保中间的在最上层
-  const zIndex = 10 - Math.abs(offsetFromCenter)
+  // z-index 从左到右递减：第1张(索引0) z-index=3，第2张 z-index=2，第3张 z-index=1
+  // 这样第1张在最上层，移出按钮不会被遮挡
+  const zIndex = total - index
 
   return {
     transform: `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotation}deg)`,

@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from
 import { randomUUID } from 'crypto'
 import { promises as fsPromises } from 'fs'
 import type { Database, SqlJsStatic } from 'sql.js'
-import { autoUpdater, type GenericServerOptions } from 'electron-updater'
+import { autoUpdater } from 'electron-updater'
 import nodemailer from 'nodemailer'
 
 // 加载 .env 文件（开发环境自动加载，生产环境需手动放置 .env 文件）
@@ -323,6 +323,112 @@ ipcMain.handle('db:updatePrompt', (_, id, prompt) => {
 ipcMain.handle('db:deletePrompt', (_, id) => {
   runQuery('DELETE FROM prompts WHERE id = ?', [id])
   return true
+})
+
+// ==================== 批量操作 IPC 处理器 ====================
+
+/**
+ * 批量更新多个提示词
+ * 使用事务确保数据一致性
+ */
+ipcMain.handle('db:batchUpdatePrompts', (_, { ids, updates }: { ids: number[]; updates: any }) => {
+  if (!db || ids.length === 0) return false
+
+  try {
+    // 开始事务
+    db.run('BEGIN TRANSACTION')
+
+    for (const id of ids) {
+      const existing = queryOne('SELECT * FROM prompts WHERE id = ?', [id])
+      if (!existing) continue
+
+      const title = updates.title ?? existing.title
+      const content_zh = updates.content_zh ?? existing.content_zh ?? ''
+      const content_en = updates.content_en ?? existing.content_en ?? ''
+      const category = updates.category ?? existing.category ?? 'Image Generation'
+      const tags = updates.tags !== undefined ? JSON.stringify(updates.tags) : existing.tags ?? '[]'
+      const collection_id = updates.collection_id !== undefined ? updates.collection_id : existing.collection_id
+      const is_favorite = updates.is_favorite !== undefined ? (updates.is_favorite ? 1 : 0) : existing.is_favorite
+      const is_private = updates.is_private !== undefined ? (updates.is_private ? 1 : 0) : existing.is_private
+      const reference_images = updates.reference_images !== undefined ? JSON.stringify(updates.reference_images) : existing.reference_images ?? '[]'
+      const reference_videos = updates.reference_videos !== undefined ? JSON.stringify(updates.reference_videos) : existing.reference_videos ?? '[]'
+
+      db.run(`
+        UPDATE prompts SET title = ?, content_zh = ?, content_en = ?, category = ?, tags = ?,
+        collection_id = ?, is_favorite = ?, is_private = ?, reference_images = ?, reference_videos = ?, updated_at = datetime('now')
+        WHERE id = ?
+      `, [
+        title, content_zh, content_en, category, tags,
+        collection_id, is_favorite, is_private, reference_images, reference_videos, id
+      ])
+    }
+
+    // 提交事务
+    db.run('COMMIT')
+    saveDatabase()
+    return true
+  } catch (error) {
+    // 发生错误时回滚事务
+    db.run('ROLLBACK')
+    console.error('批量更新提示词失败:', error)
+    return false
+  }
+})
+
+/**
+ * 批量删除多个提示词
+ * 包含关联视频文件的清理
+ */
+ipcMain.handle('db:batchDeletePrompts', async (_, ids: number[]) => {
+  if (!db || ids.length === 0) return false
+
+  try {
+    // 先获取所有要删除的提示词，清理关联的视频文件
+    const promptsToDelete: any[] = []
+    for (const id of ids) {
+      const prompt = queryOne('SELECT * FROM prompts WHERE id = ?', [id])
+      if (prompt) {
+        promptsToDelete.push(prompt)
+      }
+    }
+
+    // 清理视频文件
+    for (const prompt of promptsToDelete) {
+      const videoPaths: string[] = (() => {
+        try {
+          return JSON.parse(prompt.reference_videos || '[]')
+        } catch {
+          return []
+        }
+      })()
+
+      for (const videoPath of videoPaths) {
+        try {
+          const normalizedPath = join(videoPath)
+          if (normalizedPath.startsWith(videosDir) && existsSync(normalizedPath)) {
+            await fsPromises.unlink(normalizedPath)
+          }
+        } catch (err) {
+          console.error('删除视频文件失败:', videoPath, err)
+        }
+      }
+    }
+
+    // 开始事务删除数据库记录
+    db.run('BEGIN TRANSACTION')
+
+    for (const id of ids) {
+      db.run('DELETE FROM prompts WHERE id = ?', [id])
+    }
+
+    db.run('COMMIT')
+    saveDatabase()
+    return true
+  } catch (error) {
+    db.run('ROLLBACK')
+    console.error('批量删除提示词失败:', error)
+    return false
+  }
 })
 
 // ==================== 视频文件操作 ====================
@@ -837,8 +943,9 @@ async function downloadUpdateWithFormat(updateInfo: any, formatIndex: number) {
     console.log(`尝试下载: ${setupFileName}`)
 
     // 使用 generic provider 配合自定义 URL 来支持多格式
-    const feedOptions: GenericServerOptions = {
-      provider: 'generic',
+    // 定义 feed 配置对象，符合 electron-updater 的 generic provider 格式
+    const feedOptions = {
+      provider: 'generic' as const,
       url: `https://github.com/OYYH-Apple/Promptly-AI/releases/download/v${version}/`,
       channel: 'latest'
     }

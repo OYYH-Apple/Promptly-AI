@@ -156,14 +156,24 @@ async function updatePrompt(id: number, prompt: Partial<Prompt>) {
 
 /**
  * 批量更新多个提示词
- * 用于批量移出集合等操作，避免 IPC 序列化问题
+ * 用于批量添加到集合、批量移出集合、批量收藏等操作
+ * 使用专门的批量 IPC 接口，避免逐条调用的性能问题
  */
 async function batchUpdatePrompts(ids: number[], updates: Partial<Prompt>) {
+  if (ids.length === 0) return
   // 序列化更新数据，避免 Vue 响应式代理导致的 IPC 序列化问题
   const serializableUpdates = JSON.parse(JSON.stringify(updates))
-  for (const id of ids) {
-    await window.api.updatePrompt(id, serializableUpdates)
-  }
+  await window.api.batchUpdatePrompts(ids, serializableUpdates)
+  await fetchPrompts()
+}
+
+/**
+ * 批量删除多个提示词
+ * 使用专门的批量 IPC 接口，包含关联视频文件的清理
+ */
+async function batchDeletePrompts(ids: number[]) {
+  if (ids.length === 0) return
+  await window.api.batchDeletePrompts(ids)
   await fetchPrompts()
 }
 
@@ -234,6 +244,7 @@ async function deleteCollection(id: number) {
     createPrompt,
     updatePrompt,
     batchUpdatePrompts,
+    batchDeletePrompts,
     deletePrompt,
     toggleFavorite,
     createCollection,

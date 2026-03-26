@@ -96,7 +96,11 @@
             <PromptCard v-for="(prompt, idx) in items" :key="prompt.id" :prompt="prompt" :rotation-index="idx"
               :is-selected="isPromptSelected(prompt.id)" :is-batch-mode="isBatchMode"
               @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
-              @copy="!isBatchMode && copyPrompt" @open-image="openImageViewer" />
+              @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
+              @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
+              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+              @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
+              @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
           </template>
         </PromptSection>
 
@@ -106,7 +110,11 @@
             <PromptCard v-for="(prompt, idx) in items" :key="prompt.id" :prompt="prompt" :rotation-index="idx"
               :is-selected="isPromptSelected(prompt.id)" :is-batch-mode="isBatchMode"
               @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
-              @copy="!isBatchMode && copyPrompt" @open-image="openImageViewer" />
+              @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
+              @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
+              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+              @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
+              @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
           </template>
         </PromptSection>
       </template>
@@ -167,6 +175,16 @@
     <ConfirmDialog v-model:visible="showRemoveDialog" type="warning" :title="t('dialog.removeFromCollectionTitle')"
       :message="t('dialog.removeFromCollectionMessage', { title: promptToRemove?.title })"
       :confirm-text="t('dialog.remove')" :cancel-text="t('dialog.cancel')" @confirm="handleRemove" />
+    <!-- 隐私切换确认对话框 -->
+    <ConfirmDialog v-model:visible="showPrivacyDialog" type="warning"
+      :title="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
+      :message="privacyPrompt?.is_private ? t('dialog.makePublicMessage') : t('dialog.makePrivateMessage')"
+      :confirm-text="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
+      :cancel-text="t('dialog.cancel')" @confirm="confirmTogglePrivate" />
+    <!-- 删除确认对话框 -->
+    <ConfirmDialog v-model:visible="showDeleteDialog" type="danger" :title="t('dialog.deletePromptTitle')"
+      :message="t('dialog.deletePromptMessage')" :confirm-text="t('dialog.delete')" :cancel-text="t('dialog.cancel')"
+      @confirm="confirmDelete" />
     <!-- 批量删除确认对话框 -->
     <ConfirmDialog v-model:visible="showBatchDeleteDialog" type="danger" :title="t('dialog.batchDeleteTitle')"
       :message="t('dialog.batchDeleteMessage', { count: selectedPrompts.length })" :confirm-text="t('dialog.delete')"
@@ -189,7 +207,7 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
 import AddPromptModal from '@/components/AddPromptModal.vue'
-import Tooltip from '@/components/Tooltip.vue'
+
 
 const route = useRoute()
 const router = useRouter()
@@ -208,6 +226,12 @@ const viewerImages = ref<string[]>([])
 const viewerIndex = ref(0)
 const editForm = ref({ name: '', description: '', icon: 'folder', color: '#005bc1' })
 const editFormErrors = ref<{ name?: string; description?: string }>({})
+
+// ==================== 隐私切换与删除功能 ====================
+const showPrivacyDialog = ref(false)
+const privacyPrompt = ref<Prompt | null>(null)
+const showDeleteDialog = ref(false)
+const promptToDelete = ref<Prompt | null>(null)
 
 const availableIcons = [
   { value: 'folder', label: 'Folder' },
@@ -288,9 +312,9 @@ function handleBatchDelete() {
 // 确认批量删除
 async function confirmBatchDelete() {
   const count = selectedPrompts.value.length
-  for (const id of selectedPrompts.value) {
-    await store.deletePrompt(id)
-  }
+  // 使用批量删除 API，避免逐条 IPC 调用
+  // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
+  await store.batchDeletePrompts(selectedPrompts.value.slice())
   showToast(t('toast.batchDeleteSuccess', { count }), 'success')
   exitBatchMode()
   showBatchDeleteDialog.value = false
@@ -305,9 +329,9 @@ function handleBatchRemoveFromCollection() {
 // 确认批量从集合移除
 async function confirmBatchRemoveFromCollection() {
   const count = selectedPrompts.value.length
-  for (const promptId of selectedPrompts.value) {
-    await store.updatePrompt(promptId, { collection_id: null })
-  }
+  // 使用批量更新 API 一次性移出所有选中的提示词，避免逐条 IPC 调用
+  // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
+  await store.batchUpdatePrompts(selectedPrompts.value.slice(), { collection_id: null })
   showToast(t('toast.batchRemoveFromCollectionSuccess', { count }), 'success')
   exitBatchMode()
   showBatchRemoveDialog.value = false
@@ -345,14 +369,12 @@ function handlePromptsAdded() {
   showToast(t('toast.promptsAddedToCollection'), 'success')
 }
 
-function removeFromCollection(prompt: Prompt) {
-  promptToRemove.value = prompt
-  showRemoveDialog.value = true
-}
+
 
 async function handleRemove() {
   if (promptToRemove.value && promptToRemove.value.id) {
-    await store.updatePrompt(promptToRemove.value.id, { collection_id: null })
+    // 使用批量更新 API 移出单个提示词（复用批量接口保持一致性）
+    await store.batchUpdatePrompts([promptToRemove.value.id], { collection_id: null })
     showToast(t('toast.removedFromCollection'), 'success')
     promptToRemove.value = null
   }
@@ -427,6 +449,46 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
   window.dispatchEvent(new CustomEvent('show-toast', {
     detail: { message, type, duration: 2000 }
   }))
+}
+
+// ==================== 提示词操作处理函数 ====================
+
+function handleTogglePrivate(prompt: Prompt) {
+  privacyPrompt.value = prompt
+  showPrivacyDialog.value = true
+}
+
+async function confirmTogglePrivate() {
+  if (privacyPrompt.value) {
+    await store.updatePrompt(privacyPrompt.value.id!, {
+      is_private: !privacyPrompt.value.is_private
+    })
+    showToast(privacyPrompt.value.is_private ? t('toast.promptNowPublic') : t('toast.promptNowPrivate'), 'success')
+    privacyPrompt.value = null
+  }
+}
+
+function handleEdit(id: number | undefined) {
+  if (id) router.push(`/edit/${id}`)
+}
+
+function handleDelete(prompt: Prompt | number | undefined) {
+  if (typeof prompt === 'number') {
+    promptToDelete.value = collectionPrompts.value.find(p => p.id === prompt) || null
+  } else if (prompt) {
+    promptToDelete.value = prompt
+  }
+  if (promptToDelete.value) {
+    showDeleteDialog.value = true
+  }
+}
+
+async function confirmDelete() {
+  if (promptToDelete.value) {
+    await store.deletePrompt(promptToDelete.value.id!)
+    showToast(t('toast.promptDeleted'), 'success')
+    promptToDelete.value = null
+  }
 }
 
 async function loadCollection() {

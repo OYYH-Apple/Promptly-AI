@@ -70,6 +70,20 @@ const api = {
 
   deletePrompt: (id: number) => ipcRenderer.invoke('db:deletePrompt', id),
 
+  /**
+   * 批量更新多个提示词
+   * 用于批量添加到集合、批量移出集合等操作
+   */
+  batchUpdatePrompts: (ids: number[], updates: Partial<Prompt>) =>
+    ipcRenderer.invoke('db:batchUpdatePrompts', { ids, updates }),
+
+  /**
+   * 批量删除多个提示词
+   * 包含关联视频文件的清理
+   */
+  batchDeletePrompts: (ids: number[]) =>
+    ipcRenderer.invoke('db:batchDeletePrompts', ids),
+
   toggleFavorite: (id: number) => ipcRenderer.invoke('db:toggleFavorite', id),
 
   getCollections: () => ipcRenderer.invoke('db:getCollections'),
