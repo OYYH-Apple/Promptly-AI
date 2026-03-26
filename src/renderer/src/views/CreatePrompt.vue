@@ -166,8 +166,8 @@
               </div>
             </div>
             <input ref="videoFileInput" type="file"
-              accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
-              multiple class="hidden" @change="handleVideoUpload" />
+              accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska" multiple class="hidden"
+              @change="handleVideoUpload" />
           </div>
         </div>
 

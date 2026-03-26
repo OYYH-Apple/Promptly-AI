@@ -9,40 +9,22 @@
 <template>
     <div ref="videoContainerRef" class="video-player-container relative rounded-2xl bg-black overflow-hidden group">
         <!-- 视频元素 -->
-        <video
-            ref="videoElementRef"
-            class="w-full h-full object-contain cursor-pointer"
-            :src="src"
-            :poster="poster"
-            :controls="controls && !customControls"
-            :autoplay="autoplay"
-            :loop="loop"
-            :muted="isMuted"
-            @loadeddata="handleVideoLoaded"
-            @error="handleVideoError"
-            @timeupdate="handleTimeUpdate"
-            @play="isPlaying = true"
-            @pause="isPlaying = false"
-            @click="togglePlay"
-        />
+        <video ref="videoElementRef" class="w-full h-full object-contain cursor-pointer" :src="src" :poster="poster"
+            :controls="controls && !customControls" :autoplay="autoplay" :loop="loop" :muted="isMuted"
+            @loadeddata="handleVideoLoaded" @error="handleVideoError" @timeupdate="handleTimeUpdate"
+            @play="isPlaying = true" @pause="isPlaying = false" @click="togglePlay" />
 
         <!-- 自定义控制条 -->
-        <div
-            v-if="customControls"
-            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4
-                   opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        >
+        <div v-if="customControls" class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4
+                   opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <!-- 进度条 -->
-            <div
-                class="w-full h-1 bg-white/30 rounded-full mb-3 cursor-pointer hover:h-1.5 transition-all"
-                @click.stop="seek"
-            >
-                <div
-                    class="h-full bg-primary rounded-full transition-all relative"
-                    :style="{ width: `${progressPercentage}%` }"
-                >
+            <div class="w-full h-1 bg-white/30 rounded-full mb-3 cursor-pointer hover:h-1.5 transition-all"
+                @click.stop="seek">
+                <div class="h-full bg-primary rounded-full transition-all relative"
+                    :style="{ width: `${progressPercentage}%` }">
                     <!-- 进度条滑块 -->
-                    <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div
+                        class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
             </div>
 
@@ -51,10 +33,7 @@
                 <!-- 左侧控制区：播放/暂停 + 时间 -->
                 <div class="flex items-center gap-3">
                     <!-- 播放/暂停按钮 -->
-                    <button
-                        @click.stop="togglePlay"
-                        class="text-white hover:text-primary transition-colors"
-                    >
+                    <button @click.stop="togglePlay" class="text-white hover:text-primary transition-colors">
                         <span class="material-symbols-outlined text-2xl">
                             {{ isPlaying ? 'pause' : 'play_arrow' }}
                         </span>
@@ -70,33 +49,18 @@
                 <div class="flex items-center gap-3">
                     <!-- 音量控制 -->
                     <div class="flex items-center gap-1 group/volume">
-                        <button
-                            @click.stop="toggleMute"
-                            class="text-white hover:text-primary transition-colors"
-                        >
+                        <button @click.stop="toggleMute" class="text-white hover:text-primary transition-colors">
                             <span class="material-symbols-outlined">
                                 {{ isMuted ? 'volume_off' : 'volume_up' }}
                             </span>
                         </button>
-                        <input
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.1"
-                            :value="volume"
-                            @input="setVolume"
-                            @click.stop
-                            class="w-0 group-hover/volume:w-20 accent-primary transition-all duration-300 overflow-hidden"
-                        />
+                        <input type="range" min="0" max="1" step="0.1" :value="volume" @input="setVolume" @click.stop
+                            class="w-0 group-hover/volume:w-20 accent-primary transition-all duration-300 overflow-hidden" />
                     </div>
 
                     <!-- 倍速选择 -->
-                    <select
-                        :value="playbackRate"
-                        @change="setPlaybackRate"
-                        @click.stop
-                        class="bg-black/50 text-white text-sm border border-white/30 rounded px-2 py-1 hover:border-primary transition-colors cursor-pointer"
-                    >
+                    <select :value="playbackRate" @change="setPlaybackRate" @click.stop
+                        class="bg-black/50 text-white text-sm border border-white/30 rounded px-2 py-1 hover:border-primary transition-colors cursor-pointer">
                         <option value="0.5" class="bg-gray-800">0.5x</option>
                         <option value="1" class="bg-gray-800">1x</option>
                         <option value="1.5" class="bg-gray-800">1.5x</option>
@@ -104,10 +68,7 @@
                     </select>
 
                     <!-- 全屏按钮 -->
-                    <button
-                        @click.stop="toggleFullscreen"
-                        class="text-white hover:text-primary transition-colors"
-                    >
+                    <button @click.stop="toggleFullscreen" class="text-white hover:text-primary transition-colors">
                         <span class="material-symbols-outlined">
                             {{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}
                         </span>

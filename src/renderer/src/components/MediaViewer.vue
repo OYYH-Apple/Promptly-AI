@@ -15,9 +15,9 @@
                 <!-- 视频显示区域 -->
                 <div v-else-if="currentMediaType === 'video'" class="relative flex items-center justify-center"
                     :style="mediaWrapperStyle" @click.stop>
-                    <video ref="videoRef" :src="currentMediaUrl"
-                        class="rounded-lg shadow-2xl select-none max-w-[90vw] max-h-[90vh]" controls autoplay
-                        @loadedmetadata="onMediaLoad"></video>
+                    <video ref="videoRef" :src="videoSrcWithProtocol"
+                        class="rounded-lg shadow-2xl select-none max-w-[90vw] max-h-[90vh]" controls preload="metadata"
+                        @loadeddata="handleVideoLoaded" @error="handleVideoError"></video>
                 </div>
 
                 <!-- 关闭按钮 -->
@@ -169,10 +169,22 @@ const currentMediaItem = computed<MediaItem | null>(() => {
 })
 
 /**
- * 当前媒体 URL
+ * 当前媒体 URL（原始路径）
  */
 const currentMediaUrl = computed(() => {
     return currentMediaItem.value?.url || ''
+})
+
+/**
+ * 视频源路径（带 app-video:// 协议前缀）
+ * 用于视频播放，确保路径格式正确
+ */
+const videoSrcWithProtocol = computed(() => {
+    if (!currentMediaUrl.value) return ''
+    // 如果已经是协议路径，直接返回
+    if (currentMediaUrl.value.startsWith('app-video://')) return currentMediaUrl.value
+    // 否则添加协议前缀并编码路径
+    return `app-video://${encodeURIComponent(currentMediaUrl.value)}`
 })
 
 /**
@@ -368,6 +380,25 @@ function endDrag(): void {
  */
 function onMediaLoad(): void {
     resetZoom()
+}
+
+/**
+ * 视频加载完成回调
+ * 当视频数据加载完成后触发
+ */
+function handleVideoLoaded(): void {
+    // 视频加载成功，可进行后续处理
+    console.log('视频加载成功:', videoSrcWithProtocol.value)
+}
+
+/**
+ * 视频加载错误回调
+ * 当视频加载失败时触发
+ * @param errorEvent - 错误事件对象
+ */
+function handleVideoError(errorEvent: Event): void {
+    console.error('视频加载失败:', currentMediaUrl.value, errorEvent)
+    // 可在此处添加用户提示逻辑
 }
 
 /**
