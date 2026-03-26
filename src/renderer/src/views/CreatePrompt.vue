@@ -165,7 +165,8 @@
                 </div>
               </div>
             </div>
-            <input ref="videoFileInput" type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo"
+            <input ref="videoFileInput" type="file"
+              accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska"
               multiple class="hidden" @change="handleVideoUpload" />
           </div>
         </div>
@@ -287,6 +288,32 @@ const videoFileInput = ref<HTMLInputElement | null>(null)
 const categories = ['Image Generation', 'Video Prompt']
 const draggedIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
+
+// ==================== 视频格式支持配置 ====================
+// 允许的视频 MIME 类型
+const ALLOWED_VIDEO_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'video/quicktime', // MOV
+  'video/x-msvideo', // AVI
+  'video/x-matroska', // MKV
+]
+
+// 允许的视频扩展名（作为 MIME 类型的 fallback）
+const ALLOWED_VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.mkv']
+
+/**
+ * 验证文件是否为允许的视频格式
+ * 优先检查 MIME 类型，不可靠时回退到扩展名检查
+ */
+function isValidVideoFile(file: File): boolean {
+  // 优先检查 MIME 类型
+  if (ALLOWED_VIDEO_TYPES.includes(file.type)) return true
+
+  // MIME 类型不可靠时，检查扩展名
+  const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'))
+  return ALLOWED_VIDEO_EXTENSIONS.includes(ext)
+}
 
 // ==================== 待删除视频管理 ====================
 /** 编辑模式下暂存的待删除视频路径，保存时统一清理 */
@@ -420,6 +447,12 @@ async function handleVideoUpload(event: Event) {
   const filesToProcess = Array.from(files).slice(0, remaining)
 
   for (const file of filesToProcess) {
+    // 校验视频格式
+    if (!isValidVideoFile(file)) {
+      showToast(`不支持的文件格式: ${file.name}`, 'warning')
+      continue
+    }
+
     try {
       // Electron 环境下 File 对象包含 path 属性，直接传递路径让主进程复制文件
       const electronFile = file as File & { path: string }

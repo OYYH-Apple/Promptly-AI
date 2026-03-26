@@ -25,14 +25,39 @@
         <span class="material-symbols-outlined text-white" style="font-size: 12px;">videocam</span>
       </div>
     </div>
-    <!-- 仅有视频无图片时显示视频图标标识 -->
+    <!-- 仅有视频无图片时显示视频缩略图/预览 -->
     <div v-else-if="prompt.reference_videos?.length" class="absolute -top-2 -right-2 z-10">
-      <div class="w-14 h-14 rounded-xl bg-black/80 flex items-center justify-center shadow-lg border-2 border-white/20">
-        <span class="material-symbols-outlined text-white text-xl">videocam</span>
-      </div>
-      <div v-if="prompt.reference_videos.length > 1"
-        class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center shadow">
-        {{ prompt.reference_videos.length }}
+      <div
+        class="relative w-14 h-14 rounded-xl overflow-hidden cursor-pointer"
+        @mouseenter="startVideoPreview"
+        @mouseleave="stopVideoPreview"
+      >
+        <!-- 缩略图（默认显示） -->
+        <img
+          v-if="!isPreviewing && videoThumbnailUrl"
+          :src="videoThumbnailUrl"
+          class="w-full h-full object-cover"
+          @error="handleThumbnailError"
+        />
+        <!-- 缩略图加载中或失败时显示视频图标 -->
+        <div v-else-if="!isPreviewing"
+          class="w-full h-full bg-black/80 flex items-center justify-center shadow-lg border-2 border-white/20">
+          <span class="material-symbols-outlined text-white text-xl">videocam</span>
+        </div>
+        <!-- 视频预览（hover 时显示） -->
+        <video
+          v-else
+          ref="previewVideoRef"
+          :src="videoPreviewUrl"
+          class="w-full h-full object-cover"
+          muted
+          loop
+          autoplay
+        />
+        <!-- 视频标识角标 -->
+        <div class="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center">
+          <span class="material-symbols-outlined text-white text-xs">videocam</span>
+        </div>
       </div>
     </div>
 
@@ -103,11 +128,56 @@
 import type { Prompt } from '@/stores/prompts'
 import { useI18n } from 'vue-i18n'
 import { useDateFormatter } from '@/utils/format'
+import { ref, onMounted } from 'vue'
 import Tooltip from './Tooltip.vue'
 import Thumbnail from './Thumbnail.vue'
 
 const { t } = useI18n()
 const { formatRelativeTime } = useDateFormatter()
+
+// ==================== 视频缩略图 ====================
+const videoThumbnailUrl = ref<string>('')
+
+// 加载视频缩略图（仅当有视频无图片时）
+onMounted(async () => {
+  if (props.prompt.reference_videos?.length && !props.prompt.reference_images?.length) {
+    try {
+      const thumbnailPath = await window.api.generateThumbnail(props.prompt.reference_videos[0])
+      if (thumbnailPath) {
+        videoThumbnailUrl.value = `app-video://${encodeURIComponent(thumbnailPath)}`
+      }
+    } catch (error) {
+      console.error('加载视频缩略图失败:', error)
+    }
+  }
+})
+
+// ==================== 视频预览 ====================
+const isPreviewing = ref(false)
+const previewVideoRef = ref<HTMLVideoElement | null>(null)
+const videoPreviewUrl = ref<string>('')
+
+// 开始视频预览
+function startVideoPreview() {
+  if (props.prompt.reference_videos?.length) {
+    videoPreviewUrl.value = `app-video://${encodeURIComponent(props.prompt.reference_videos[0])}`
+    isPreviewing.value = true
+  }
+}
+
+// 停止视频预览
+function stopVideoPreview() {
+  isPreviewing.value = false
+  if (previewVideoRef.value) {
+    previewVideoRef.value.pause()
+    previewVideoRef.value.currentTime = 0
+  }
+}
+
+// 缩略图加载失败处理
+function handleThumbnailError() {
+  videoThumbnailUrl.value = ''
+}
 
 const props = withDefaults(defineProps<{
   prompt: Prompt
@@ -201,6 +271,4 @@ function getShortCategory(category: string): string {
   }
   return shortNames[category] || category.toUpperCase()
 }
-
-// 使用 useDateFormatter 中的 formatRelativeTime 替代
 </script>

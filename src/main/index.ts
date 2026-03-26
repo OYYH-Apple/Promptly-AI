@@ -6,6 +6,7 @@ import { promises as fsPromises } from 'fs'
 import type { Database, SqlJsStatic } from 'sql.js'
 import { autoUpdater } from 'electron-updater'
 import nodemailer from 'nodemailer'
+import { getOrGenerateThumbnail, deleteThumbnail } from './videoThumbnail'
 
 // 加载 .env 文件（开发环境自动加载，生产环境需手动放置 .env 文件）
 import dotenv from 'dotenv'
@@ -474,14 +475,26 @@ ipcMain.handle('db:batchDeletePrompts', async (_, ids: number[]) => {
 
 // ==================== 视频文件操作 ====================
 
+// 允许的视频扩展名
+const ALLOWED_VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.mkv']
+
 ipcMain.handle('file:saveVideo', async (_, { fileName, filePath: sourcePath }: { fileName: string; filePath: string }) => {
+  // 提取扩展名（支持各种格式）
+  const ext = fileName.toLowerCase().slice(fileName.lastIndexOf('.'))
+  const fileExtension = ALLOWED_VIDEO_EXTENSIONS.includes(ext) ? ext : '.mp4'
+
   // 使用 UUID 生成唯一文件名，避免同名碰撞
-  const fileExtension = fileName.includes('.') ? fileName.substring(fileName.lastIndexOf('.')) : '.mp4'
   const uniqueName = `${randomUUID()}${fileExtension}`
   const destPath = join(videosDir, uniqueName)
 
   // 直接复制文件，避免将整个视频加载到内存
   await fsPromises.copyFile(sourcePath, destPath)
+
+  // 保存成功后，异步生成缩略图（不阻塞返回）
+  getOrGenerateThumbnail(destPath).catch(err => {
+    console.error('生成缩略图失败:', err)
+  })
+
   return destPath
 })
 
@@ -495,6 +508,9 @@ ipcMain.handle('file:deleteVideo', async (_, filePath: string) => {
     }
 
     if (existsSync(normalizedPath)) {
+      // 先删除关联的缩略图
+      await deleteThumbnail(normalizedPath)
+      // 再删除视频文件
       await fsPromises.unlink(normalizedPath)
       return true
     }
@@ -503,6 +519,17 @@ ipcMain.handle('file:deleteVideo', async (_, filePath: string) => {
     console.error('删除视频文件失败:', error)
     return false
   }
+})
+
+// ==================== 视频缩略图 IPC 处理器 ====================
+
+/**
+ * 生成视频缩略图
+ * @param videoPath - 视频文件绝对路径
+ * @returns 缩略图文件路径，失败返回 null
+ */
+ipcMain.handle('file:generateThumbnail', async (_, videoPath: string) => {
+  return getOrGenerateThumbnail(videoPath)
 })
 
 ipcMain.handle('db:toggleFavorite', (_, id) => {

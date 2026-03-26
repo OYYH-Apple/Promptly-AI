@@ -124,6 +124,7 @@ export default {
     referenceVideos: '参考视频',
     videos: '视频',
     referenceVideo: '参考视频 {number}',
+    videoFormats: '支持格式：MP4、WebM、MOV、AVI、MKV',
     uploadImage: '上传图片',
     uploadLimit: '最多 {count} 个文件',
     savePrompt: '保存提示词',

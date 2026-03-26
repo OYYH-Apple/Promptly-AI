@@ -124,6 +124,7 @@ export default {
     referenceVideos: 'Reference Videos',
     videos: 'Videos',
     referenceVideo: 'Reference video {number}',
+    videoFormats: 'Supported formats: MP4, WebM, MOV, AVI, MKV',
     uploadImage: 'Upload',
     uploadLimit: 'Up to {count} files',
     savePrompt: 'Save Prompt',
