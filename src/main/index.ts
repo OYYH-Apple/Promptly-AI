@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, protocol } from 'electron'
 import { join } from 'path'
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'fs'
 import { randomUUID } from 'crypto'
@@ -193,6 +193,16 @@ app.whenReady().then(async () => {
   }
 
   createWindow()
+
+  // ==================== 注册视频自定义协议 ====================
+  // 用途：绕过 Electron 安全限制，允许渲染进程播放本地视频文件
+  // 注意：Windows 路径需处理中文编码问题
+  protocol.registerFileProtocol('app-video', (request, callback) => {
+    const url = request.url.replace('app-video://', '')
+    // URL 解码处理中文路径
+    const decodedPath = decodeURIComponent(url)
+    callback({ path: decodedPath })
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

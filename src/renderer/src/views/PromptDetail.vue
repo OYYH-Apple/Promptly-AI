@@ -126,7 +126,8 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div v-for="(video, idx) in prompt.reference_videos" :key="idx"
                 class="aspect-video rounded-2xl overflow-hidden bg-black">
-                <video :src="'file:///' + video.replace(/\\\\/g, '/')" class="w-full h-full object-contain" controls />
+                <!-- 使用 app-video 自定义协议加载本地视频，通过 encodeURIComponent 处理中文和特殊字符 -->
+                <video :src="'app-video://' + encodeURIComponent(video)" class="w-full h-full object-contain" controls />
               </div>
             </div>
           </section>
@@ -191,7 +192,7 @@
       <span class="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span>
     </div>
 
-    <ImageViewer v-model:visible="viewerVisible" :images="prompt?.reference_images || []" :initial-index="viewerIndex"
+    <MediaViewer v-model:visible="viewerVisible" :images="prompt?.reference_images || []" :videos="prompt?.reference_videos || []" :initial-index="viewerIndex"
       @close="viewerVisible = false" />
 
     <ConfirmDialog v-model:visible="showDeleteDialog" type="danger" :title="t('dialog.deletePromptTitle')"
@@ -206,7 +207,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDateFormatter } from '@/utils/format'
 import { usePromptStore } from '@/stores/prompts'
-import ImageViewer from '@/components/ImageViewer.vue'
+import MediaViewer from '@/components/MediaViewer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import Tooltip from '@/components/Tooltip.vue'
 

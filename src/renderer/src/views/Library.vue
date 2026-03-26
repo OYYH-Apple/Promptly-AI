@@ -131,7 +131,7 @@
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
                 @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
                 @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
                 @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
@@ -146,7 +146,7 @@
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
                 @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
                 @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
                 @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
@@ -156,7 +156,7 @@
         <!-- List View -->
         <PromptList v-else :prompts="store.filteredPrompts" :is-batch-mode="isBatchMode" :selected-ids="selectedPrompts"
           :expanded="expandAllSections" @click="(prompt: Prompt) => !isBatchMode && router.push(`/prompt/${prompt.id}`)"
-          @open-image="openImageViewer" @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
+          @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)" @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
           @select="togglePromptSelection">
           <template #actions="{ prompt }">
             <template v-if="!isBatchMode">
@@ -195,7 +195,7 @@
         </div>
       </template>
     </div>
-    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
+    <MediaViewer v-model:visible="viewerVisible" :images="viewerImages" :videos="viewerVideos" :initial-index="viewerIndex"
       @close="viewerVisible = false" />
     <ConfirmDialog v-model:visible="showDeleteDialog" type="danger" :title="t('dialog.deletePromptTitle')"
       :message="t('dialog.deletePromptMessage')" :confirm-text="t('dialog.delete')" :cancel-text="t('dialog.cancel')"
@@ -216,7 +216,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePromptStore, type Prompt } from '@/stores/prompts'
-import ImageViewer from '@/components/ImageViewer.vue'
+import MediaViewer from '@/components/MediaViewer.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
 import PromptList from '@/components/PromptList.vue'
@@ -229,6 +229,7 @@ const router = useRouter()
 const store = usePromptStore()
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
+const viewerVideos = ref<string[]>([])
 const viewerIndex = ref(0)
 const showDeleteDialog = ref(false)
 const deletePromptId = ref<number | null>(null)
@@ -406,8 +407,9 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
   }))
 }
 
-function openImageViewer(images: string[], index: number) {
+function openImageViewer(images: string[], videos: string[], index: number) {
   viewerImages.value = images
+  viewerVideos.value = videos
   viewerIndex.value = index
   viewerVisible.value = true
 }

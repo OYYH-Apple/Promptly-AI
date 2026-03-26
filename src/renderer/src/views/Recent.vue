@@ -24,7 +24,7 @@
           <div class="h-[1px] flex-1 bg-slate-100"></div>
         </div>
         <PromptList :prompts="group" @click="(prompt: Prompt) => router.push(`/prompt/${prompt.id}`)"
-          @open-image="openImageViewer" @toggle-private="handleTogglePrivate">
+          @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)" @toggle-private="handleTogglePrivate">
           <template #actions="{ prompt }">
             <button @click.stop="copyPrompt(prompt)"
               class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-semibold hover:bg-slate-200 transition-colors"
@@ -50,7 +50,7 @@
       <div class="h-24"></div>
     </div>
 
-    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
+    <MediaViewer v-model:visible="viewerVisible" :images="viewerImages" :videos="viewerVideos" :initial-index="viewerIndex"
       @close="viewerVisible = false" />
     <ConfirmDialog v-model:visible="showPrivacyDialog" type="warning"
       :title="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
@@ -65,7 +65,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePromptStore, type Prompt } from '@/stores/prompts'
-import ImageViewer from '@/components/ImageViewer.vue'
+import MediaViewer from '@/components/MediaViewer.vue'
 import PromptList from '@/components/PromptList.vue'
 import Tooltip from '@/components/Tooltip.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -76,6 +76,7 @@ const { t, locale } = useI18n()
 const selectedCategory = ref('All')
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
+const viewerVideos = ref<string[]>([])
 const viewerIndex = ref(0)
 const showPrivacyDialog = ref(false)
 const privacyPrompt = ref<Prompt | null>(null)
@@ -135,8 +136,9 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
   }))
 }
 
-function openImageViewer(images: string[], index: number) {
+function openImageViewer(images: string[], videos: string[], index: number) {
   viewerImages.value = images
+  viewerVideos.value = videos
   viewerIndex.value = index
   viewerVisible.value = true
 }

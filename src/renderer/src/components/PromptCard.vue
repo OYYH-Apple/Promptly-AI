@@ -18,7 +18,7 @@
     <div v-if="prompt.reference_images?.length" class="absolute -top-2 -right-2 z-10">
       <Thumbnail :image-url="prompt.reference_images[0]" :count="prompt.reference_images.length"
         :rotation="thumbnailRotations[rotationIndex % thumbnailRotations.length]" size="large"
-        @click="$emit('open-image', prompt.reference_images, 0)" />
+        @click="$emit('open-image', prompt.reference_images || [], prompt.reference_videos || [], 0)" />
       <!-- 当同时有图片和视频时显示视频小角标 -->
       <div v-if="prompt.reference_videos?.length"
         class="absolute -bottom-1 -left-1 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center shadow z-20">
@@ -125,7 +125,7 @@ const emit = defineEmits<{
   (e: 'toggle-favorite', id: number | undefined): void
   (e: 'toggle-private', prompt: Prompt): void
   (e: 'copy', prompt: Prompt): void
-  (e: 'open-image', images: string[], index: number): void
+  (e: 'open-image', images: string[], videos: string[], index: number): void
   (e: 'edit', id: number | undefined): void
   (e: 'delete', id: number | undefined): void
   (e: 'select', id: number | undefined): void

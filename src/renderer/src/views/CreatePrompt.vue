@@ -151,7 +151,8 @@
               </Tooltip>
               <div v-for="(video, idx) in form.reference_videos" :key="idx"
                 class="aspect-video rounded-xl overflow-hidden relative group bg-black">
-                <video :src="'file:///' + video.replace(/\\\\/g, '/')" class="w-full h-full object-contain" controls />
+                <!-- 使用 app-video 自定义协议加载本地视频，通过 encodeURIComponent 处理中文和特殊字符 -->
+                <video :src="'app-video://' + encodeURIComponent(video)" class="w-full h-full object-contain" controls />
                 <button @click="removeVideo(idx)"
                   class="absolute top-2 right-2 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500">
                   <span class="material-symbols-outlined text-sm">close</span>

@@ -38,7 +38,7 @@
             <div class="flex items-center gap-3">
               <Thumbnail v-if="prompt.reference_images?.length" :image-url="prompt.reference_images[0]"
                 :count="prompt.reference_images.length" :rotation="getThumbnailRotation(prompt.id)"
-                @click="$emit('open-image', prompt.reference_images, 0)" />
+                @click="$emit('open-image', prompt.reference_images || [], prompt.reference_videos || [], 0)" />
               <div v-else class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                 :class="getCategoryStyle(prompt.category).bg">
                 <span class="material-symbols-outlined text-lg" :class="getCategoryStyle(prompt.category).textColor">{{
@@ -141,7 +141,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'click', prompt: Prompt): void
-  (e: 'open-image', images: string[], index: number): void
+  (e: 'open-image', images: string[], videos: string[], index: number): void
   (e: 'toggle-private', prompt: Prompt): void
   (e: 'select', id: number | undefined): void
 }>()
