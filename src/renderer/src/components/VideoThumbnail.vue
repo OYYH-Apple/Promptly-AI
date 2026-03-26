@@ -1,8 +1,8 @@
 <template>
     <div class="thumb-wrapper" :style="{ transform: `rotate(${rotation}deg)` }" @mouseenter="startPreview"
         @mouseleave="stopPreview">
-        <div class="thumb-container rounded-xl overflow-hidden bg-black cursor-pointer flex-shrink-0 relative"
-            :class="sizeClasses[size]" :style="containerStyle" @click.stop="emit('click')">
+        <div class="thumb-container rounded-xl overflow-hidden bg-black cursor-pointer flex-shrink-0 relative aspect-video min-w-[120px]"
+            :style="containerStyle" @click.stop="emit('click')">
             <!-- 缩略图/预览视频 -->
             <template v-if="!isPlaying">
                 <img v-if="thumbnailUrl" :src="thumbnailUrl" class="w-full h-full object-cover" />
@@ -76,12 +76,6 @@ const isPlaying = ref(false)
 const videoRef = ref<HTMLVideoElement | null>(null)
 
 // ==================== 常量定义 ====================
-const sizeClasses = {
-    small: 'w-10 h-10',
-    medium: 'w-14 h-14',
-    large: 'w-[72px] h-[72px]',
-}
-
 const badgeClasses = {
     small: '-top-1 -left-1 w-4 h-4 text-[9px]',
     medium: '-top-1.5 -left-1.5 w-4.5 h-4.5 text-[10px]',

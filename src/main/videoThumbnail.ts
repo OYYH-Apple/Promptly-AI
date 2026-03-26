@@ -4,6 +4,7 @@ import ffmpegStatic from 'ffmpeg-static'
 import { join, dirname, basename, extname } from 'path'
 import { existsSync } from 'fs'
 import { mkdir, unlink } from 'fs/promises'
+import { app } from 'electron'
 
 // ==================== 常量定义 ====================
 // 默认截图时间点（视频开始后1秒，避免黑屏帧）
@@ -15,8 +16,41 @@ const DEFAULT_THUMBNAIL_HEIGHT = -1
 // 缩略图文件后缀
 const THUMBNAIL_SUFFIX = '.thumb.jpg'
 
+// ==================== FFmpeg 路径设置 ====================
+/**
+ * 获取 ffmpeg 可执行文件路径
+ * 开发环境使用 ffmpeg-static，生产环境使用打包后的路径
+ */
+function getFfmpegPath(): string {
+  // 开发环境：使用 ffmpeg-static
+  if (ffmpegStatic && existsSync(ffmpegStatic)) {
+    return ffmpegStatic
+  }
+  
+  // 生产环境：尝试多种路径
+  const possiblePaths = [
+    // electron-builder 打包后的路径
+    join(process.resourcesPath || '', 'ffmpeg.exe'),
+    join(app.getAppPath(), '..', 'ffmpeg.exe'),
+    join(dirname(process.execPath), 'ffmpeg.exe'),
+    // 环境变量中的 ffmpeg
+    'ffmpeg',
+  ]
+  
+  for (const path of possiblePaths) {
+    if (path === 'ffmpeg' || existsSync(path)) {
+      return path
+    }
+  }
+  
+  // 兜底：返回 ffmpeg 命令，依赖系统 PATH
+  return 'ffmpeg'
+}
+
 // 设置 ffmpeg 可执行文件路径
-ffmpeg.setFfmpegPath(ffmpegStatic || 'ffmpeg')
+const ffmpegPath = getFfmpegPath()
+console.log('[FFmpeg] 使用路径:', ffmpegPath)
+ffmpeg.setFfmpegPath(ffmpegPath)
 
 // ==================== 类型定义 ====================
 /**
