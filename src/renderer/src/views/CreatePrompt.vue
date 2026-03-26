@@ -10,7 +10,7 @@
         </div>
         <div class="flex items-center gap-3">
           <Tooltip :text="t('tooltip.cancelWithoutSaving')" placement="bottom">
-            <button @click="router.push('/')"
+            <button @click="handleCancel"
               class="px-6 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-surface-container-high transition-colors">{{
                 t('common.cancel') }}</button>
           </Tooltip>
@@ -152,7 +152,8 @@
               <div v-for="(video, idx) in form.reference_videos" :key="idx"
                 class="aspect-video rounded-xl overflow-hidden relative group bg-black">
                 <!-- 使用 app-video 自定义协议加载本地视频，通过 encodeURIComponent 处理中文和特殊字符 -->
-                <video :src="'app-video://' + encodeURIComponent(video)" class="w-full h-full object-contain" controls />
+                <video :src="'app-video://' + encodeURIComponent(video)" class="w-full h-full object-contain"
+                  controls />
                 <button @click="removeVideo(idx)"
                   class="absolute top-2 right-2 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500">
                   <span class="material-symbols-outlined text-sm">close</span>
@@ -286,6 +287,10 @@ const videoFileInput = ref<HTMLInputElement | null>(null)
 const categories = ['Image Generation', 'Video Prompt']
 const draggedIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
+
+// ==================== 待删除视频管理 ====================
+/** 编辑模式下暂存的待删除视频路径，保存时统一清理 */
+const pendingDeleteVideos = ref<string[]>([])
 
 function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') {
   window.dispatchEvent(new CustomEvent('show-toast', {
@@ -432,12 +437,20 @@ async function handleVideoUpload(event: Event) {
   target.value = ''
 }
 
-async function removeVideo(index: number) {
-  const filePath = form.value.reference_videos[index]
-  if (filePath) {
-    await window.api.deleteVideo(filePath)
+function removeVideo(index: number) {
+  const videoPath = form.value.reference_videos[index]
+  if (videoPath) {
+    // 编辑模式：暂存到待删除列表，保存时统一清理
+    if (isEdit.value) {
+      pendingDeleteVideos.value.push(videoPath)
+    } else {
+      // 新建模式：立即删除（因为还未保存到数据库）
+      window.api.deleteVideo(videoPath).catch((err: Error) => {
+        console.error('删除视频失败:', err)
+      })
+    }
+    form.value.reference_videos.splice(index, 1)
   }
-  form.value.reference_videos.splice(index, 1)
 }
 
 function handleDragStart(event: DragEvent, index: number) {
@@ -509,6 +522,25 @@ async function savePrompt() {
   } else {
     await store.createPrompt(form.value)
   }
+
+  // 保存成功后，清理待删除的视频文件
+  if (pendingDeleteVideos.value.length > 0) {
+    for (const videoPath of pendingDeleteVideos.value) {
+      try {
+        await window.api.deleteVideo(videoPath)
+      } catch (err) {
+        console.error('清理视频失败:', err)
+      }
+    }
+    pendingDeleteVideos.value = []
+  }
+
+  router.push('/')
+}
+
+function handleCancel() {
+  // 清空待删除视频列表，避免取消后误删文件
+  pendingDeleteVideos.value = []
   router.push('/')
 }
 

@@ -17,7 +17,7 @@ interface Prompt {
   is_favorite?: boolean
   is_private?: boolean
   reference_images?: string | string[]
-  reference_videos?: string | string[]
+  reference_videos?: string[]
   created_at?: string
   updated_at?: string
 }

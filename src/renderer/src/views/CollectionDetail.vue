@@ -98,7 +98,8 @@
               @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
               @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
               @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
+              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)"
+              @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
               @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
               @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
           </template>
@@ -112,7 +113,8 @@
               @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
               @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
               @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
+              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)"
+              @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
               @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
               @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
           </template>
@@ -120,8 +122,8 @@
       </template>
     </div>
 
-    <MediaViewer v-model:visible="viewerVisible" :images="viewerImages" :videos="viewerVideos" :initial-index="viewerIndex"
-      @close="viewerVisible = false" />
+    <MediaViewer v-model:visible="viewerVisible" :images="viewerImages" :videos="viewerVideos"
+      :initial-index="viewerIndex" @close="viewerVisible = false" />
 
     <AddPromptModal v-model:visible="showAddPromptModal" :collection-id="collectionId"
       :collection-name="collection?.name || ''" @added="handlePromptsAdded" />

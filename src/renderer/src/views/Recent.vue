@@ -50,8 +50,8 @@
       <div class="h-24"></div>
     </div>
 
-    <MediaViewer v-model:visible="viewerVisible" :images="viewerImages" :videos="viewerVideos" :initial-index="viewerIndex"
-      @close="viewerVisible = false" />
+    <MediaViewer v-model:visible="viewerVisible" :images="viewerImages" :videos="viewerVideos"
+      :initial-index="viewerIndex" @close="viewerVisible = false" />
     <ConfirmDialog v-model:visible="showPrivacyDialog" type="warning"
       :title="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
       :message="privacyPrompt?.is_private ? t('dialog.makePublicMessage') : t('dialog.makePrivateMessage')"

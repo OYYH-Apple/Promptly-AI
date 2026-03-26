@@ -4,14 +4,8 @@
     该组件现已作为 MediaViewer 的包装器存在，保持向后兼容
     新代码建议直接使用 MediaViewer 组件以获得更完整的功能
   -->
-  <MediaViewer
-    v-model:visible="props.visible"
-    :images="props.images"
-    :videos="[]"
-    :initial-index="props.initialIndex"
-    :alt="props.alt"
-    @close="emit('close')"
-  />
+  <MediaViewer v-model:visible="props.visible" :images="props.images" :videos="[]" :initial-index="props.initialIndex"
+    :alt="props.alt" @close="emit('close')" />
 </template>
 
 <script setup lang="ts">

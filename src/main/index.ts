@@ -330,7 +330,38 @@ ipcMain.handle('db:updatePrompt', (_, id, prompt) => {
   return true
 })
 
-ipcMain.handle('db:deletePrompt', (_, id) => {
+ipcMain.handle('db:deletePrompt', async (_, id: number) => {
+  // ==================== 删除前清理关联视频文件 ====================
+  // 先查询获取该提示词关联的视频路径列表
+  const selectStmt = db?.prepare('SELECT reference_videos FROM prompts WHERE id = ?')
+  const prompt = selectStmt?.get([id]) as { reference_videos: string } | undefined
+
+  if (prompt?.reference_videos) {
+    // 安全解析视频路径列表，解析失败时默认空数组
+    const videoPaths: string[] = (() => {
+      try {
+        return JSON.parse(prompt.reference_videos)
+      } catch {
+        return []
+      }
+    })()
+
+    // 遍历删除每个视频文件
+    for (const videoPath of videoPaths) {
+      try {
+        const normalizedPath = join(videoPath)
+        // 安全检查：只删除位于 videosDir 内的文件，防止路径穿越导致误删系统文件
+        if (normalizedPath.startsWith(videosDir) && existsSync(normalizedPath)) {
+          await fsPromises.unlink(normalizedPath)
+        }
+      } catch (err) {
+        // 单个视频删除失败不影响主流程，仅记录日志
+        console.error('删除视频文件失败:', videoPath, err)
+      }
+    }
+  }
+
+  // ==================== 删除数据库记录 ====================
   runQuery('DELETE FROM prompts WHERE id = ?', [id])
   return true
 })
