@@ -24,33 +24,44 @@ const THUMBNAIL_SUFFIX = '.thumb.jpg'
 function getFfmpegPath(): string {
   // 开发环境：使用 ffmpeg-static
   if (ffmpegStatic && existsSync(ffmpegStatic)) {
+    console.log('[FFmpeg] 使用 ffmpeg-static:', ffmpegStatic)
     return ffmpegStatic
   }
   
   // 生产环境：尝试多种路径
   const possiblePaths = [
-    // electron-builder 打包后的路径
+    // electron-builder 打包后的路径（app.asar.unpacked 或 resources）
+    join(process.resourcesPath || '', 'app.asar.unpacked', 'node_modules', 'ffmpeg-static', 'ffmpeg.exe'),
     join(process.resourcesPath || '', 'ffmpeg.exe'),
     join(app.getAppPath(), '..', 'ffmpeg.exe'),
     join(dirname(process.execPath), 'ffmpeg.exe'),
+    join(dirname(process.execPath), '..', 'ffmpeg.exe'),
     // 环境变量中的 ffmpeg
     'ffmpeg',
   ]
   
   for (const path of possiblePaths) {
+    console.log('[FFmpeg] 检查路径:', path, '存在:', existsSync(path))
     if (path === 'ffmpeg' || existsSync(path)) {
       return path
     }
   }
   
   // 兜底：返回 ffmpeg 命令，依赖系统 PATH
+  console.log('[FFmpeg] 未找到 ffmpeg，使用系统 PATH')
   return 'ffmpeg'
 }
 
-// 设置 ffmpeg 可执行文件路径
-const ffmpegPath = getFfmpegPath()
-console.log('[FFmpeg] 使用路径:', ffmpegPath)
-ffmpeg.setFfmpegPath(ffmpegPath)
+// 延迟设置 ffmpeg 路径，确保 Electron 已初始化
+let ffmpegInitialized = false
+function initFfmpeg(): void {
+  if (ffmpegInitialized) return
+  
+  const ffmpegPath = getFfmpegPath()
+  console.log('[FFmpeg] 最终使用路径:', ffmpegPath)
+  ffmpeg.setFfmpegPath(ffmpegPath)
+  ffmpegInitialized = true
+}
 
 // ==================== 类型定义 ====================
 /**
@@ -75,6 +86,9 @@ export interface ThumbnailOptions {
  * @throws 当视频文件不存在或 ffmpeg 处理失败时抛出错误
  */
 export async function generateThumbnail(options: ThumbnailOptions): Promise<string> {
+  // 确保 ffmpeg 已初始化
+  initFfmpeg()
+  
   const {
     videoPath,
     time = DEFAULT_THUMBNAIL_TIME,
