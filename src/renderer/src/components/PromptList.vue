@@ -18,56 +18,39 @@
                 {{ t('table.category') }}: {{ selectedCategory }}
               </span>
               <span v-else>{{ t('table.category') }}</span>
-              <button
-                @click.stop="toggleCategoryDropdown"
+              <button @click.stop="toggleCategoryDropdown"
                 class="p-1 rounded-lg hover:bg-surface-container-high transition-colors"
                 :class="{ 'text-primary': selectedCategory, 'text-on-surface-variant/60': !selectedCategory }"
-                :title="t('table.filterByCategory')"
-              >
+                :title="t('table.filterByCategory')">
                 <span class="material-symbols-outlined text-base">
                   {{ isCategoryDropdownOpen ? 'expand_less' : 'expand_more' }}
                 </span>
               </button>
               <!-- 清除筛选按钮 -->
-              <button
-                v-if="selectedCategory"
-                @click.stop="clearCategoryFilter"
+              <button v-if="selectedCategory" @click.stop="clearCategoryFilter"
                 class="p-1 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant/60 hover:text-error"
-                :title="t('common.clear')"
-              >
+                :title="t('common.clear')">
                 <span class="material-symbols-outlined text-base">close</span>
               </button>
             </div>
             <!-- 分类下拉菜单 -->
-            <div
-              v-if="isCategoryDropdownOpen"
-              ref="categoryDropdownRef"
-              class="absolute top-full left-0 mt-1 bg-surface-container-lowest rounded-lg shadow-lg border border-surface-variant/20 py-2 min-w-[200px] z-50 max-h-[300px] overflow-y-auto"
-            >
+            <div v-if="isCategoryDropdownOpen" ref="categoryDropdownRef"
+              class="absolute top-full left-0 mt-1 bg-surface-container-lowest rounded-lg shadow-lg border border-surface-variant/20 py-2 min-w-[200px] z-50 max-h-[300px] overflow-y-auto">
               <!-- 全部选项 -->
-              <button
-                @click="selectCategory('')"
+              <button @click="selectCategory('')"
                 class="w-full px-4 py-2 text-left text-sm hover:bg-surface-container-high transition-colors flex items-center justify-between"
-                :class="{ 'bg-primary/10 text-primary': !selectedCategory }"
-              >
+                :class="{ 'bg-primary/10 text-primary': !selectedCategory }">
                 <span>{{ t('table.filterAll') }}</span>
                 <span v-if="!selectedCategory" class="material-symbols-outlined text-base">check</span>
               </button>
               <div class="h-px bg-surface-variant/20 my-1"></div>
               <!-- 分类列表 -->
-              <div v-if="availableCategories && availableCategories.length > 0">
-                <button
-                  v-for="category in availableCategories"
-                  :key="category"
-                  @click="selectCategory(category)"
+              <div v-if="availableCategories.length > 0">
+                <button v-for="category in availableCategories" :key="category" @click="selectCategory(category)"
                   class="w-full px-4 py-2 text-left text-sm hover:bg-surface-container-high transition-colors flex items-center justify-between"
-                  :class="{ 'bg-primary/10 text-primary': selectedCategory === category }"
-                >
+                  :class="{ 'bg-primary/10 text-primary': selectedCategory === category }">
                   <span class="flex items-center gap-2">
-                    <span
-                      class="w-2 h-2 rounded-full"
-                      :class="getCategoryStyle(category).bg"
-                    ></span>
+                    <span class="w-2 h-2 rounded-full" :class="getCategoryStyle(category).bg"></span>
                     {{ category }}
                   </span>
                   <span v-if="selectedCategory === category" class="material-symbols-outlined text-base">check</span>
@@ -205,7 +188,6 @@ const props = defineProps<{
   isBatchMode?: boolean
   selectedIds?: number[]
   expanded?: boolean
-  availableCategories?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -234,6 +216,17 @@ function handleRowClick(prompt: Prompt) {
 const selectedCategory = ref('')
 const isCategoryDropdownOpen = ref(false)
 const categoryDropdownRef = ref<HTMLElement | null>(null)
+
+// 从提示词数据中自动提取所有分类（去重且排序）
+const availableCategories = computed(() => {
+  const categories = new Set<string>()
+  props.prompts.forEach(prompt => {
+    if (prompt.category) {
+      categories.add(prompt.category)
+    }
+  })
+  return Array.from(categories).sort()
+})
 
 // 切换下拉菜单显示状态
 function toggleCategoryDropdown() {
