@@ -348,12 +348,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { usePromptStore } from '@/stores/prompts'
+import { useNotificationStore, type Notification } from '@/stores/notifications'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import Tooltip from './Tooltip.vue'
 import LanguageSwitch from './LanguageSwitch.vue'
 
 const store = usePromptStore()
+const notificationStore = useNotificationStore()
 const { t } = useI18n()
+const router = useRouter()
 const showNotifications = ref(false)
 const showHelpModal = ref(false)
 const showFeedbackModal = ref(false)
@@ -397,46 +401,11 @@ async function sendFeedbackEmail() {
   }
 }
 
-const defaultNotifications = [
-  { id: 1, type: 'success', title: 'Data Exported', message: 'Your prompts have been exported successfully', time: 'Just now' },
-  { id: 2, type: 'info', title: 'New Features', message: 'Check out the latest updates in v1.0.0', time: '2 hours ago' },
-  { id: 3, type: 'warning', title: 'Storage Alert', message: 'You have 50+ prompts in your library', time: '1 day ago' }
-]
-
-const notifications = ref(defaultNotifications.map(n => ({ ...n, read: false })))
+// 使用通知 store 的数据
+const notifications = computed(() => notificationStore.sortedNotifications)
 
 // 计算未读通知数量
-const unreadCount = computed(() => {
-  return notifications.value.filter(n => !n.read).length
-})
-
-function loadNotificationStates() {
-  try {
-    const saved = localStorage.getItem('notification-states')
-    if (saved) {
-      const states = JSON.parse(saved)
-      notifications.value.forEach(n => {
-        if (states[n.id] !== undefined) {
-          n.read = states[n.id]
-        }
-      })
-    }
-  } catch (e) {
-    console.error('Failed to load notification states:', e)
-  }
-}
-
-function saveNotificationStates() {
-  try {
-    const states: Record<number, boolean> = {}
-    notifications.value.forEach(n => {
-      states[n.id] = n.read
-    })
-    localStorage.setItem('notification-states', JSON.stringify(states))
-  } catch (e) {
-    console.error('Failed to save notification states:', e)
-  }
-}
+const unreadCount = computed(() => notificationStore.unreadCount)
 
 const helpSectionIds = ['intro', 'library', 'collections', 'favorites', 'shortcuts', 'data']
 const helpSectionIcons: Record<string, string> = {
@@ -474,14 +443,30 @@ function getNotificationIcon(type: string) {
   return icons[type] || 'notifications'
 }
 
-function handleNotificationClick(notification: any) {
-  notification.read = true
-  saveNotificationStates()
+/**
+ * 处理通知点击事件
+ * 标记为已读并执行关联操作（如跳转）
+ */
+function handleNotificationClick(notification: Notification) {
+  // 标记为已读
+  notificationStore.markAsRead(notification.id)
+
+  // 执行通知关联的操作
+  if (notification.action) {
+    if (notification.action.path) {
+      router.push(notification.action.path)
+    }
+    if (notification.action.callback) {
+      notification.action.callback()
+    }
+  }
 }
 
+/**
+ * 标记所有通知为已读
+ */
 function markAllRead() {
-  notifications.value.forEach(n => n.read = true)
-  saveNotificationStates()
+  notificationStore.markAllRead()
 }
 
 function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') {
@@ -518,7 +503,6 @@ function handleClickOutside(e: MouseEvent) {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  loadNotificationStates()
 })
 
 onUnmounted(() => {

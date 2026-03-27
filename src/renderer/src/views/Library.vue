@@ -218,6 +218,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePromptStore, type Prompt } from '@/stores/prompts'
+import { useNotificationStore } from '@/stores/notifications'
 import MediaViewer from '@/components/MediaViewer.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
@@ -229,6 +230,7 @@ const { t } = useI18n()
 
 const router = useRouter()
 const store = usePromptStore()
+const notificationStore = useNotificationStore()
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
 const viewerVideos = ref<string[]>([])
@@ -351,6 +353,11 @@ async function confirmBatchDelete() {
   // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
   await store.batchDeletePrompts(selectedPrompts.value.slice())
   showToast(t('toast.batchDeleteSuccess', { count }), 'success')
+  // 添加批量删除成功通知
+  notificationStore.success(
+    t('notifications.batchDeleteSuccess'),
+    t('notifications.batchDeleteSuccessMessage', { count })
+  )
   exitBatchMode()
   showBatchDeleteDialog.value = false
 }
@@ -367,6 +374,12 @@ async function handleBatchFavorite() {
   // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
   await store.batchUpdatePrompts(selectedPrompts.value.slice(), { is_favorite: !allFavorited })
   showToast(t('toast.batchFavoriteSuccess', { count }), 'success')
+  // 添加批量收藏成功通知
+  notificationStore.success(
+    t('notifications.batchFavoriteSuccess'),
+    t('notifications.batchFavoriteSuccessMessage', { count }),
+    { label: '查看收藏', path: '/favorites' }
+  )
   exitBatchMode()
 }
 
@@ -383,6 +396,12 @@ async function handleBatchMoveToCollection(collectionId: number) {
   // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
   await store.batchUpdatePrompts(selectedPrompts.value.slice(), { collection_id: collectionId })
   showToast(t('toast.batchMoveToCollectionSuccess', { count }), 'success')
+  // 添加批量移动成功通知
+  notificationStore.success(
+    t('notifications.batchMoveSuccess'),
+    t('notifications.batchMoveSuccessMessage', { count }),
+    { label: '查看集合', path: `/collection/${collectionId}` }
+  )
   showCollectionDropdown.value = false
   exitBatchMode()
 }

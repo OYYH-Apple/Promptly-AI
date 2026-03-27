@@ -410,7 +410,28 @@ export default {
     newFeatures: 'New Features',
     newFeaturesMessage: 'Check out the latest updates in v1.0.0',
     storageAlert: 'Storage Alert',
-    storageAlertMessage: 'You have 50+ prompts in your library'
+    storageAlertMessage: 'You have 50+ prompts in your library',
+    // Business event notifications
+    importSuccess: 'Import Successful',
+    importSuccessMessage: 'Successfully imported {count} prompts',
+    importFailed: 'Import Failed',
+    importFailedMessage: 'An error occurred during data import',
+    exportSuccess: 'Export Successful',
+    exportSuccessMessage: 'Data has been successfully exported to file',
+    exportFailed: 'Export Failed',
+    exportFailedMessage: 'An error occurred during data export',
+    batchDeleteSuccess: 'Batch Delete Complete',
+    batchDeleteSuccessMessage: 'Successfully deleted {count} prompts',
+    batchMoveSuccess: 'Batch Move Complete',
+    batchMoveSuccessMessage: 'Successfully moved {count} prompts to collection',
+    batchFavoriteSuccess: 'Batch Favorite Complete',
+    batchFavoriteSuccessMessage: 'Successfully favorited {count} prompts',
+    updateAvailable: 'Update Available',
+    updateAvailableMessage: 'Version {version} is available, click to view details',
+    updateDownloaded: 'Update Downloaded',
+    updateDownloadedMessage: 'New version is ready to install, restart app to complete update',
+    updateDownloadFailed: 'Update Download Failed',
+    updateDownloadFailedMessage: 'An error occurred while downloading update, please try again later'
   },
 
   // ==================== Help Center ====================
@@ -703,7 +724,10 @@ export default {
     name: 'Name',
     category: 'Category',
     dateEdited: 'Date Edited',
-    option: 'Option'
+    option: 'Option',
+    filterAll: 'All',
+    filterByCategory: 'Filter by Category',
+    noCategories: 'No categories'
   },
 
   // ==================== Pagination ====================
