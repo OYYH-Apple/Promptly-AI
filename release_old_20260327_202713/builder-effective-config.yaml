@@ -1,0 +1,39 @@
+directories:
+  output: release
+  buildResources: build
+appId: com.promptly.ai
+productName: Promptly AI
+files:
+  - filter:
+      - dist/**/*
+      - dist-electron/**/*
+extraResources:
+  - from: node_modules/sql.js/dist/sql-wasm.wasm
+    to: sql-wasm.wasm
+  - from: node_modules/ffmpeg-static/ffmpeg.exe
+    to: ffmpeg.exe
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  artifactName: Promptly.AI.${version}.${ext}
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Promptly AI
+  deleteAppDataOnUninstall: true
+  perMachine: false
+  artifactName: Promptly.AI.Setup.${version}.${ext}
+publish:
+  provider: github
+  owner: OYYH-Apple
+  repo: Promptly-AI
+  vPrefixedTagName: true
+  releaseType: release
+electronVersion: 29.4.6

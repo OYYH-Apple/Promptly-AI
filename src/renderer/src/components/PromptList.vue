@@ -237,13 +237,6 @@ function selectCategory(category: string) {
   emit('filter-change', category)
 }
 
-// 清除分类筛选
-function clearCategoryFilter() {
-  selectedCategory.value = ''
-  currentPage.value = 1 // 清除筛选时重置页码
-  emit('filter-change', '')
-}
-
 // 点击外部关闭下拉菜单
 function handleClickOutside(event: MouseEvent) {
   if (categoryDropdownRef.value && !categoryDropdownRef.value.contains(event.target as Node)) {
