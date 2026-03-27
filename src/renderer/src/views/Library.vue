@@ -131,7 +131,8 @@
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
                 @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)"
+                @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
                 @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
                 @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
@@ -146,7 +147,8 @@
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
                 @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)"
+                @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
                 @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
                 @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
@@ -156,8 +158,8 @@
         <!-- List View -->
         <PromptList v-else :prompts="store.filteredPrompts" :is-batch-mode="isBatchMode" :selected-ids="selectedPrompts"
           :expanded="expandAllSections" @click="(prompt: Prompt) => !isBatchMode && router.push(`/prompt/${prompt.id}`)"
-          @open-image="openImageViewer" @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-          @select="togglePromptSelection">
+          @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
+          @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)" @select="togglePromptSelection">
           <template #actions="{ prompt }">
             <template v-if="!isBatchMode">
               <Tooltip :text="prompt.is_favorite ? t('tooltip.removeFromFavorites') : t('tooltip.addToFavorites')"
@@ -195,8 +197,8 @@
         </div>
       </template>
     </div>
-    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
-      @close="viewerVisible = false" />
+    <MediaViewer v-model:visible="viewerVisible" :images="viewerImages" :videos="viewerVideos"
+      :initial-index="viewerIndex" @close="viewerVisible = false" />
     <ConfirmDialog v-model:visible="showDeleteDialog" type="danger" :title="t('dialog.deletePromptTitle')"
       :message="t('dialog.deletePromptMessage')" :confirm-text="t('dialog.delete')" :cancel-text="t('dialog.cancel')"
       @confirm="confirmDelete" />
@@ -216,7 +218,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePromptStore, type Prompt } from '@/stores/prompts'
-import ImageViewer from '@/components/ImageViewer.vue'
+import { useNotificationStore } from '@/stores/notifications'
+import MediaViewer from '@/components/MediaViewer.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
 import PromptList from '@/components/PromptList.vue'
@@ -227,8 +230,10 @@ const { t } = useI18n()
 
 const router = useRouter()
 const store = usePromptStore()
+const notificationStore = useNotificationStore()
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
+const viewerVideos = ref<string[]>([])
 const viewerIndex = ref(0)
 const showDeleteDialog = ref(false)
 const deletePromptId = ref<number | null>(null)
@@ -348,6 +353,11 @@ async function confirmBatchDelete() {
   // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
   await store.batchDeletePrompts(selectedPrompts.value.slice())
   showToast(t('toast.batchDeleteSuccess', { count }), 'success')
+  // 添加批量删除成功通知
+  notificationStore.success(
+    t('notifications.batchDeleteSuccess'),
+    t('notifications.batchDeleteSuccessMessage', { count })
+  )
   exitBatchMode()
   showBatchDeleteDialog.value = false
 }
@@ -364,6 +374,12 @@ async function handleBatchFavorite() {
   // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
   await store.batchUpdatePrompts(selectedPrompts.value.slice(), { is_favorite: !allFavorited })
   showToast(t('toast.batchFavoriteSuccess', { count }), 'success')
+  // 添加批量收藏成功通知
+  notificationStore.success(
+    t('notifications.batchFavoriteSuccess'),
+    t('notifications.batchFavoriteSuccessMessage', { count }),
+    { label: '查看收藏', path: '/favorites' }
+  )
   exitBatchMode()
 }
 
@@ -380,6 +396,12 @@ async function handleBatchMoveToCollection(collectionId: number) {
   // 使用 .slice() 将 Vue Proxy 数组转换为纯数据数组
   await store.batchUpdatePrompts(selectedPrompts.value.slice(), { collection_id: collectionId })
   showToast(t('toast.batchMoveToCollectionSuccess', { count }), 'success')
+  // 添加批量移动成功通知
+  notificationStore.success(
+    t('notifications.batchMoveSuccess'),
+    t('notifications.batchMoveSuccessMessage', { count }),
+    { label: '查看集合', path: `/collection/${collectionId}` }
+  )
   showCollectionDropdown.value = false
   exitBatchMode()
 }
@@ -406,8 +428,9 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
   }))
 }
 
-function openImageViewer(images: string[], index: number) {
+function openImageViewer(images: string[], videos: string[], index: number) {
   viewerImages.value = images
+  viewerVideos.value = videos
   viewerIndex.value = index
   viewerVisible.value = true
 }

@@ -101,7 +101,8 @@
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && prompt.id && store.toggleFavorite(prompt.id)"
                 @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)"
+                @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
                 @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
                 @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
@@ -115,7 +116,8 @@
                 @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
                 @toggle-favorite="!isBatchMode && prompt.id && store.toggleFavorite(prompt.id)"
                 @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+                @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)"
+                @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
                 @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
                 @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
             </template>
@@ -125,8 +127,8 @@
         <!-- List View -->
         <PromptList v-else :prompts="favorites" :is-batch-mode="isBatchMode" :selected-ids="selectedPrompts"
           :expanded="expandAllSections" @click="(prompt: Prompt) => !isBatchMode && router.push(`/prompt/${prompt.id}`)"
-          @open-image="openImageViewer" @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-          @select="togglePromptSelection">
+          @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
+          @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)" @select="togglePromptSelection">
           <template #actions="{ prompt }">
             <template v-if="!isBatchMode">
               <Tooltip :text="t('tooltip.edit')" placement="top">
@@ -164,8 +166,8 @@
       </template>
     </div>
 
-    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
-      @close="viewerVisible = false" />
+    <MediaViewer v-model:visible="viewerVisible" :images="viewerImages" :videos="viewerVideos"
+      :initial-index="viewerIndex" @close="viewerVisible = false" />
     <ConfirmDialog v-model:visible="showPrivacyDialog" type="warning"
       :title="privacyPrompt?.is_private ? t('dialog.makePublicTitle') : t('dialog.makePrivateTitle')"
       :message="privacyPrompt?.is_private ? t('dialog.makePublicMessage') : t('dialog.makePrivateMessage')"
@@ -190,7 +192,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePromptStore, type Prompt } from '@/stores/prompts'
-import ImageViewer from '@/components/ImageViewer.vue'
+import MediaViewer from '@/components/MediaViewer.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
 import PromptList from '@/components/PromptList.vue'
@@ -203,6 +205,7 @@ const { t } = useI18n()
 
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
+const viewerVideos = ref<string[]>([])
 const viewerIndex = ref(0)
 const showPrivacyDialog = ref(false)
 const privacyPrompt = ref<Prompt | null>(null)
@@ -372,8 +375,9 @@ function showToast(message: string, type: 'success' | 'error' | 'warning' | 'inf
   }))
 }
 
-function openImageViewer(images: string[], index: number) {
+function openImageViewer(images: string[], videos: string[], index: number) {
   viewerImages.value = images
+  viewerVideos.value = videos
   viewerIndex.value = index
   viewerVisible.value = true
 }

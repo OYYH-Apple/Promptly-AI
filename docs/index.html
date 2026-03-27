@@ -185,7 +185,7 @@
             <div
                 class="inline-flex items-center gap-2 bg-blue-50/80 backdrop-blur text-blue-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
                 <span class="material-symbols-outlined text-xs sm:text-sm">auto_awesome</span>
-                v1.2.4 全新发布
+                v1.3.5 全新发布
             </div>
             <h1
                 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 mb-4 sm:mb-6 leading-tight">
@@ -333,8 +333,8 @@
     <section id="changelog" class="py-16 sm:py-20 px-4 sm:px-6 bg-white border-b border-slate-200">
         <div class="max-w-4xl mx-auto">
             <div class="text-center mb-8 sm:mb-12">
-                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-3 sm:mb-4">v1.2.4 更新内容</h2>
-                <p class="text-sm sm:text-base text-slate-600">新增多语言支持，为你带来更好的体验</p>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-3 sm:mb-4">v1.3.5 更新内容</h2>
+                <p class="text-sm sm:text-base text-slate-600">新增视频支持和通知系统，为你带来更好的体验</p>
             </div>
             <div class="bg-slate-50 rounded-2xl p-6 sm:p-8">
                 <!-- 新增功能 -->
@@ -346,11 +346,23 @@
                     <ul class="space-y-2 text-sm sm:text-base text-slate-600 ml-8">
                         <li class="flex items-start gap-2">
                             <span class="text-green-400 mt-1">•</span>
-                            <span>新增中英双语国际化支持，一键切换界面语言</span>
+                            <span>新增视频提示词支持，可为提示词添加视频参考</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-green-400 mt-1">•</span>
-                            <span>新增语言切换组件，快速切换中英文显示</span>
+                            <span>新增视频缩略图生成和预览功能</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>新增视频播放器组件，支持全屏、倍速、音量控制</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>新增通知系统，与业务事件集成（导入/导出/批量操作/自动更新）</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-400 mt-1">•</span>
+                            <span>新增 PromptList 分类筛选功能</span>
                         </li>
                     </ul>
                 </div>
@@ -363,40 +375,32 @@
                     <ul class="space-y-2 text-sm sm:text-base text-slate-600 ml-8">
                         <li class="flex items-start gap-2">
                             <span class="text-blue-400 mt-1">•</span>
-                            <span>全面升级所有界面组件的国际化支持</span>
+                            <span>优化媒体切换按钮UI，支持图片/视频切换预览</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-blue-400 mt-1">•</span>
-                            <span>优化提示词库、收藏夹、集合管理等核心模块的多语言适配</span>
+                            <span>优化 TopBar 消息通知功能，接入实际业务事件</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-blue-400 mt-1">•</span>
-                            <span>完善设置界面、新建/编辑提示词界面的翻译覆盖</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-blue-400 mt-1">•</span>
-                            <span>统一所有提示消息、对话框和工具提示的国际化文本</span>
+                            <span>优化视频缩略图生成路径处理</span>
                         </li>
                     </ul>
                 </div>
-                <!-- 技术升级 -->
+                <!-- BUG修复 -->
                 <div>
                     <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-3">
-                        <span class="material-symbols-outlined text-purple-500">build</span>
-                        技术升级
+                        <span class="material-symbols-outlined text-red-500">bug_report</span>
+                        BUG修复
                     </h3>
                     <ul class="space-y-2 text-sm sm:text-base text-slate-600 ml-8">
                         <li class="flex items-start gap-2">
-                            <span class="text-purple-400 mt-1">•</span>
-                            <span>集成 Vue I18n 国际化框架</span>
+                            <span class="text-red-400 mt-1">•</span>
+                            <span>修复 MediaViewer 中视频无法播放的问题</span>
                         </li>
                         <li class="flex items-start gap-2">
-                            <span class="text-purple-400 mt-1">•</span>
-                            <span>构建完整的中英文语言包体系</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-purple-400 mt-1">•</span>
-                            <span>优化语言切换的响应式体验</span>
+                            <span class="text-red-400 mt-1">•</span>
+                            <span>修复 ffmpeg 路径查找问题</span>
                         </li>
                     </ul>
                 </div>
@@ -411,7 +415,7 @@
             <p class="text-sm sm:text-base text-slate-600 mb-8 sm:mb-10">完全免费，无需注册，开箱即用</p>
 
             <div class="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-10">
-                <a href="https://github.com/OYYH-Apple/Promptly-AI/releases/download/v1.2.4/Promptly.AI.Setup.1.2.4.exe"
+                <a href="https://github.com/OYYH-Apple/Promptly-AI/releases/download/v1.3.5/Promptly.AI.Setup.1.3.5.exe"
                     class="card-hover bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl p-6 sm:p-8 text-left">
                     <div class="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                         <div class="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 rounded-xl flex items-center justify-center">
@@ -424,10 +428,10 @@
                     </div>
                     <div class="flex items-center gap-2 text-blue-100">
                         <span class="material-symbols-outlined text-sm">download</span>
-                        <span class="text-xs sm:text-sm">Promptly.AI.Setup.1.2.4.exe</span>
+                        <span class="text-xs sm:text-sm">Promptly.AI.Setup.1.3.5.exe</span>
                     </div>
                 </a>
-                <a href="https://github.com/OYYH-Apple/Promptly-AI/releases/download/v1.2.4/Promptly.AI.1.2.4.exe"
+                <a href="https://github.com/OYYH-Apple/Promptly-AI/releases/download/v1.3.5/Promptly.AI.1.3.5.exe"
                     class="card-hover bg-slate-100 text-slate-800 rounded-2xl p-6 sm:p-8 text-left border border-slate-200">
                     <div class="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                         <div
@@ -441,7 +445,7 @@
                     </div>
                     <div class="flex items-center gap-2 text-slate-500">
                         <span class="material-symbols-outlined text-sm">download</span>
-                        <span class="text-xs sm:text-sm">Promptly.AI.1.2.4.exe</span>
+                        <span class="text-xs sm:text-sm">Promptly.AI.1.3.5.exe</span>
                     </div>
                 </a>
             </div>

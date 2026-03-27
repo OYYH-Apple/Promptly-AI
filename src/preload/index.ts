@@ -179,6 +179,10 @@ const api = {
   deleteVideo: (filePath: string) =>
     ipcRenderer.invoke('file:deleteVideo', filePath),
 
+  // 视频缩略图生成
+  generateThumbnail: (videoPath: string) =>
+    ipcRenderer.invoke('file:generateThumbnail', videoPath),
+
   sendFeedbackEmail: (feedback: { type: string; content: string; contact: string }) =>
     ipcRenderer.invoke('send-feedback-email', feedback)
 }

@@ -14,25 +14,33 @@
       </div>
     </div>
 
-    <!-- 缩略图区域：有图片时显示 Thumbnail 组件 -->
-    <div v-if="prompt.reference_images?.length" class="absolute -top-2 -right-2 z-10">
-      <Thumbnail :image-url="prompt.reference_images[0]" :count="prompt.reference_images.length"
-        :rotation="thumbnailRotations[rotationIndex % thumbnailRotations.length]" size="large"
-        @click="$emit('open-image', prompt.reference_images, 0)" />
-      <!-- 当同时有图片和视频时显示视频小角标 -->
-      <div v-if="prompt.reference_videos?.length"
-        class="absolute -bottom-1 -left-1 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center shadow z-20">
-        <span class="material-symbols-outlined text-white" style="font-size: 12px;">videocam</span>
-      </div>
-    </div>
-    <!-- 仅有视频无图片时显示视频图标标识 -->
-    <div v-else-if="prompt.reference_videos?.length" class="absolute -top-2 -right-2 z-10">
-      <div class="w-14 h-14 rounded-xl bg-black/80 flex items-center justify-center shadow-lg border-2 border-white/20">
-        <span class="material-symbols-outlined text-white text-xl">videocam</span>
-      </div>
-      <div v-if="prompt.reference_videos.length > 1"
-        class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center shadow">
-        {{ prompt.reference_videos.length }}
+    <!-- 媒体显示区域：统一处理图片和视频 -->
+    <div v-if="hasImages || hasVideos" class="absolute -top-2 -right-2 z-10">
+      <div class="relative thumb-wrapper"
+        :style="{ transform: `rotate(${thumbnailRotations[rotationIndex % thumbnailRotations.length]}deg)` }">
+        <!-- 切换按钮：同时有图片和视频时显示 -->
+        <button v-if="hasBothMedia" @click.stop="toggleMediaType"
+          class="absolute -bottom-1.5 -left-1.5 z-20 size-5 rounded-full bg-black/80 text-white grid place-items-center shadow-md hover:bg-black hover:scale-110 transition-all duration-300"
+          :title="currentMediaType === 'image' ? '切换到视频' : '切换到图片'">
+          <span class="material-symbols-outlined leading-none block transition-transform duration-300"
+            :class="{ 'rotate-180': currentMediaType === 'video' }" style="font-size: 12px; line-height: 1;">
+            {{ currentMediaType === 'image' ? 'videocam' : 'image' }}
+          </span>
+        </button>
+
+        <!-- 图片显示 -->
+        <template v-if="currentMediaType === 'image' && hasImages">
+          <Thumbnail :image-url="props.prompt.reference_images![0]" :count="props.prompt.reference_images!.length"
+            :rotation="0" size="large"
+            @click="$emit('open-image', props.prompt.reference_images || [], props.prompt.reference_videos || [], 0)" />
+        </template>
+
+        <!-- 视频显示 -->
+        <template v-else>
+          <VideoThumbnail :video-url="props.prompt.reference_videos![0]" :thumbnail-url="videoThumbnailUrl || undefined"
+            :count="props.prompt.reference_videos!.length" :rotation="0" size="large"
+            @click="$emit('open-image', props.prompt.reference_images || [], props.prompt.reference_videos || [], 0)" />
+        </template>
       </div>
     </div>
 
@@ -100,14 +108,48 @@
 </template>
 
 <script setup lang="ts">
+// ==================== 依赖引入 ====================
 import type { Prompt } from '@/stores/prompts'
 import { useI18n } from 'vue-i18n'
 import { useDateFormatter } from '@/utils/format'
+import { ref, onMounted, computed } from 'vue'
 import Tooltip from './Tooltip.vue'
 import Thumbnail from './Thumbnail.vue'
+import VideoThumbnail from './VideoThumbnail.vue'
 
 const { t } = useI18n()
 const { formatRelativeTime } = useDateFormatter()
+
+// ==================== 媒体显示控制 ====================
+/** 当前显示的媒体类型，默认优先显示图片 */
+const currentMediaType = ref<'image' | 'video'>('image')
+
+// 计算是否有图片和视频
+const hasImages = computed(() => props.prompt.reference_images?.length > 0)
+const hasVideos = computed(() => props.prompt.reference_videos?.length > 0)
+const hasBothMedia = computed(() => hasImages.value && hasVideos.value)
+
+// 切换媒体类型
+function toggleMediaType() {
+  currentMediaType.value = currentMediaType.value === 'image' ? 'video' : 'image'
+}
+
+// 视频缩略图 URL
+const videoThumbnailUrl = ref<string>('')
+
+// 加载视频缩略图
+onMounted(async () => {
+  if (hasVideos.value) {
+    try {
+      const thumbnailPath = await window.api.generateThumbnail(props.prompt.reference_videos![0])
+      if (thumbnailPath) {
+        videoThumbnailUrl.value = `app-video://${encodeURIComponent(thumbnailPath)}`
+      }
+    } catch (error) {
+      console.error('加载视频缩略图失败:', error)
+    }
+  }
+})
 
 const props = withDefaults(defineProps<{
   prompt: Prompt
@@ -125,7 +167,7 @@ const emit = defineEmits<{
   (e: 'toggle-favorite', id: number | undefined): void
   (e: 'toggle-private', prompt: Prompt): void
   (e: 'copy', prompt: Prompt): void
-  (e: 'open-image', images: string[], index: number): void
+  (e: 'open-image', images: string[], videos: string[], index: number): void
   (e: 'edit', id: number | undefined): void
   (e: 'delete', id: number | undefined): void
   (e: 'select', id: number | undefined): void
@@ -201,6 +243,4 @@ function getShortCategory(category: string): string {
   }
   return shortNames[category] || category.toUpperCase()
 }
-
-// 使用 useDateFormatter 中的 formatRelativeTime 替代
 </script>

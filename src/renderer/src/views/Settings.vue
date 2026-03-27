@@ -429,11 +429,13 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePromptStore } from '@/stores/prompts'
+import { useNotificationStore } from '@/stores/notifications'
 import { marked } from 'marked'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import Tooltip from '@/components/Tooltip.vue'
 
 const store = usePromptStore()
+const notificationStore = useNotificationStore()
 const { t, locale } = useI18n()
 const stats = ref({ prompts: 0, collections: 0, favorites: 0 })
 const storagePath = ref('Loading...')
@@ -495,6 +497,12 @@ async function checkForUpdates() {
       }
       updateAvailable.value = true
       showUpdateDialog.value = true
+      // 添加发现新版本通知
+      notificationStore.info(
+        t('notifications.updateAvailable'),
+        t('notifications.updateAvailableMessage', { version: latestVersion.value }),
+        { label: '查看详情', callback: () => { showUpdateDialog.value = true } }
+      )
     } else {
       showToast(t('toast.latestVersion'), 'success')
     }
@@ -556,9 +564,20 @@ async function handleExport() {
     const path = await store.exportData()
     if (path) {
       showToast(t('toast.dataExported'), 'success')
+      // 添加导出成功通知
+      notificationStore.success(
+        t('notifications.exportSuccess'),
+        t('notifications.exportSuccessMessage'),
+        { label: '查看设置', path: '/settings' }
+      )
     }
   } catch (e) {
     showToast(t('toast.exportFailed'), 'error')
+    // 添加导出失败通知
+    notificationStore.error(
+      t('notifications.exportFailed'),
+      t('notifications.exportFailedMessage')
+    )
   } finally {
     isExporting.value = false
   }
@@ -569,11 +588,23 @@ async function handleImport() {
   try {
     const data = await store.importData()
     if (data) {
-      showToast(t('toast.importedPrompts', { count: data.prompts?.length || 0 }), 'success')
+      const count = data.prompts?.length || 0
+      showToast(t('toast.importedPrompts', { count }), 'success')
       stats.value = await window.api.getStats()
+      // 添加导入成功通知
+      notificationStore.success(
+        t('notifications.importSuccess'),
+        t('notifications.importSuccessMessage', { count }),
+        { label: '查看库', path: '/' }
+      )
     }
   } catch (e) {
     showToast(t('toast.importFailed'), 'error')
+    // 添加导入失败通知
+    notificationStore.error(
+      t('notifications.importFailed'),
+      t('notifications.importFailedMessage')
+    )
   } finally {
     isImporting.value = false
   }
@@ -706,6 +737,12 @@ onMounted(async () => {
     }
     // 显示更新提示弹窗
     showUpdateDialog.value = true
+    // 添加发现新版本通知
+    notificationStore.info(
+      t('notifications.updateAvailable'),
+      t('notifications.updateAvailableMessage', { version: latestVersion.value }),
+      { label: '查看详情', callback: () => { showUpdateDialog.value = true } }
+    )
   })
 
   // 监听下载进度
@@ -721,6 +758,12 @@ onMounted(async () => {
   window.api.onUpdateDownloaded?.(() => {
     isDownloading.value = false
     showInstallConfirmDialog.value = true
+    // 添加更新下载完成通知
+    notificationStore.success(
+      t('notifications.updateDownloaded'),
+      t('notifications.updateDownloadedMessage'),
+      { label: '立即安装', callback: () => { executeInstallUpdate() } }
+    )
   })
 
   // 监听更新错误

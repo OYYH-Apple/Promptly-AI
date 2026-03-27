@@ -17,7 +17,7 @@ interface Prompt {
   is_favorite?: boolean
   is_private?: boolean
   reference_images?: string | string[]
-  reference_videos?: string | string[]
+  reference_videos?: string[]
   created_at?: string
   updated_at?: string
 }
@@ -111,6 +111,8 @@ interface Window {
     removeUpdateListeners: () => void
     saveVideo: (data: { fileName: string; filePath: string }) => Promise<string>
     deleteVideo: (filePath: string) => Promise<boolean>
+    // 视频缩略图生成：传入视频路径，返回缩略图 Base64 字符串或 null
+    generateThumbnail: (videoPath: string) => Promise<string | null>
     sendFeedbackEmail: (feedback: { type: string; content: string; contact: string }) => Promise<{ success: boolean; messageId?: string; error?: string }>
   }
 }

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, protocol } from 'electron'
 import { join } from 'path'
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from 'fs'
 import { randomUUID } from 'crypto'
@@ -6,6 +6,7 @@ import { promises as fsPromises } from 'fs'
 import type { Database, SqlJsStatic } from 'sql.js'
 import { autoUpdater } from 'electron-updater'
 import nodemailer from 'nodemailer'
+import { getOrGenerateThumbnail, deleteThumbnail } from './videoThumbnail'
 
 // 加载 .env 文件（开发环境自动加载，生产环境需手动放置 .env 文件）
 import dotenv from 'dotenv'
@@ -194,6 +195,16 @@ app.whenReady().then(async () => {
 
   createWindow()
 
+  // ==================== 注册视频自定义协议 ====================
+  // 用途：绕过 Electron 安全限制，允许渲染进程播放本地视频文件
+  // 注意：Windows 路径需处理中文编码问题
+  protocol.registerFileProtocol('app-video', (request, callback) => {
+    const url = request.url.replace('app-video://', '')
+    // URL 解码处理中文路径
+    const decodedPath = decodeURIComponent(url)
+    callback({ path: decodedPath })
+  })
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow()
@@ -320,7 +331,38 @@ ipcMain.handle('db:updatePrompt', (_, id, prompt) => {
   return true
 })
 
-ipcMain.handle('db:deletePrompt', (_, id) => {
+ipcMain.handle('db:deletePrompt', async (_, id: number) => {
+  // ==================== 删除前清理关联视频文件 ====================
+  // 先查询获取该提示词关联的视频路径列表
+  const selectStmt = db?.prepare('SELECT reference_videos FROM prompts WHERE id = ?')
+  const prompt = selectStmt?.get([id]) as { reference_videos: string } | undefined
+
+  if (prompt?.reference_videos) {
+    // 安全解析视频路径列表，解析失败时默认空数组
+    const videoPaths: string[] = (() => {
+      try {
+        return JSON.parse(prompt.reference_videos)
+      } catch {
+        return []
+      }
+    })()
+
+    // 遍历删除每个视频文件
+    for (const videoPath of videoPaths) {
+      try {
+        const normalizedPath = join(videoPath)
+        // 安全检查：只删除位于 videosDir 内的文件，防止路径穿越导致误删系统文件
+        if (normalizedPath.startsWith(videosDir) && existsSync(normalizedPath)) {
+          await fsPromises.unlink(normalizedPath)
+        }
+      } catch (err) {
+        // 单个视频删除失败不影响主流程，仅记录日志
+        console.error('删除视频文件失败:', videoPath, err)
+      }
+    }
+  }
+
+  // ==================== 删除数据库记录 ====================
   runQuery('DELETE FROM prompts WHERE id = ?', [id])
   return true
 })
@@ -433,14 +475,26 @@ ipcMain.handle('db:batchDeletePrompts', async (_, ids: number[]) => {
 
 // ==================== 视频文件操作 ====================
 
+// 允许的视频扩展名
+const ALLOWED_VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.avi', '.mkv']
+
 ipcMain.handle('file:saveVideo', async (_, { fileName, filePath: sourcePath }: { fileName: string; filePath: string }) => {
+  // 提取扩展名（支持各种格式）
+  const ext = fileName.toLowerCase().slice(fileName.lastIndexOf('.'))
+  const fileExtension = ALLOWED_VIDEO_EXTENSIONS.includes(ext) ? ext : '.mp4'
+
   // 使用 UUID 生成唯一文件名，避免同名碰撞
-  const fileExtension = fileName.includes('.') ? fileName.substring(fileName.lastIndexOf('.')) : '.mp4'
   const uniqueName = `${randomUUID()}${fileExtension}`
   const destPath = join(videosDir, uniqueName)
 
   // 直接复制文件，避免将整个视频加载到内存
   await fsPromises.copyFile(sourcePath, destPath)
+
+  // 保存成功后，异步生成缩略图（不阻塞返回）
+  getOrGenerateThumbnail(destPath).catch(err => {
+    console.error('生成缩略图失败:', err)
+  })
+
   return destPath
 })
 
@@ -454,6 +508,9 @@ ipcMain.handle('file:deleteVideo', async (_, filePath: string) => {
     }
 
     if (existsSync(normalizedPath)) {
+      // 先删除关联的缩略图
+      await deleteThumbnail(normalizedPath)
+      // 再删除视频文件
       await fsPromises.unlink(normalizedPath)
       return true
     }
@@ -462,6 +519,17 @@ ipcMain.handle('file:deleteVideo', async (_, filePath: string) => {
     console.error('删除视频文件失败:', error)
     return false
   }
+})
+
+// ==================== 视频缩略图 IPC 处理器 ====================
+
+/**
+ * 生成视频缩略图
+ * @param videoPath - 视频文件绝对路径
+ * @returns 缩略图文件路径，失败返回 null
+ */
+ipcMain.handle('file:generateThumbnail', async (_, videoPath: string) => {
+  return getOrGenerateThumbnail(videoPath)
 })
 
 ipcMain.handle('db:toggleFavorite', (_, id) => {

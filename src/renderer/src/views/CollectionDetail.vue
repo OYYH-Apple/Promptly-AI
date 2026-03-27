@@ -98,7 +98,8 @@
               @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
               @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
               @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)"
+              @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
               @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
               @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
           </template>
@@ -112,7 +113,8 @@
               @click="!isBatchMode && router.push(`/prompt/${prompt.id}`)" @select="togglePromptSelection"
               @toggle-favorite="!isBatchMode && store.toggleFavorite(prompt.id as number)"
               @toggle-private="(p: Prompt) => !isBatchMode && handleTogglePrivate(p)"
-              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)" @open-image="openImageViewer"
+              @copy="(p: Prompt) => !isBatchMode && copyPrompt(p)"
+              @open-image="(imgs, vids, idx) => openImageViewer(imgs, vids, idx)"
               @edit="(id: number | undefined) => !isBatchMode && handleEdit(id)"
               @delete="(id: number | undefined) => !isBatchMode && handleDelete(id)" />
           </template>
@@ -120,8 +122,8 @@
       </template>
     </div>
 
-    <ImageViewer v-model:visible="viewerVisible" :images="viewerImages" :initial-index="viewerIndex"
-      @close="viewerVisible = false" />
+    <MediaViewer v-model:visible="viewerVisible" :images="viewerImages" :videos="viewerVideos"
+      :initial-index="viewerIndex" @close="viewerVisible = false" />
 
     <AddPromptModal v-model:visible="showAddPromptModal" :collection-id="collectionId"
       :collection-name="collection?.name || ''" @added="handlePromptsAdded" />
@@ -202,7 +204,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { usePromptStore, type Prompt } from '@/stores/prompts'
-import ImageViewer from '@/components/ImageViewer.vue'
+import MediaViewer from '@/components/MediaViewer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import PromptCard from '@/components/PromptCard.vue'
 import PromptSection from '@/components/PromptSection.vue'
@@ -223,6 +225,7 @@ const showEditModal = ref(false)
 const promptToRemove = ref<any>(null)
 const viewerVisible = ref(false)
 const viewerImages = ref<string[]>([])
+const viewerVideos = ref<string[]>([])
 const viewerIndex = ref(0)
 const editForm = ref({ name: '', description: '', icon: 'folder', color: '#005bc1' })
 const editFormErrors = ref<{ name?: string; description?: string }>({})
@@ -359,8 +362,9 @@ async function copyPrompt(prompt: Prompt) {
   }
 }
 
-function openImageViewer(images: string[], index: number) {
+function openImageViewer(images: string[], videos: string[], index: number) {
   viewerImages.value = images
+  viewerVideos.value = videos
   viewerIndex.value = index
   viewerVisible.value = true
 }

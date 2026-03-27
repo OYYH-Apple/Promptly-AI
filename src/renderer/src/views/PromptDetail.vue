@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto" v-if="prompt">
       <nav class="mb-6 flex items-center gap-2 text-sm text-slate-500">
         <span @click="router.push('/')" class="hover:text-primary cursor-pointer transition-colors">{{ t('nav.library')
-          }}</span>
+        }}</span>
         <span class="material-symbols-outlined text-[16px]">chevron_right</span>
         <span class="text-on-surface font-semibold">{{ prompt.title }}</span>
       </nav>
@@ -114,7 +114,7 @@
                 <div
                   class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex items-end pointer-events-none">
                   <span class="text-white text-[10px] font-bold uppercase tracking-wider">{{ t('prompt.clickToView')
-                    }}</span>
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -126,7 +126,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div v-for="(video, idx) in prompt.reference_videos" :key="idx"
                 class="aspect-video rounded-2xl overflow-hidden bg-black">
-                <video :src="'file:///' + video.replace(/\\\\/g, '/')" class="w-full h-full object-contain" controls />
+                <!-- 使用 app-video 自定义协议加载本地视频，通过 encodeURIComponent 处理中文和特殊字符 -->
+                <video :src="'app-video://' + encodeURIComponent(video)" class="w-full h-full object-contain"
+                  controls />
               </div>
             </div>
           </section>
@@ -151,7 +153,7 @@
                 <div class="flex flex-wrap gap-2">
                   <span v-for="tag in prompt.tags" :key="tag"
                     class="px-2.5 py-1 bg-white border border-slate-100 rounded-lg text-[11px] font-medium text-slate-600">{{
-                    tag }}</span>
+                      tag }}</span>
                 </div>
               </div>
               <div>
@@ -191,8 +193,8 @@
       <span class="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span>
     </div>
 
-    <ImageViewer v-model:visible="viewerVisible" :images="prompt?.reference_images || []" :initial-index="viewerIndex"
-      @close="viewerVisible = false" />
+    <MediaViewer v-model:visible="viewerVisible" :images="prompt?.reference_images || []"
+      :videos="prompt?.reference_videos || []" :initial-index="viewerIndex" @close="viewerVisible = false" />
 
     <ConfirmDialog v-model:visible="showDeleteDialog" type="danger" :title="t('dialog.deletePromptTitle')"
       :message="t('dialog.deletePromptMessage')" :confirm-text="t('dialog.delete')" :cancel-text="t('dialog.cancel')"
@@ -206,7 +208,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDateFormatter } from '@/utils/format'
 import { usePromptStore } from '@/stores/prompts'
-import ImageViewer from '@/components/ImageViewer.vue'
+import MediaViewer from '@/components/MediaViewer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import Tooltip from '@/components/Tooltip.vue'
 

@@ -124,6 +124,7 @@ export default {
     referenceVideos: '参考视频',
     videos: '视频',
     referenceVideo: '参考视频 {number}',
+    videoFormats: '支持格式：MP4、WebM、MOV、AVI、MKV',
     uploadImage: '上传图片',
     uploadLimit: '最多 {count} 个文件',
     savePrompt: '保存提示词',
@@ -409,7 +410,28 @@ export default {
     newFeatures: '新功能',
     newFeaturesMessage: '查看 v1.0.0 的最新更新',
     storageAlert: '存储提醒',
-    storageAlertMessage: '您的库中已有 50+ 个提示词'
+    storageAlertMessage: '您的库中已有 50+ 个提示词',
+    // 业务事件通知
+    importSuccess: '导入成功',
+    importSuccessMessage: '成功导入 {count} 个提示词',
+    importFailed: '导入失败',
+    importFailedMessage: '数据导入过程中发生错误',
+    exportSuccess: '导出成功',
+    exportSuccessMessage: '数据已成功导出到文件',
+    exportFailed: '导出失败',
+    exportFailedMessage: '数据导出过程中发生错误',
+    batchDeleteSuccess: '批量删除完成',
+    batchDeleteSuccessMessage: '成功删除 {count} 个提示词',
+    batchMoveSuccess: '批量移动完成',
+    batchMoveSuccessMessage: '成功移动 {count} 个提示词到集合',
+    batchFavoriteSuccess: '批量收藏完成',
+    batchFavoriteSuccessMessage: '成功收藏 {count} 个提示词',
+    updateAvailable: '发现新版本',
+    updateAvailableMessage: '版本 {version} 已可用，点击查看详情',
+    updateDownloaded: '更新已下载',
+    updateDownloadedMessage: '新版本已准备好安装，重启应用以完成更新',
+    updateDownloadFailed: '更新下载失败',
+    updateDownloadFailedMessage: '下载更新时发生错误，请稍后重试'
   },
 
   // ==================== 帮助中心 ====================
@@ -702,7 +724,10 @@ export default {
     name: '名称',
     category: '分类',
     dateEdited: '编辑日期',
-    option: '操作'
+    option: '操作',
+    filterAll: '全部',
+    filterByCategory: '按分类筛选',
+    noCategories: '暂无分类'
   },
 
   // ==================== 分页 ====================
