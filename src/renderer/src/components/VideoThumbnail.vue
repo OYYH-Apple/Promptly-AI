@@ -1,7 +1,7 @@
 <template>
     <div class="thumb-wrapper" :style="{ transform: `rotate(${rotation}deg)` }" @mouseenter="startPreview"
         @mouseleave="stopPreview">
-        <div class="thumb-container rounded-xl overflow-hidden bg-black cursor-pointer flex-shrink-0 relative aspect-video min-w-[120px] min-h-[90px]"
+        <div class="thumb-container rounded-xl overflow-hidden bg-black cursor-pointer flex-shrink-0 relative"
             :style="containerStyle" @click.stop="emit('click')">
             <!-- 缩略图/预览视频 -->
             <template v-if="!isPlaying">
@@ -48,8 +48,8 @@ interface Props {
     videoUrl: string
     /** 缩略图路径（可选，如果没有则显示视频图标） */
     thumbnailUrl?: string
-    /** 尺寸：small(40px) | medium(56px) | large(72px) */
-    size?: 'small' | 'medium' | 'large'
+    /** 尺寸：small | large，与图片缩略图保持一致 */
+    size?: 'small' | 'large'
     /** 旋转角度 */
     rotation?: number
     /** 是否显示角标 */
@@ -78,27 +78,37 @@ const videoRef = ref<HTMLVideoElement | null>(null)
 // ==================== 常量定义 ====================
 const badgeClasses = {
     small: '-top-1 -left-1 w-4 h-4 text-[9px]',
-    medium: '-top-1.5 -left-1.5 w-4.5 h-4.5 text-[10px]',
     large: '-top-2 -left-2 w-5 h-5 text-[10px]',
 }
 
 const clipClasses = {
     small: '-top-3',
-    medium: '-top-3.5',
     large: '-top-4',
 }
 
 // ==================== 计算属性 ====================
 const containerStyle = computed(() => {
+    // 根据尺寸设置高度和最小宽度，与图片缩略图保持一致
+    const isLarge = props.size === 'large'
+    const height = isLarge ? '112px' : '64px'
+    const minWidth = isLarge ? '80px' : '45px'
+
     // 大尺寸时添加边框和内边距
-    if (props.size === 'large') {
+    if (isLarge) {
         return {
+            height,
+            minWidth,
             border: '2px solid white',
             padding: '3px',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         }
     }
-    return {}
+
+    // 小尺寸时只设置高度和最小宽度
+    return {
+        height,
+        minWidth,
+    }
 })
 
 const formattedVideoUrl = computed(() => {
@@ -111,8 +121,8 @@ const formattedVideoUrl = computed(() => {
 })
 
 const attachmentStyle = computed(() => {
-    const fontSize = props.size === 'large' ? '28px' : props.size === 'medium' ? '20px' : '14px'
-    const translateY = props.size === 'large' ? '8px' : props.size === 'medium' ? '6px' : '5px'
+    const fontSize = props.size === 'large' ? '28px' : '14px'
+    const translateY = props.size === 'large' ? '8px' : '5px'
     return {
         fontVariationSettings: "'wght' 300",
         fontSize,
