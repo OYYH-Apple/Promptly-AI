@@ -19,9 +19,10 @@
       <div class="relative">
         <!-- 切换按钮：同时有图片和视频时显示 -->
         <button v-if="hasBothMedia" @click.stop="toggleMediaType"
-          class="absolute -top-1 -right-1 z-20 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shadow-md hover:bg-primary-dark transition-colors"
+          class="absolute -bottom-2 -left-2 z-20 w-7 h-7 rounded-full bg-black/80 text-white flex items-center justify-center shadow-lg hover:bg-black hover:scale-110 transition-all duration-300"
           :title="currentMediaType === 'image' ? '切换到视频' : '切换到图片'">
-          <span class="material-symbols-outlined text-xs">
+          <span class="material-symbols-outlined text-sm transition-transform duration-300"
+            :class="{ 'rotate-180': currentMediaType === 'video' }">
             {{ currentMediaType === 'image' ? 'videocam' : 'image' }}
           </span>
         </button>

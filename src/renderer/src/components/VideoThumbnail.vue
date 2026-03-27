@@ -1,7 +1,7 @@
 <template>
     <div class="thumb-wrapper" :style="{ transform: `rotate(${rotation}deg)` }" @mouseenter="startPreview"
         @mouseleave="stopPreview">
-        <div class="thumb-container rounded-xl overflow-hidden bg-black cursor-pointer flex-shrink-0 relative aspect-video min-w-[120px]"
+        <div class="thumb-container rounded-xl overflow-hidden bg-black cursor-pointer flex-shrink-0 relative aspect-video min-w-[120px] min-h-[90px]"
             :style="containerStyle" @click.stop="emit('click')">
             <!-- 缩略图/预览视频 -->
             <template v-if="!isPlaying">
