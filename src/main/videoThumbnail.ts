@@ -29,13 +29,17 @@ function getFfmpegPath(): string {
   }
   
   // 生产环境：尝试多种路径
+  const resourcesPath = process.resourcesPath
+  console.log('[FFmpeg] process.resourcesPath:', resourcesPath)
+  console.log('[FFmpeg] app.getAppPath():', app.getAppPath())
+  console.log('[FFmpeg] process.execPath:', process.execPath)
+  
   const possiblePaths = [
-    // electron-builder 打包后的路径（app.asar.unpacked 或 resources）
-    join(process.resourcesPath || '', 'app.asar.unpacked', 'node_modules', 'ffmpeg-static', 'ffmpeg.exe'),
-    join(process.resourcesPath || '', 'ffmpeg.exe'),
-    join(app.getAppPath(), '..', 'ffmpeg.exe'),
-    join(dirname(process.execPath), 'ffmpeg.exe'),
-    join(dirname(process.execPath), '..', 'ffmpeg.exe'),
+    // electron-builder extraResources 打包后的路径（resources 目录）
+    join(resourcesPath || '', 'ffmpeg.exe'),
+    // 备用路径
+    join(dirname(process.execPath), 'resources', 'ffmpeg.exe'),
+    join(app.getAppPath(), '..', 'resources', 'ffmpeg.exe'),
     // 环境变量中的 ffmpeg
     'ffmpeg',
   ]
