@@ -16,12 +16,14 @@
 
     <!-- 媒体显示区域：统一处理图片和视频 -->
     <div v-if="hasImages || hasVideos" class="absolute -top-2 -right-2 z-10">
-      <div class="relative">
+      <div class="relative thumb-wrapper"
+        :style="{ transform: `rotate(${thumbnailRotations[rotationIndex % thumbnailRotations.length]}deg)` }">
         <!-- 切换按钮：同时有图片和视频时显示 -->
         <button v-if="hasBothMedia" @click.stop="toggleMediaType"
-          class="absolute -bottom-2 -left-2 z-20 w-7 h-7 rounded-full bg-black/80 text-white flex items-center justify-center shadow-lg hover:bg-black hover:scale-110 transition-all duration-300"
+          class="absolute -bottom-1.5 -left-1.5 z-20 w-5 h-5 rounded-full bg-black/80 text-white flex items-center justify-center shadow-md hover:bg-black hover:scale-110 transition-all duration-300"
           :title="currentMediaType === 'image' ? '切换到视频' : '切换到图片'">
-          <span class="material-symbols-outlined text-sm transition-transform duration-300"
+          <span
+            class="material-symbols-outlined text-[5px] leading-none transition-transform duration-300 flex items-center justify-center"
             :class="{ 'rotate-180': currentMediaType === 'video' }">
             {{ currentMediaType === 'image' ? 'videocam' : 'image' }}
           </span>
@@ -30,15 +32,14 @@
         <!-- 图片显示 -->
         <template v-if="currentMediaType === 'image' && hasImages">
           <Thumbnail :image-url="props.prompt.reference_images![0]" :count="props.prompt.reference_images!.length"
-            :rotation="thumbnailRotations[rotationIndex % thumbnailRotations.length]" size="large"
+            :rotation="0" size="large"
             @click="$emit('open-image', props.prompt.reference_images || [], props.prompt.reference_videos || [], 0)" />
         </template>
 
         <!-- 视频显示 -->
         <template v-else>
           <VideoThumbnail :video-url="props.prompt.reference_videos![0]" :thumbnail-url="videoThumbnailUrl || undefined"
-            :count="props.prompt.reference_videos!.length"
-            :rotation="thumbnailRotations[rotationIndex % thumbnailRotations.length]" size="large"
+            :count="props.prompt.reference_videos!.length" :rotation="0" size="large"
             @click="$emit('open-image', props.prompt.reference_images || [], props.prompt.reference_videos || [], 0)" />
         </template>
       </div>
