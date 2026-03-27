@@ -20,11 +20,12 @@
         :style="{ transform: `rotate(${thumbnailRotations[rotationIndex % thumbnailRotations.length]}deg)` }">
         <!-- 切换按钮：同时有图片和视频时显示 -->
         <button v-if="hasBothMedia" @click.stop="toggleMediaType"
-          class="absolute -bottom-1.5 -left-1.5 z-20 w-5 h-5 rounded-full bg-black/80 text-white flex items-center justify-center shadow-md hover:bg-black hover:scale-110 transition-all duration-300"
+          class="absolute -bottom-1.5 -left-1.5 z-20 w-5 h-5 rounded-full bg-black/80 text-white flex items-center justify-center shadow-md hover:bg-black hover:scale-110 transition-all duration-300 p-1"
           :title="currentMediaType === 'image' ? '切换到视频' : '切换到图片'">
           <span
-            class="material-symbols-outlined text-[5px] leading-none transition-transform duration-300 flex items-center justify-center"
-            :class="{ 'rotate-180': currentMediaType === 'video' }">
+            class="material-symbols-outlined text-[8px] leading-none transition-transform duration-300 flex items-center justify-center w-full h-full"
+            :class="{ 'rotate-180': currentMediaType === 'video' }"
+            style="font-size: 8px;">
             {{ currentMediaType === 'image' ? 'videocam' : 'image' }}
           </span>
         </button>
