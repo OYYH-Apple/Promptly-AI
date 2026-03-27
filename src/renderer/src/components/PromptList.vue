@@ -15,23 +15,19 @@
             :class="locale === 'zh-CN' ? 'text-sm' : 'text-xs'">
             <div class="flex items-center gap-2">
               <span v-if="selectedCategory" class="text-primary">
-                {{ t('table.category') }}: {{ selectedCategory }}
+                {{ selectedCategory }}
               </span>
               <span v-else>{{ t('table.category') }}</span>
-              <button @click.stop="toggleCategoryDropdown"
-                class="p-1 rounded-lg hover:bg-surface-container-high transition-colors"
-                :class="{ 'text-primary': selectedCategory, 'text-on-surface-variant/60': !selectedCategory }"
-                :title="t('table.filterByCategory')">
-                <span class="material-symbols-outlined text-base">
-                  {{ isCategoryDropdownOpen ? 'expand_less' : 'expand_more' }}
-                </span>
-              </button>
-              <!-- 清除筛选按钮 -->
-              <button v-if="selectedCategory" @click.stop="clearCategoryFilter"
-                class="p-1 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant/60 hover:text-error"
-                :title="t('common.clear')">
-                <span class="material-symbols-outlined text-base">close</span>
-              </button>
+              <Tooltip :text="t('table.filterByCategory')" placement="bottom">
+                <button @click.stop="toggleCategoryDropdown"
+                  class="p-1 rounded-lg hover:bg-surface-container-high transition-colors"
+                  :class="{ 'text-primary': selectedCategory, 'text-on-surface-variant/60': !selectedCategory }"
+                  :title="t('table.filterByCategory')">
+                  <span class="material-symbols-outlined text-base">
+                    {{ isCategoryDropdownOpen ? 'expand_less' : 'expand_more' }}
+                  </span>
+                </button>
+              </Tooltip>
             </div>
             <!-- 分类下拉菜单 -->
             <div v-if="isCategoryDropdownOpen" ref="categoryDropdownRef"
